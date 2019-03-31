@@ -1,1 +1,0 @@
-困扰了我很久：jQuery 状态200一直调用error方法，原因是有个form,第一次都会执行error，之后才执行success

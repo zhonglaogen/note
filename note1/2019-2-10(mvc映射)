@@ -1,8 +1,0 @@
-- 	    第一种：*.action，访问以.action结尾 由DispatcherServlet进行解析
-            第二种：/，所以访问的地址都由DispatcherServlet进行解析，对于静态文件的解析需要配置不让DispatcherServlet进行解析
-            使用此种方式可以实现 RESTful风格的url
-            第三种：/*，这样配置不对，使用这种配置，最终要转发到一个jsp页面时， 仍然会由DispatcherServlet解析jsp地址，不能根据jsp页面找到handler，会报错。
-因为配置了第二种/方式，任何请求都由DispatcherServlet进行解析，所以静态资源会404（不要用了吧，用了之后所有/的静态资源（.jsp不会）都会由DispatcherServlet解析，然后拦截器会拦截，无法预览主界面）
-所以要想访问静态资源，要在springmvc的xml中配置 <mvc:resources location="/" mapping="/**"/>不让静态资源由DispatcherServlet进行解析
-拦截器会拦截任何形式的DispatcherServlet请求，包括.action 和 / 包括静态资源的访问（注意：拦截的是所有静态资源，jsp页面不会拦截）
-也就是说先拦截后<mvc:resources location="/" mapping="/**"/>

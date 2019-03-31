@@ -1,4 +1,0 @@
-版本不兼容问题：
-1.Spring3支持jdk1.7及以下，Spring4支持1.8
-2.dbcp与mybatis不兼容问题（commons-pool-1.3.jar，commons-dbcp-1.2.2.jar，mybatis-3.2.7.jar兼容（mybatis3.4不兼容））
-3.mybatis-spring-1.2.2.jar与Spring4不兼容（改成mybatis-spring-1.3.1 .jar）
