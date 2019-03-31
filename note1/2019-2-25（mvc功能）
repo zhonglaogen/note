@@ -1,0 +1,13 @@
+1.图片上传，更改server.xml 的虚拟目录的路径，更改config的web.xml的default的false改为true
+无法绑定file参数，将form的method写为post
+无法访问虚拟路径，将idea的tomcat配置的delop application cinfigured……画上勾
+2.自定义全局异常的实现：用户友好界面错误展示，需要自定义异常类继承Exception，自定义类继承HandlerExceptionResolver实现其方法，跳转到自定义异常界面
+3.数据校验中文乱码 <!-- 资源文件编码格式 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!--<property name="fileEncodings" value="utf-8" />-->
+改为第一种就不乱码了
+ //在需要校验的pojo前边添加@Validated，在需要校验的pojo后边添加BindingResult bindingResult接收校验出错信息
+    //注意：@Validated和BindingResult bindingResult是配对出现，并且形参顺序是固定的（一前一后）。
+4.连接池配置文件放在WEB-INF下，放在别的地方无法识别------气死我了
+5.xml文件不能直接使用&，要用&amp;代替 
+6.代码中的jquery.js部分无法识别$，原因是过滤器过滤掉了jquery.js，将添加过滤器允许jquery的访问路径
