@@ -1,0 +1,1 @@
+jdbc.url=jdbc:mysql://localhost:3306/renthouse?useUnicode=true&characterEncoding=UTF-8数据库中文编码
