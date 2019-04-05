@@ -16,4 +16,6 @@ client：
 在得到服务端的响应结果，将结果返回到动态代理类RemoteInvocationHandler的invoke方法，invoke方法在将
 结果返回给调用者
 
+因为user类和rpcRequest类的对象都会传输，所以要实现序列化的接口
+
 
