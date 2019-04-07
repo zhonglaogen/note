@@ -1,0 +1,33 @@
+rpm -qa|grep -i mysql 检查mysql是否安装（ubuntu不行）
+ps -ef|grep mysql ps命令将某个进程显示出来,grep命令是查找,中间的|是管道命令 是指ps命令与grep同时执行
+service mysql start 启动mysql服务
+service mysql stop 关闭mysql服务
+/usr/bin/mysqladmin -u root password 123456 初次设置密码
+chkconfig mysql on 设置mysql开机自启动（ubuntu不行）
+ntsysv（图形界面启动项ubuntu不行）
+sudo -s  #进入root用户模式，仍在原来目录下（不要用su - root,否则进入root目录了）
+
+mysql目录介绍：
+/var/lib/mysql/ mysql数据库文件的存放目录；
+/usr/share/mysql 配置文件目录  mysql.server命令及配置文件
+/usr/bin         相关命令目录  mysqladmin mysqldump等命令
+/etc/init.d/mysql  启停相关脚本
+
+mysql的配置文件：：5.5===>>my-huge.cnf  5.6====>my-default.cnf(需要拷贝一份) 
+
+二进制日志log-bin主从复制
+错误日志log-error默认关闭，记录严重警告和错误信息，每次启动和关闭的详细信息
+查询日志log默认关闭，记录查询的sql语句
+frm文件：存放表结构
+myd文件：存放表数据
+myi文件存放表索引
+
+mysql的四层架构：
+1.连接层，通信功能，引入线程池概念
+2.服务层。存储过程，sql优化等
+3.引擎层，负责数据的存储和提取，服务器通过api和存储引擎通信，主要是myISAM 和innodb
+4.存储层，将数据存储在裸设备的文件系统之上，并完成与存储引擎交互
+
+查看存储引擎：show variables like '%storage_engine%';或show engines
+
+
