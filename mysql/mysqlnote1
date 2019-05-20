@@ -62,6 +62,12 @@ union result 两个union合并的结果集，在最后执行。
 
 table是显示这一行数据是哪个表
 
+type
+从最好到最坏
+system->const->eq_ref->ref->range->index->All
+一般来说，得保证查询至少达到range级别，最好能达到ref
+system：表只有一行记录
+
 
 
 
