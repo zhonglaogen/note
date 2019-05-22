@@ -1,0 +1,25 @@
+可加载虚拟机配置：：bioss Inter-virtual～tech
+3g内存
+动态：30g
+光驱 硬盘
+双向
+iso加入
+安装
+/boot
+/
+
+安装完成后关闭防火墙 setup 按下空格
+修改网关ip地址 /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=web01
+修改开机启动网络，网卡名称 IP地址 网卡地址
+ vi /etc/sysconfig/network-scripts/ifcfg-eth0
+centos 修改网卡名称
+1修改/etc/sysconfig/network-scripts目录下需要改的网卡配置文件，并重命名
+2修改/etc/udev/rules.d/70-persistent-ipoib.rules文件
+3修改/etc/default/grub文件
+4重新生成GRUB配置并更新内核参数
+5重启验证配置
+
+
+
