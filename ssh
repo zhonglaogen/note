@@ -2,10 +2,10 @@ ssh-keygen -t rsa -P ''  //P是大写的
 将生成的公钥发送给需要连接的服务器
 将公钥拷贝到服务器的命令有三种：：
 1.scp拷贝
-scp -P 22 ~/.ssh/id_rsa.pub user@host:~/autoorized_keys #可选参数-P代表指定用端口号
+scp -P 22 ~/.ssh/id_rsa.pub user@host:~/authorized_keys #可选参数-P代表指定用端口号
 2.ssh-copyid
 ssh-copy-id user@host 简单，不需要追加改文件名，但不能指定端口号，默认为22
-3.cat ~/.ssh/id_rsa.pub | ssh -p 22 user@host'cat >> ~/.ssh/autoorized_keys'
+3.cat ~/.ssh/id_rsa.pub | ssh -p 22 user@host'cat >> ~/.ssh/autorized_keys'
 
 
 

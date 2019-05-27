@@ -7,33 +7,20 @@ iso加入
 安装
 /boot
 /
-
+全局设定加了一块虚拟网卡
 安装完成后关闭防火墙 setup 按下空格
-1修改网关ip地址 /etc/sysconfig/network
-NETWORKING=yes
-HOSTNAME=web01
-2修改开机启动网络，网卡名称 IP地址 网卡地址
- vi /etc/sysconfig/network-scripts/ifcfg-eth0
-3修改dns
-/etc/resolv.conf
-centos 修改网卡名称
-1修改/etc/sysconfig/network-scripts目录下需要改的网卡配置文件，并重命名
-2修改/etc/udev/rules.d/70-persistent-ipoib.rules文件
-3修改/etc/default/grub文件
-4重新生成GRUB配置并更新内核参数
-5重启验证配置
+桥接模式，将onboot改为yes vi /etc/sysconfig/network-scripts/ifcfg-eth0
+将虚拟网卡的onboot改为yes vi /etc/sysconfig/network-scripts/ifcfg-eth0的ip掩码网关设定好，BOOTPROTO=static
+service network restart 重启网络服务
+在/etc/sysconfig/network改主机的名字
+主机通过命令ssh-keygen -t rsa -P ''生成rsa公钥和私钥
+将主机的公钥通过scp -P 22 ~/.ssh/xxx.pub user@host ~/.ssh/authorized_keys
+chmod ssh权限为700 authorized_keys为600
+将/etc/resolv.conf的nameserver注掉
+/etc/udev/rules.d/70-netrules 查看网卡信息
+修改/etc/hosts添加主机名和ip名，dns会首先重这里解析
 
-配置静态ip
-vi /etc/sysconfig/network-scripts/ifcfg-eth0
- 同样是修改ifcfg-eth0内容 
-将ONBOOT=no改为ONBOOT=yes
-将NM_CONTROLLED=yes改为NM_CONTROLLED=no
-将BOOTPROTO=dhcp改为BOOTPROTO=static
-增加IPADDR(IPv4)：IPADDR=192.168.30.111  
-增加NETMASK(子网掩码)：NETMASK=255.255.255.0
-增加GATEWAY(网关)：GATEWAY=192.168.30.1
-修改完成后按 esc 键退出编辑模式，输入:wq 敲回车保存修改结果
-注：同样HWADDR与UUID可注释或删除，静态IP根据实际需要配置
+
 
 
 
