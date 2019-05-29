@@ -12,3 +12,16 @@ IO::全程阻塞
 nginx----------------底层原理
 事件驱动IO：：异步，异步返回信号，请求是返回一个信号，等待数据完成后发送信号，阻塞内核---》用户空间
 异步IO：：全程异步，两路IO全部结束在返回信号
+
+bio的accept会阻塞，read和write会阻塞（线程明明没做事，却在阻塞，表示很忙）
+NIO单线程selector轮询遍历执行（有请求才会执行。比如accept【accept在另外的线程（selector）】，read，write），Buffer不在是一个字节一个字节的拿数据
+一对多
+aio异步IO：通知（accept不在阻塞了，基于事件通知，不在轮询）read也是（windows是事件通知的）
+aio和nio都是epoll（linux底层AIO多了一层封装，windows才是异步的通知）
+轮询（select和poll是检测所有的fd，epoll检测被触发的fd，当fd接近注册的fd时，效率就会和poll和select差不多）？
+aio是检测内核和应用程序共享的区域的fd是否有数据，但是不能实时检测，要设置sleep时间（不如NIO）
+
+NIO+多路复用IO：：NIO负责让网络不在阻塞，多路复用负责告诉操作系统那些数据需要处理（操作系统提供的一种通知机制）
+
+
+
