@@ -1,0 +1,51 @@
+final HashMap.Node<K,V> removeNode(int hash, Object key, Object value,
+                                       boolean matchValue, boolean movable) {
+        HashMap.Node<K,V>[] tab; HashMap.Node<K,V> p; int n, index;
+        
+        //判断table不等于空，table的lenth大于零，p=hash位置的node
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+                (p = tab[index = (n - 1) & hash]) != null) {
+            HashMap.Node<K,V> node = null, e; K k; V v;
+            
+            //如果p的hash和目标hash相等，key相等，赋值，hash无冲突
+            if (p.hash == hash &&
+                    ((k = p.key) == key || (key != null && key.equals(k))))
+                node = p;
+            
+            //hash有冲突，不只是一个元素在同一个位置
+            else if ((e = p.next) != null) {
+                //红黑树
+                if (p instanceof HashMap.TreeNode)
+                    node = ((HashMap.TreeNode<K,V>)p).getTreeNode(hash, key);
+                //链表定位
+                else {
+                    do {
+                        if (e.hash == hash &&
+                                ((k = e.key) == key ||
+                                        (key != null && key.equals(k)))) {
+                            node = e;
+                            break;
+                        }
+                        p = e;
+                    } while ((e = e.next) != null);
+                }
+            }
+            if (node != null && (!matchValue || (v = node.value) == value ||
+                    (value != null && value.equals(v)))) {
+                //红黑树删除
+                if (node instanceof HashMap.TreeNode)
+                    ((HashMap.TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                //node就是第一个节点
+                else if (node == p)
+                    tab[index] = node.next;
+                //p是node的pre，
+                else
+                    p.next = node.next;
+                ++modCount;
+                --size;
+                afterNodeRemoval(node);
+                return node;
+            }
+        }
+        return null;
+    }

@@ -14,7 +14,7 @@ iso加入
 service network restart 重启网络服务
 在/etc/sysconfig/network改主机的名字
 主机通过命令ssh-keygen -t rsa -P ''生成rsa公钥和私钥
-将主机的公钥通过scp -P 22 ~/.ssh/xxx.pub user@host ~/.ssh/authorized_keys
+将主机的公钥通过scp -P 22 ~/.ssh/xxx.pub user@host: ~/.ssh/authorized_keys
 chmod ssh权限为700 authorized_keys为600
 将/etc/resolv.conf的nameserver注掉
 /etc/udev/rules.d/70-netrules 查看网卡信息

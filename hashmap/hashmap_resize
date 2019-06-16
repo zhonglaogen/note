@@ -1,0 +1,93 @@
+ final HashMap.Node<K,V>[] resize() {
+        HashMap.Node<K,V>[] oldTab = table;
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        int oldThr = threshold;
+        int newCap, newThr = 0;
+        //oldCap>0
+        if (oldCap > 0) {
+            //oldcap>最大值
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            //newcap等于oldcap×2<最大值和oldcap>16,让newthr=oldThr×2
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                    oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        //oldThr>0,newCap=oldThr
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+        //初始化newThr
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                    (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+        HashMap.Node<K,V>[] newTab = (HashMap.Node<K,V>[])new HashMap.Node[newCap];
+        //初始化新的table
+        table = newTab;
+        //将oldtable的旧值放到newTable中
+        if (oldTab != null) {
+            //从第0个位置的Table数组中判断
+            for (int j = 0; j < oldCap; ++j) {
+                HashMap.Node<K,V> e;
+                //如果数组位置不为空
+                if ((e = oldTab[j]) != null) {
+                    //旧位置设为空
+                    oldTab[j] = null;
+                    //如果e的下一个位置为空
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+                    //若果e是一课树
+                    else if (e instanceof HashMap.TreeNode)
+                        ((HashMap.TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    //如果e是链表
+                    else { // preserve order
+                        //新建一个旧链表和新链表
+                        HashMap.Node<K,V> loHead = null, loTail = null;
+                        HashMap.Node<K,V> hiHead = null, hiTail = null;
+                        HashMap.Node<K,V> next;
+                        do {
+                            next = e.next;
+                            //将旧链表串起来
+                            //&操作符oldcap有规律，每次加上odlcap的元素取模，都是在对应doldcap位置进行修改，
+                            //取模会得到两种结果，一种是包含oldcap位的，保留在旧链表，一种不包含的保存在新链表，交替执行
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            //将旧链表串起来
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+                        //将旧链表插入newtable
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        //将新链表插入newtable，插入的位置是旧位置+oldcap（因为扩容都是二倍的扩容）
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
