@@ -1,0 +1,115 @@
+package zhong;
+
+import java.awt.Frame;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Scanner;
+
+
+public class wode extends Frame{
+	public void luanch() {
+		setSize(500,500);
+		setLocation(100,100);
+		setVisible(true);
+		addWindowListener(new WindowAdapter(){
+			@Override
+			public void windowClosing(WindowEvent e){
+				System.exit(0);
+			}
+		});
+				
+	}	
+	
+	public static void main(String[] args){
+		System.out.print("a");
+		Scanner scanner=new Scanner(System.in);
+		int n=scanner.nextInt();
+		System.out.print(n);
+		kk aq=new kk();
+		
+		
+
+}}
+java 的for(元素类型 元素变量: 遍历对象)
+C::::::
+//#define 替换 typedef 定义一种类型的别名
+char* a，b 第二个可以做到同时定义两个指针
+c++的using namespcae std用<iostream>表示使用标准库文件，<iostream.h>表示使用非标准库文件
+sand()函数为设置随机种子，如果未设计随即种子自动设置为1
+void srand(unsigned int seed) 可以利用geypid() time(0) time(NULL)做seed 如果用time 需要头文件#include<ctime>
+rand() 产生随机数cout<<rand();这样产生的随机数会固定再次运行程序也会产生一样的数据，不随时间的变化而变化
+
+%x.yd 表示输出的书数字一共有x位，y表示输出数字的精度，向右对齐，
+%-x.yd……想左对齐
+getchar（）让控制台接受一个按键消息，没有的话程序会一闪而过
+system("PASUE")没有的话程序会一闪而过  请按任意键继续
+system("cls")清屏功能
+#include<limit.h>查看各个类型的limit值 如查看long最大值 printf("%ld",LONG_MAX);
+char a[20]
+gets(name)//用来获取一个字符串  返回一个指向char的指针 注意：当字符长度大于20会报错 所以一般用fgets()函数；
+stdio.h  fgets(a,20,stdin) //第三个参数表示转为文件所设定，指明小需要读取的文件，如果读取键盘的输入，参数为stdin。声明stdio.h
+
+scanf("%d",%a)获取单词不是获取字符串,遇到第一个空格是结束读取
+gets(a)获取字符串，遇到换行符'\n'时结束读取
+fgets(a,20,stdin) 表示file，所以是gets（）的文件版本
+getchar()读取一个字符，能读取任意的标点符号 不要任何参数
+putchar(ch)用法类似printf("%s",ch)
+java：：----system.in.read();防止一闪而过
+while(scanf("%c",&ch)){
+	switch(n)
+	{
+	case 1:
+	printf();
+	break;
+	case 2:
+	printf();
+	goto d;
+	break;
+	default:
+	printf();
+	break;
+	}
+}
+d:while(scanf("%d",&n))
+{}
+goto d; 跳转到d：标明的地方
+continue 用在三种循环中，不能和switch一起用 跳出当前循环；
+break 用在三种循环中 跳出整个循环
+math.h power(n,m)返回n的m次方
+b*=a; 等价于 b=b*a；
+——————————输入一个字符串并输出：
+char a[50]；
+scanf("%s",a); or gets(a);
+{for(int i=0;a[i];i++)
+printf("%c",a[i]);}
+or  {printf("%s",a);
+}
+————————指针 ；
+定义一个指针
+{int b=5；
+int *a=&b；}
+or
+{int a；
+int *b；
+b=&a；
+printf("%d",*b); *表示指针变量所指的变量；
+}
+a=1000； 错误：不允许把一个数赋予指针变量；
+被赋值的指针变量前不能加* 如*p=&a；是错的
+int a,*b=&a,*c;
+c=b;// 把b的地址赋予给指针变量c
+————————
+把数组的首地址赋予指向数组的指针变量
+{int a[5],*b;
+b=a;//(数组名表示数组的首地址，故可赋予指向数组的指针变量b)
+}
+or
+{b=&a[0];//数组的第一个元素的地址也是整个数组的首地址，也可赋予b
+}
+——————————
+{char *a;
+a="sdadas asdwd";把字符串的首地址赋予指向字符类型的指针变量；
+}
+or{char *a="sdadas asdwd";并不是把整个字符串装入指针变量，而是把存放该字符串的字符数组的首地址装入指针变量
+}
+指针 p==0；表示p是空指针；
