@@ -1,0 +1,82 @@
+day4：添加节点，zab算法
+hadoop->
+1.hdfs
+2.mapreduce
+	`1namenode
+	`2secondnode
+	`3datenode
+每块64mb
+复制份数3（同机架，不同的机架）
+cap理论：一致性（数据）可用性（速度）分区容错（分布）
+
+
+存储：：：：：：
+内存（树结构）
+disk（顺序结构，b树）
+日志+树形结构（磁盘位置）---！！！聚集索引，非
+四中备份方式：日志editlog+fsimg 全量，增量备份（源文件+日志），差异备份（mysql）,同步备份（同机架，不同机架）
+secondnode：editlog fsimg
+
+磁盘存储方式：
+share disk：orcal，共享磁盘	ac
+sharenothing：每个服务器都由数据ap
+cp：分布式锁的应用
+
+扩展方式：
+scale up：资源不够＋内存+cpu -》orcal
+scale out：（线性）+机器，但性能会低，不是线性提升
+
+hadoop1：namenode压力大（并发量）
+	负载（数据迁移）
+吞吐量：qps查询（读） ，tps事物（写）
+
+
+网卡：n个ip，但要在不同网段
+
+备份机器：
+vrrrp协议：两台机器陪同样的ip，一条线程发心跳问收tcp的socket，用户访问一台机器失效，同样ip访问另一台
+1.keepalive（）
+2.cronsync（socket同步器）+heartbeat(格式)+pacemun……
+
+HA：两台机器做同样的事（热备份）
+LB：很多机器做同样的事（负载均衡）
+
+namenode主 jun namenode从 共享磁盘 +zookeeper（控制namenode生死）（HA）
+集群id
+！！！！faderation
+
+1.写文件
+2.追加
+3.读
+
+
+log规范：k：主机名，文件，函数，线程，时间，v：toString
+
+zookeeper（3.4.6）：奇数个，抄chubby分布式锁，算法：zab（一次投票）类似paxos（两次投票），ruft
+选主fair（监听节点）和unfair（序号）
+统一配置服务器
+分布式锁（选举）
+目录服务器
+闭锁（cuntdown）
+rolling update：拿掉一部分服务器升级，直到所有服务器升级
+
+暂态（连接掉了，就没了）和持久态（叶子）
+挂序号
+
+操作：
+（事件）
+1.建立节点
+写数据
+删节点
+（监听器）
+判断节点在不在
+找孩子
+读数据
+
+cli暂态
+【wathc】监听
+序号
+
+zookeeper连接慢，继承wathch用闭锁
+
+guava。jar mcs锁

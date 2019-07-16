@@ -1,0 +1,68 @@
+maven不能将xml编译
+数据库建表order与关键字冲突，无法插入数据
+数据库字符集不是utf-8，更改建库的字符集
+servlet包无法识别，将tomcat依赖导入（正确版本）
+返回类型：modelandview（setviewname） String void（response.send^）
+
+事物的特性：原子性，一致性，隔离性（多个事物之间不会产生影响，设置隔离级别），持久性
+<a href="javascript:void(0)">点击</a>点击链接后不会回到网页顶部 <a href="#">点击</a> 点击后会回到网面顶部
+补充 <a href="javascript:hanshu();"这样点击a标签就可以执行hanshu()函数了。
+
+
+list。get（0），没有会报错
+login.action 没有拦截直接输入会报空错
+parameterType是pojo时直接写属性名
+查询resulttype结果集合，属性名称要和数据库字段名称一致
+
+！！！！！！！！！！！！bug：因为拦截器，某个用户登录后就可以任意访问其他用户的功能:放在webinf下面解决
+
+改进：：一人一天可约两次，同科室可约一次（排号错误）
+七天，：如果有预约单的出诊日期已过期，病人未排号，那么病人过期的当天到第七天都不能预约
+删除预约单：删除就诊信息（并且当前预约单不是过期未去）
+
+没人排号会报空指针异常
+
+同一个浏览器登录，会发生混乱
+
+void返回类型直接返回value的jsp页面
+
+model {modelAndView=ModelAndView [view=[null]; model={medics=[com.zlx.clinic.entity.Medicine@13b6bb93, com.zlx.clinic.entity.Medicine@17f1076, com.zlx.clinic.entity.Medicine@5d7745bc, com.zlx.clinic.entity.Medicine@19c88f38], test=test}], org.springframework.validation.BindingResult.modelAndView=org.springframework.validation.BeanPropertyBindingResult: 0 errors, admin=com.zlx.clinic.entity.Admin@3f04d5b1, org.springframework.validation.BindingResult.admin=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
+
+ modelAndView.addObject("exception",le.getMessage());
+modelAndView.getModel().put("exception",le.getMessage());
+
+jsp中${requestScope.exception1}可以取出exception1的值；
+jsp中${exception2}可以取出exception2的值。
+
+
+
+
+ model {admin=com.zlx.clinic.entity.Admin@7c7746ab, org.springframework.validation.BindingResult.admin=org.springframework.validation.BeanPropertyBindingResult: 0 errors, medics=[com.zlx.clinic.entity.Medicine@2c3f0177, com.zlx.clinic.entity.Medicine@2666ca, com.zlx.clinic.entity.Medicine@35dc79e7, com.zlx.clinic.entity.Medicine@735833e9], test=test}
+
+
+
+
+mysql有个now()函数，表示当前日期
+cuuredate显示不带时间的日期
+
+mybatis小于号&lt;
+
+缺少无参数构造器，导致结果集无法封装
+
+dataType:"json"  服务器返回类型
+ｐｏｓｔ请求contentType: "application/json;charset-UTF-8",
+用ｒｅｑｕｅｓｔＢｏｄｙ要用data: JSON.stringify({pPhone:Username,pPassword: Password}),
+
+导诊科室关联有毛病
+
+pojo形参要post请求JSON.stringify({pPhone:Username,pPassword: Password}),
+int简单类型要用get
+
+
+#数据库和javadate市区不一致
+
+jdbc.url=jdbc:mysql://localhost:3306/clinic?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
+
+
+
+

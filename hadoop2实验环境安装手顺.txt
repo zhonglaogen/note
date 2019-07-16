@@ -14,6 +14,8 @@ mkdir -m 755 nodemanagerlogs
 mkdir -m 755 nodemanagerremote
 
 cd /home/hadoop/hadoop2/etc/hadoop
+super1主机名称
+supers用户名称
 修改core-site.xml
 <configuration>
    <property>

@@ -13,3 +13,7 @@ ssh-copy-id user@host 简单，不需要追加改文件名，但不能指定端�
 authorized_keys权限为600
 否则还是要登录密码：：处于安全的保证
 scp传输目录时要加 -r
+
+
+
+
