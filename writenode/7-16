@@ -2,8 +2,9 @@ day4：添加节点，zab算法
 hadoop->
 1.hdfs
 2.mapreduce
-	`1namenode
-	`2secondnode
+	`1namenode（sn阶段性，不是HA，sn不完整，手动切换HA，块元数据大，请求多）
+			2.0：NN（HA），自动切换，Federation
+	`2secondnode(最新fsimage和缩小logs)
 	`3datenode
 每块64mb
 复制份数3（同机架，不同的机架）
@@ -43,7 +44,7 @@ LB：很多机器做同样的事（负载均衡）
 
 namenode主 jun namenode从 共享磁盘 +zookeeper（控制namenode生死）（HA）
 集群id
-！！！！faderation
+！！！！faderation：b树，多个nameservice，nameservice管理HA两个nn
 
 1.写文件
 2.追加
