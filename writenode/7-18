@@ -1,0 +1,48 @@
+hadoop2安装手顺（完全）
+hadoop3.x:datadir(分文件夹，mount不同硬盘并发)
+tmp（mapreduce，计算的临时结果）：mount（ssd）
+radi0（磁盘上的raid卡）
+1.备份
+2.负载均衡
+3.备份+负载均衡
+bookeeper奇数（循环备份（圆圈））：每台数据都不全，1/3对外，其他备份其他两台
+jounnode
+secondary：tmp/current(fsimage,edit)
+格式化namenode带上clusterID要和datanode一致，datanode通过这个寻找namenode
+namespace和blockpoolID要一致，fedration，
+datanode：finalized文件夹存data纯数据
+.meta,文件块位置
+备份：ctrl+alt+t
+总分，状态
+
+hbase:
+classpath：conf
+内置zk，无法看错要设置为false
+
+safe mode off才行
+hbase shell
+list看库
+create ‘bb’ 
+scan ‘bbb’
+
+lsm-tree-hbase
+1leveldb
+2rocksdb
+写过程读（读缓存）
+hfile合并(平衡树)
+region太大会分成两个（裂解）
+
+ddl
+dml
+namespace
+有ttl
+hbase压力大，分布式habse，，
+没有删，改，都是增加(版本区别)
+合并hfile文件删除垃圾文件
+修改
+disable 锁上库，禁用
+enable 解除
+put 添加
+scan 查看表所有
+get查看某一个值
+～～表结构的version
