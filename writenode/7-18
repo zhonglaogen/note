@@ -12,7 +12,7 @@ secondary：tmp/current(fsimage,edit)
 namespace和blockpoolID要一致，fedration，
 datanode：finalized文件夹存data纯数据
 .meta,文件块位置
-备份：ctrl+alt+t
+备份虚拟机：ctrl+alt+t
 总分，状态
 
 hbase:
@@ -32,6 +32,9 @@ lsm-tree-hbase
 hfile合并(平衡树)
 region太大会分成两个（裂解）
 
+命名空间list——namespace
+create_namespace
+
 ddl
 dml
 namespace
@@ -46,3 +49,48 @@ put 添加
 scan 查看表所有
 get查看某一个值
 ～～表结构的version
+
+zookeeper只存位置信息
+habse:数据写在hlog，Region是 HBase集群分布数据的最小单位，Region切分也会切分成两个列族文件。
+hamster发送切分通知，regionserver切分，合并hfile（hfile会有小文件）
+1.client访问hbase接口
+0.96的三层架构
+第一层是zookeeper中包含root region位置信息的节点，第二层是从root表中查找对应meta表的region的位置，第三层是从meta表中查找用户表对应region的位置。
+0.96的两层架构
+（1）用户通过查找zk（zookeeper）的/hbase/meta-region-server节点查询哪台RegionServer上有hbase:meta表。
+
+（2）客户端连接含有hbase:meta表的RegionServer。Hbase:meta表存储了所有Region的行健范围信息，通过这个表就可以查询出你要存取的rowkey属于哪个Region的范围里面，以及这个Region又是属于哪个RegionServer。
+
+（3）获取这些信息后，客户端就可以直连其中一台拥有你要存取的rowkey的RegionServer，并直接对其操作。
+
+（4）客户端会把meta信息缓存起来，下次操作就不需要进行以上加载HBase:meta的步骤了。
+
+
+ 2.ZooKeeper 中记录 -ROOT- 表的 Location，.META. 和 -ROOT-(0.96以前)的位置 ，数据够用，减少请求次数，client访问zk得到region位置信息
+3.store是属于列族，是不同的文件
+4.memorystore（缓存）数据写到这里，在写道dfs中
+数据先写到hlog中
+每个列族store都有一个memestore缓存，数据先进缓存，满了形成hfile，hfile会合并
+5以hfile的格式存储StoreFile
+一个store一个列族，一个列族可对应多个store（region可切分）
+高可用：
+conf下创建 backup-master
+添加内容 主机名
+！！看到预分区
+
+rowkey是按照字典顺序排序的
+cell：rowkey，column family：column，version以字节码形式存储
+读流程：client访问zk拿到meta表位置，通过meta表找到rowkey位置
+写流程:client访问zk拿到meta表位置，通过meta找到要写的server，先写hlog，在写memstore，反馈，慢慢写
+写比读块，读要访问storefile，写不用
+写操作只有切分region时才更新meta，不切分默认无限大
+memory store flush：
+1.regionserver超过40%
+2.memstore超过1h,所有的都flush
+3.region所有内存加在一起超过128mb
+
+compact（hfile合并）：
+7天
+一个store的超过三个hfile
+
+真正的删除是合并时加载到本地删除
