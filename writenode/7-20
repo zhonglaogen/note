@@ -1,0 +1,80 @@
+mysql:缓存csv，然后，load data入库 (csv文件直接到硬盘，不走mysql的api)
+mysql每秒最多800条插入
+（redis）key库：命中块，无序，拿一个块，哈希
+habse：搜索一堆数据，有序，树结构
+图：关系
+搜索key，数据库的value是hbase的key
+过滤很慢，全表扫描value
+habse的memory store的内容都写在hlog中，写入就会删除log， 没写入hfile，下次启动会用log加载到memory中，恢复缓冲
+hbase搜索查询很慢，只用来做缓存-
+
+
+二叉树
+avl：每次都判断
+red：不完全平衡 ～
+线段：区间
+n叉树：无法模糊查询
+b
+b+  ～
+b×
+
+～～倒排索引：有价值单词，位置
+词库：
+1.kmp
+2.IK分词
+编码：同义词（模糊搜索）
+列域
+两棵树搜索：
+0.域树，1关键字树，2文章树（出现频率）
+空词搜索 上海_游戏,两棵文章树重排序
+pagerank：推送广告a-》b-》-》c，能直接搜出c
+
+～～k_d树：找附近人或物，画圈（地图！！）
+
+map_tree（R树）：建立树，左近右远（以动找动）
+搜索索引：
+1.hash，2.树，3.位图（掩码对应位图）
+mysql里面：hash，b树
+
+lucene（jar包）:
+1.建索引
+2.搜索
+eles（底层是lucene，倒排索引，支持kd树，分布式的，调用这个）
+
+分词器
+1.庖丁，
+2.mmseg4j
+3.IK～
+建索引要比搜高（版本）
+
+1.queryparser模糊查询，分词
+2.multiqueryparser多行查询，比mysql块，mysql要or
+3.每次只能拿一堆索引，不能分页查，但是天生分页（分索引）
+
+每个集群udp发广播保证数据一致
+
+查所有机器日志
+
+nc -lk 9000
+day21 new
+
+（无中心）舆论算法发广播，udp，半数以上就反馈
+两套都行
+
+集群无中心：es，redis'
+
+
+，第一次选不了（abc三个交叉的选），随机睡眠，第二次先睡醒的发起投票，成为主
+raft算法（管理选主）
+区块链
+
+两种搜索方式：
+search：搜索子树
+filter：一搜索的结果集中拿掉不符合的
+
+（mysql不走api）数据库都支持load data导入导出
+es没导出，可导入（走api）
+
+goserver地图定位
+
+mapreudce（统计词频）
