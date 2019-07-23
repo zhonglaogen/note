@@ -94,3 +94,5 @@ compact（hfile合并）：
 一个store的超过三个hfile
 
 真正的删除是合并时加载到本地删除
+
+hbase可以预分区

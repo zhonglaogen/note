@@ -1,0 +1,49 @@
+call,apply(对象，【】)调用对象的所有this
+this就是window（浏览器对象）
+document.get...(拿到body的对象)
+顺序：css+js+html
+在body+onload“main（）”标签被加载
+function main(){
+}
+onfoucus点击到，onbllur离开
+div.innerhtml添加html动态生成对象
+div.innnertext添加文本
+var l=new line（）；
+l.show
+
+call：argument,可变参数
+bind（）（）返回新方法。需要调用一下，call，apply
+id
+doucumentbyname【0】
+bytagName（“input”）【3】
+hotsopt：c
+jre：java
+
+netstat -anlp|grep 8080
+请求转发：到其他servlet，forward200一次请求
+重定向：换网址redirect300两次请求，两个服务器
+
+！！！爬虫 nginx tomcat
+
+tomcat是bio
+
+请求乱码:头设置utf8
+servlet设置utf8
+get：linux是utf8 windows不是，浏览器对头url编码，头没法传中文（看浏览器，跨平台）
+encodeURI（）把中文编码，服务端解码
+java：编码：传递数据Base64（3个字节变4个字节，不够+==）数字字母+/格式,
+字节变大
+有/,冲突
+URlencoder没有+/	英文不编码，所以英文不会编码字节变多
+
+、Javascript支持的转换方式： 
+str.eval("("+str+")")把字符串转为json对象～
+浏览器支持的转换方式(Firefox，chrome，opera，safari，ie)等浏览器
+JSON.parse(jsonstr); //可以将json字符串转换成json对象 
+JSON.stringify(jsonobj); //可以将json对象转换成json对符串 
+
+～springmvc
+cookie～
+URL[统一资源定位器]： http://localhost:8080/api/account/queryAccountInfo
+URI[统一资源定位符]： /api/account/queryAccountInfo
+解释：说白了，可以认为url是绝对路径，uri是相对路径
