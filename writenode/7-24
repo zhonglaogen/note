@@ -1,0 +1,66 @@
+程序例子7和luence、
+kafka:NIO的零拷贝，用cache高速缓存数据
+1v1:消费者只能拿一个，为共享，无法并行
+两条队列。缓冲，不要用锁，用无锁offset，两条队列，加上版本号，总共的数量。内存
+1vn
+fanout大数据
+广播，ttl，留着，disk
+1顺序写，零拷贝，秒杀，订单
+topic内存，不要慢设备，不适合大量数据，适合偶发性数据，数据堆积
+没人订阅就全不要，有人要就都给，做提醒
+request-response
+
+拉数据，推数据
+消费者轮询：块，断电续传（拿大数据）
+推数据：长连接，直接推，浪费内存，大数据丢包，tcp
+
+推标题url，会合并成一次，拉数据
+
+程序例子10
+jms--，amqp（做了个交换机，生产进交换机，只有一个消费者订阅）
+四种方式
+qpid
+erleny语言 rabbitmq不太用
+
+jvm：
+java，scala，groovy
+lua
+node.js
+php
+
+topic订阅
+groupid
+1.数据备份0，1，把kafka的kafka-logs存到不同的文件夹（在同一块磁盘，串行，很慢），解决：不同文件夹分到不同的磁盘上
+2kafka提交offset，zookeeper压力（redis)
+3数据补采
+通过redis记录offset，给zookeeper，消费者宕机，通过zookeeper拿offset，
+一旦过期，找到生产者位置跟着跑，前面的数据不断去试得到
+
+jmq
+mqtt
+tcp
+两个字节 ，一个定死 1可变
+速度块
+
+chrukwa
+scribe：c
+logstash：ruby
+flume：日志收集：攻击，爬虫
+分类算法：算毕业(能毕业，不能)
+回归算法：算身高，唯一
+神经网络
+oltp->etl->olap
+topic
+
+rpc
+avro thrift grpc ice ace
+
+跨域标签：img iframe（内置浏览器）
+js：内置可操作外部，外部不可操作内部
+curl测http
+看flume
+二次开发
+
+hive etl
+
+

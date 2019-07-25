@@ -1,0 +1,47 @@
+session
+cookie
+serletcontext
+带宽：上传速度，下传速度
+外控制内部，内部。parent拿到外部所有
+内不可访问外
+cps,cpa广告
+～跨域攻击嵌入jFram img span
+没人可以对http头编码
+头对体编码
+xml:load服务器启动创建servlet
+myweb1例子
+～吧jsp放tomcat
+～ajax之请求数据，请求一次网页
+抓ajax
+！加载更多分页。ajax
+tomcat内置jsp解析，所以慢
+png可以加透明度，jpg没有
+gif函数
+bmp
+base64，urlencode，get请求
+有损压缩：取近似
+无损：int变char
+验证码鼠标操作，键盘操作容易被监听
+～<script> alert("aaaaaaaaaaaaaaaaaa") </script>
+～resultful
+img src=“网站”
+eval
+</div><script>
+filter:
+字符过滤
+权限判断
+监听器：
+监听生命周期
+session listenner：用户连接计数（）应该用假的
+
+rpc：
+elesearch
+redis协议
+分页模糊查询
+动态sql
+爬虫
+resultful
+tcp三步都在内核封好了，
+serversocket
+
+#‘sql注解
