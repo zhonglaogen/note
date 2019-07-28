@@ -30,6 +30,7 @@ php
 
 topic订阅
 groupid
+kafka的bug
 1.数据备份0，1，把kafka的kafka-logs存到不同的文件夹（在同一块磁盘，串行，很慢），解决：不同文件夹分到不同的磁盘上
 2kafka提交offset，zookeeper压力（redis)
 3数据补采

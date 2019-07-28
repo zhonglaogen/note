@@ -2,8 +2,8 @@ session
 cookie
 serletcontext
 带宽：上传速度，下传速度
-外控制内部，内部。parent拿到外部所有
-内不可访问外
+外控制内部，
+内不可访问外,内部。parent拿到外部所有
 cps,cpa广告
 ～跨域攻击嵌入jFram img span
 没人可以对http头编码
@@ -23,6 +23,7 @@ base64，urlencode，get请求
 无损：int变char
 验证码鼠标操作，键盘操作容易被监听
 ～<script> alert("aaaaaaaaaaaaaaaaaa") </script>
+～提价东西，</div><script>
 ～resultful
 img src=“网站”
 eval
@@ -45,3 +46,9 @@ tcp三步都在内核封好了，
 serversocket
 
 #‘sql注解
+
+
+
+xss：将数据以</div><script>的形式存储
+跨域：内嵌ifram可以跨域
+img将图片的src写一个servlet，返回一段可执行代码

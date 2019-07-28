@@ -26,7 +26,7 @@ map-map-map-reduce不同
 
 hbase协处理器
 触发器：建立非聚集
-存储过程：rpc调函数
+存储过程：rpc调函数,一系列操作
 coprocessor
 habse横表（缓存）和纵表
 默认聚集索引，要建立存储过程，建立非聚集索引
