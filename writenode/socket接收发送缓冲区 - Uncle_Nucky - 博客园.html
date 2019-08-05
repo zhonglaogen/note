@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)https://www.cnblogs.com/lsx1993/p/4841471.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="origin">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <title>socket接收发送缓冲区 - Uncle_Nucky - 博客园</title>
+    <meta property="og:description" content="【tcp socket的发送与接收缓冲区】发送缓冲队列struct sk_buff【TCP接收/发送滑动窗口与内核接收/发送缓冲区之间的关系】滑动窗口的大小与套接字缓存区会在一定程度上影响并发连接的数">
+    <link type="text/css" rel="stylesheet" href="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/bundle-BlackLowKey.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/bundle-BlackLowKey-mobile.css">
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/lsx1993/rss">
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/lsx1993/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/lsx1993/wlwmanifest.xml">
+    <script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/osd.js"></script><script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/amp4ads-host-v0.js"></script><script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/pubads_impl_rendering_2019073001.js"></script><script async="" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/analytics.js"></script><script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/jquery-2.2.0.min.js"></script>
+    <script>var currentBlogId=232697;var currentBlogApp='lsx1993',cb_enable_mathjax=false;var isLogined=false;</script>
+    <script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/blog-common.js" type="text/javascript"></script>
+<link rel="preload" href="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/f(2).txt" as="script"><script type="text/javascript" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/f(2).txt"></script><script src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/pubads_impl_2019073001.js" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-35/html/container.html"></head>
+<body>
+<a name="top"></a>
+
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="https://www.cnblogs.com/lsx1993/"><img id="blogLogo" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/lsx1993/">Uncle Nucky</a></h1>
+<h2></h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li></li>
+<li><a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/lsx1993/">首页</a></li>
+<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li></li>
+<li>
+<!----></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<span id="stats_post_count">随笔 - 297&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 3</span>
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+        <div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/lsx1993/p/4841471.html">socket接收发送缓冲区</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body"><p class="p1"><span class="s1">【tcp socket的发送与接收缓冲区】</span></p>
+<p class="p1"><span class="s1">发送缓冲队列</span></p>
+<p class="p1"><span class="s1">struct sk_buff</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p3"><span class="s1">【TCP接收/发送滑动窗口与内核接收/发送缓冲区之间的关系】</span></p>
+<p class="p3"><span class="s1">滑动窗口的大小与套接字缓存区会在一定程度上影响并发连接的数据，每个TCP连接都会为维护TCP滑动窗口而消耗内存，这个窗口会根据服务器的处理速度收缩或扩张。</span></p>
+<p class="p4"><span class="s1">&nbsp;</span></p>
+<p class="p3"><span class="s1">整个数据的流程中，首先网卡接收到的数据存放到<span class="s2"><strong>内核缓冲区</strong><span class="s1">内，然后内核缓冲区存放的数据根据TCP信息将数据移动到具体的某一个<span class="s2"><strong>TCP连接上的接收缓冲区</strong><span class="s1">内，也就是接收滑动窗口内，然后应用程序从TCP的接受缓冲区内读取数据，如果应用程序一直不读取，那么滑动窗口就会变小，直至为0.</span></span></span></span></span></p>
+<p class="p4"><span class="s1">&nbsp;</span></p>
+<p class="p3"><span class="s1">&nbsp; &nbsp; 如果网卡处理数据的速度比内核处理数据的速度慢，那么内核会有一个队列来保存这些数据，这个队列的大小就是由参数netdev_max_backlog决定的</span></p>
+<p class="p4"><span class="s1">&nbsp;</span></p>
+<p class="p3"><span class="s1">&nbsp; &nbsp;对于发送数据来说，应用程序将数据拷贝到各自<span class="s2"><strong>TCP发送缓冲区</strong><span class="s1">内（也就是发送滑动窗口），然后系统的所有TCP套接字上发送缓冲区（也就是发送滑动窗口）内的数据都将数据拷贝到<span class="s2"><strong>内核发送缓冲区</strong><span class="s1">内，然后内核将内核缓冲区的数据经过网卡发送出去。</span></span></span></span></span></p>
+<p class="p4"><span class="s1">&nbsp;</span></p>
+<p class="p3"><span class="s1">&nbsp; &nbsp; TCP的发送/接受缓冲区（也就是发送/接受滑动窗口），是针对某一个具体的TCP连接来说的，每一个TCP连接都会有相应的滑动窗口，但是<span class="s3"><strong>内核的发送/接受缓冲区是针对整个系统的，里面存放着整个系统的所有TCP连接的接收/发送的数据</strong><span class="s1">。</span></span></span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p1"><span class="s1">每个TCP套接口有一个发送缓冲区，可以用SO_SNDBUF套接口选项来改变这一缓冲区的大小。当应用进程调用write往套接口写数据时，内核从应用进程缓冲区中拷贝所有数据到套接口的发送缓冲区，如果套接口发送缓冲区容不下应用程序的所有数据，或者是应用进程的缓冲区大于套接口的发送缓冲区，或者是套接口的发送缓冲区中有别的数据，应用进程将被挂起。内核将不从write返回。直到应用进程缓冲区中的所有数据都拷贝到套接口发送缓冲区。所以，从写一个<span class="s2"><strong>TCP套接口的write调用成功返回仅仅表示我们可以重新使用应用进程缓冲区，它并不是告诉我们对方收到数据</strong><span class="s1">。</span></span></span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p1"><span class="s1">TCP发给对方的数据，对方在收到数据时必须给矛确认，<span class="s2"><strong>只有在收到对方的确认时，本方TCP才会把TCP发送缓冲区中的数据删除</strong><span class="s1">。</span></span></span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p1"><span class="s1">UDP因为是不可靠连接，不必保存应用进程的数据拷贝，应用进程中的数据在沿协议栈向下传递时，以某种形式拷贝到内核缓冲区，<strong>当数据链路层把数据传出</strong>后就把内核缓冲区中数据拷贝删除。因此它不需要一个发送缓冲区。</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p1"><span class="s1">写UDP套接口的write返回表示应用程序的数据或数据分片已经进入<strong>链路层的输出队列</strong>，如果输出队列没有足够的空间存放数据，将返回错误ENOBUFS.</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p5"><span class="s1">应用程序可通过调用send(write, sendmsg等)利用tcp socket向网络发送应用数据，而tcp/ip协议栈再通过网络设备接口把已经组织成struct sk_buff的应用数据(tcp数据报)真正发送到网络上，由于应用程序调用send的速度跟网络介质发送数据的速度存在差异，所以，一部分应用数据被组织成tcp数据报之后，会<span class="s2"><strong>缓存在tcp socket的发送缓存队列</strong><span class="s1">中，等待网络空闲时再发送出去。</span></span></span></p>
+<p class="p6"><span class="s1">&nbsp;</span></p>
+<p class="p5"><span class="s1">同时，tcp协议要求对端在收到tcp数据报后，要对其序号进行ACK，只有当收到一个tcp 数据报的ACK之后，<span class="s2"><strong>才可以把这个tcp数据报(以一个struct sk_buff的形式存在)从socket的发送缓冲队列中清除</strong><span class="s1">。</span></span></span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p5"><span class="s1">tcp socket的发送缓冲区实际上是一个结构体struct sk_buff的队列，我们可以把它称为发送缓冲队列，由结构体struct sock的成员sk_write_queue表示。sk_write_queue是一个结构体struct sk_buff_head类型，这是一个struct sk_buff的双向链表，其定义如下：</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;struct sk_buff_head {</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct sk_buff&nbsp;&nbsp;*next;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//后指针</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct sk_buff&nbsp;&nbsp;*prev;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//前指针</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__u32&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;qlen;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//队列长度（即含有几个struct sk_buff)</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinlock_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lock;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//链表锁</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;};</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;内核代码中，先在这个队列中创建足够存放数据的struct sk_buff，然后向队列存入应用数据。</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;结构体struct sock的成员sk_wmem_queued表示发送缓冲队列中已分配的字节数，一般来说，分配一个struct sk_buff是用于存放一个tcp数据报，其分配字节数应该是MSS+协议首部长度。在我的实验环境中，MSS值是1448，协议首部取最大长度 MAX_TCP_HEADER，在我的实验环境中为224。经数据对齐处理后，最后struct sk_buff的truesize为1956。也就是队列中每分配一个struct sk_buff，成员sk_wmem_queue的值就增加1956。</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;struct sock的成员sk_forward_alloc是表示预分配长度。当我们第一次要为发送缓冲队列分配一个struct sk_buff时，我们并不是直接分配需要的内存大小，而是会以内存页为单位进行的预分配。</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;tcp协议分配struct sk_buff的函数是sk_stream_alloc_pskb。它首先根据传入的参数指定的大小在内存中分配一个struct sk_buff，如果成功，sk_forward_alloc取该大小值，并向上取整到页(4096字节)的整数倍。并累加到struct sock的成员sk_prot，也即表示tcp协议的结构体mytcp_prot的成员memory_allocated中，该成员是一个指针，指向变量 tcp_memory_allocated，它表示的是当前整个TCP协议当前为缓冲区所分配的内存(包括读缓冲队列)</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;当把这个新分配成功的struct sk_buff放入到缓冲队列sk_write_queue后，从sk_forward_alloc中减去该sk_buff的truesize值。第二次分配struct sk_buff时，只要再从sk_forward_alloc中减去新的sk_buff的truesize即可，如果sk_forward_alloc已经小于当前的truesize，则将其再加上一个页的整数倍值，并累加入tcp_memory_allocated。</span></p>
+<p class="p5"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;也就是说，通过sk_forward_alloc使全局变量tcp_memory_allocated保存当前tcp协议总的缓冲区分配内存的大小,并且该大小是页边界对齐的。</span></p>
+<p class="p7"><span class="s1">(2)</span></p>
+<p class="p8"><span class="s1">前面讲到struct sock的成员sk_forward_alloc表示预分配内存大小，用于向全局变量mytcp_memory_allocated累加当前已分配的整个 TCP协议的缓冲区大小。之所以要累加这个值，是为了对tcp协议总的可用缓冲区大小作限制。表示TCP协议的结构体mytcp_prot还有几个成员与缓冲区相关。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;mysysctl_tcp_mem是一个数组，由mytcp_prot的成员sysctl_mem指向，数组共有三个元素，mysysctl_tcp_mem[0]表示对缓冲区总的可用大小的最低限制，当前总共分配的缓冲区大小低于这个值，则没有问题，分配成功。 mysysctl_tcp_mem[2]表示对缓冲区可用大小的最高硬性限制，一旦总分配的缓冲区大小超出这个值，我们只好把tcp</span></p>
+<p class="p8"><span class="s1">socket 的发送缓冲区的预设大小sk_sndbuf减小为已分配缓冲队列大小的一半，但不能小于SOCK_MIN_SNDBUF(2K)，但保证这一次的分配成功。mysysctl_tcp_mem[1]介于前面两个值的中间，这是一个警告值，一旦超出这个值，进入警告状态，这个状态下，根据调用参数来决定此次分配是否成功。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;这三个值的大小是根据所在系统的内存大小，在初始化时决定的，在我的实验环境中，内存大小为256M，这三个值分配是：96K，128K，192K。它们可以通过/proc文件系统，在/proc/sys/net/ipv4/tcp_mem中进行修改。当然，除非特别需要，一般无需改动这些缺省值。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;mysysctl_tcp_wmem也是一个同样结构的数组，表示发送缓冲区的大小限制，由mytcp_prot的成员sysctl_wmem指向，其缺省值分别是4K，16K，128K。可以通过/proc文件系统，在/proc/sys/net/ipv4/tcp_wmem中进行修改。struct sock的成员sk_sndbuf的值是真正的发送缓冲队列的预设大小，其初始值取中间一个16K。在tcp数据报的发送过程中，一旦 sk_wmem_queued超过sk_sndbuf的值，则发送停止，等待发送缓冲区可用。因为有可能一批已发送出去的数据还没有收到ACK，同时，缓冲队列中的数据也可全部发出去，已达到清空缓冲队列的目的，所以，只要在网络不是很差的情况下(差到没有办法收到ACK)，这个等待在一段时间后会成功的。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;全局变量mytcp_memory_pressure是一个标志，在tcp缓冲大小进入警告状态时，它置1，否则置0。</span></p>
+<p class="p7"><span class="s1">(3)</span></p>
+<p class="p8"><span class="s1">mytcp_sockets_allocated是到目前为止，整个tcp协议中创建的socket的个数，由mytcp_prot的成员 sockets_allocated指向。可以在/proc/net/sockstat文件中查看，这只是一个供统计查看用的数据，没有任何实际的限制作用。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;mytcp_orphan_count表示整个tcp协议中待销毁的socket的个数(已无用的socket)，由mytcp_prot的成员orphan_count指向，也可以在/proc/net/sockstat文件中查看。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;mysysctl_tcp_rmem是跟mysysctl_tcp_wmem相同结构的数组，表示接收缓冲区的大小限制，由mytcp_prot的成员 sysctl_rmem指向，其缺省值分别是4096bytes，87380bytes，174760bytes。它们可以通过/proc文件系统，在 /proc/sys/net/ipv4/tcp_rmem中进行修改。struct sock的成员sk_rcvbuf表示接收缓冲队列的大小，其初始值取mysysctl_tcp_rmem[1],成员sk_receive_queue 是接收缓冲队列，结构跟sk_write_queue相同。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;tcp socket的发送缓冲队列跟接收缓冲队列的大小既可以通过/proc文件系统进行修改，也可以通过TCP选项操作进行修改。套接字级别上的选项 SO_RCVBUF可用于获取和修改接收缓冲队列的大小(即strcut sock-&gt;sk_rcvbuf的值)，比如下列的代码可用于获取当前系统的接收缓冲队列大小：</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;int rcvbuf_len;</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;int len = sizeof(rcvbuf_len);</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;if( getsockopt( fd, SOL_SOCKET, SO_RCVBUF, (void *)&amp;rcvbuf_len, &amp;len ) &lt; 0 ){</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror("getsockopt: ");</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -1;</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;}</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;printf("the recevice buf len: %d\n", rcvbuf_len );</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;而套接字级别上的选项SO_SNDBUF则用于获取和修改发送缓冲队列的大小(即struct sock-&gt;sk_sndbuf的值)，代码同上，只需改SO_RCVBUF为SO_SNDBUF即可。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;获取发送和接收缓冲区的大小相对简单一些，而设置的操作在内核中动作会稍微复杂一些，另外，在接口上也会有所差异，即由setsockopt传入的表示缓冲区大小的参数是实际大小的1/2，即，如果想要设发送缓冲区的大小为20K，则需要这样调用setsockopt：</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int rcvbuf_len = 10 * 1024;&nbsp;&nbsp;//实际缓冲区大小的一半。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int len = sizeof(rcvbuf_len);</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if( setsockopt( fd, SOL_SOCKET, SO_SNDBUF, (void *)&amp;rcvbuf_len, len ) &lt; 0 ){</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror("getsockopt: ");</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -1;</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;在内核中，首先内核要判断新设置的值是否超过上限，若超过，则取上限为新值，发送和接收缓冲区大小的上限值分别为sysctl_wmem_max和 sysctl_rmem_max的2倍。这两个全局变量的值是相等的，都为(sizeof(struct sk_buff) + 256) * 256，大概为64K负载数据，由于struct sk_buff的影响，实际发送和接收缓冲区的大小最大都可设到210K左右。它们的下限是2K,即缓冲区大小不能低于2K。</span></p>
+<p class="p8"><span class="s1">&nbsp;&nbsp;&nbsp;&nbsp;另外，SO_SNDBUF和SO_RCVBUF有一个特殊的版本：SO_SNDBUFFORCE和SO_RCVBUFFORCE，它们不受发送和接收缓冲区大小上限的限制，可设置不小于2K的任意缓冲区大小。(完)</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">===================================================</span></p>
+<p class="p8"><span class="s1">以下内容是Socket相关参数的设置方法</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">1. 如果在已经处于 ESTABLISHED状态下的socket(一般由端口号和标志符区分）调用</span></p>
+<p class="p8"><span class="s1">closesocket（一般不会立即关闭而经历TIME_WAIT的过程）后想继续重用该socket：</span></p>
+<p class="p8"><span class="s1">BOOL bReuseaddr=TRUE;</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET ,SO_REUSEADDR,(const char*)&amp;bReuseaddr,sizeof(BOOL));</span></p>
+<p class="p8"><span class="s1">2. 如果要已经处于连接状态的soket在调用closesocket后强制关闭，不经历</span></p>
+<p class="p8"><span class="s1">TIME_WAIT的过程：</span></p>
+<p class="p8"><span class="s1">BOOL bDontLinger = FALSE;</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_DONTLINGER,(const char*)&amp;bDontLinger,sizeof(BOOL));</span></p>
+<p class="p8"><span class="s1">3.在send(),recv()过程中有时由于网络状况等原因，发收不能预期进行,而设置收发时限：</span></p>
+<p class="p8"><span class="s1">int nNetTimeout=1000;//1秒</span></p>
+<p class="p8"><span class="s1">//发送时限</span></p>
+<p class="p8"><span class="s1">setsockopt(socket，SOL_S0CKET,SO_SNDTIMEO，(char *)&amp;nNetTimeout,sizeof(int));</span></p>
+<p class="p8"><span class="s1">//接收时限</span></p>
+<p class="p8"><span class="s1">setsockopt(socket，SOL_S0CKET,SO_RCVTIMEO，(char *)&amp;nNetTimeout,sizeof(int));</span></p>
+<p class="p8"><span class="s1">4.在send()的时候，返回的是实际发送出去的字节(同步)或发送到socket缓冲区的字节</span></p>
+<p class="p8"><span class="s1">(异步);系统默认的状态发送和接收一次为8688字节(约为8.5K)；在实际的过程中发送数据</span></p>
+<p class="p8"><span class="s1">和接收数据量比较大，可以设置socket缓冲区，而避免了send(),recv()不断的循环收发：</span></p>
+<p class="p8"><span class="s1">// 接收缓冲区</span></p>
+<p class="p8"><span class="s1">int nRecvBuf=32*1024;//设置为32K</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_RCVBUF,(const char*)&amp;nRecvBuf,sizeof(int));</span></p>
+<p class="p8"><span class="s1">//发送缓冲区</span></p>
+<p class="p8"><span class="s1">int nSendBuf=32*1024;//设置为32K</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_SNDBUF,(const char*)&amp;nSendBuf,sizeof(int));</span></p>
+<p class="p8"><span class="s1">5. 如果在发送数据的时，希望不经历由系统缓冲区到socket缓冲区的拷贝而影响</span></p>
+<p class="p8"><span class="s1">程序的性能：</span></p>
+<p class="p8"><span class="s1">int nZero=0;</span></p>
+<p class="p8"><span class="s1">setsockopt(socket，SOL_S0CKET,SO_SNDBUF，(char *)&amp;nZero,sizeof(nZero));</span></p>
+<p class="p8"><span class="s1">6.同上在recv()完成上述功能(默认情况是将socket缓冲区的内容拷贝到系统缓冲区)：</span></p>
+<p class="p8"><span class="s1">int nZero=0;</span></p>
+<p class="p8"><span class="s1">setsockopt(socket，SOL_S0CKET,SO_RCVBUF，(char *)&amp;nZero,sizeof(int));</span></p>
+<p class="p8"><span class="s1">7.一般在发送UDP数据报的时候，希望该socket发送的数据具有广播特性：</span></p>
+<p class="p8"><span class="s1">BOOL bBroadcast=TRUE;</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_BROADCAST,(const char*)&amp;bBroadcast,sizeof(BOOL));</span></p>
+<p class="p8"><span class="s1">8.在client连接服务器过程中，如果处于非阻塞模式下的socket在connect()的过程中可</span></p>
+<p class="p8"><span class="s1">以设置connect()延时,直到accpet()被呼叫(本函数设置只有在非阻塞的过程中有显著的</span></p>
+<p class="p8"><span class="s1">作用，在阻塞的函数调用中作用不大)</span></p>
+<p class="p8"><span class="s1">BOOL bConditionalAccept=TRUE;</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_CONDITIONAL_ACCEPT,(const char*)&amp;bConditionalAccept,sizeof(BOOL));</span></p>
+<p class="p8"><span class="s1">9.如果在发送数据的过程中(send()没有完成，还有数据没发送)而调用了closesocket(),以前我们</span></p>
+<p class="p8"><span class="s1">一般采取的措施是"从容关闭"shutdown(s,SD_BOTH),但是数据是肯定丢失了，如何设置让程序满足具体</span></p>
+<p class="p8"><span class="s1">应用的要求(即让没发完的数据发送出去后在关闭socket)？</span></p>
+<p class="p8"><span class="s1">struct linger {</span></p>
+<p class="p8"><span class="s1">u_short l_onoff;</span></p>
+<p class="p8"><span class="s1">u_short l_linger;</span></p>
+<p class="p8"><span class="s1">};</span></p>
+<p class="p8"><span class="s1">linger m_sLinger;</span></p>
+<p class="p8"><span class="s1">m_sLinger.l_onoff=1;//(在closesocket()调用,但是还有数据没发送完毕的时候容许逗留)</span></p>
+<p class="p8"><span class="s1">// 如果m_sLinger.l_onoff=0;则功能和2.)作用相同;</span></p>
+<p class="p8"><span class="s1">m_sLinger.l_linger=5;//(容许逗留的时间为5秒)</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_LINGER,(const char*)&amp;m_sLinger,sizeof(linger));</span></p>
+<p class="p8"><span class="s1">Note:1.在设置了逗留延时，用于一个非阻塞的socket是作用不大的，最好不用;</span></p>
+<p class="p8"><span class="s1">2.如果想要程序不经历SO_LINGER需要设置SO_DONTLINGER，或者设置l_onoff=0；</span></p>
+<p class="p8"><span class="s1">10.还一个用的比较少的是在SDI或者是Dialog的程序中，可以记录socket的调试信息：</span></p>
+<p class="p8"><span class="s1">(前不久做过这个函数的测试，调式信息可以保存，包括socket建立时候的参数,采用的</span></p>
+<p class="p8"><span class="s1">具体协议，以及出错的代码都可以记录下来）</span></p>
+<p class="p8"><span class="s1">BOOL bDebug=TRUE;</span></p>
+<p class="p8"><span class="s1">setsockopt(s,SOL_SOCKET,SO_DEBUG,(const char*)&amp;bDebug,sizeof(BOOL));</span></p>
+<p class="p8"><span class="s1">11.附加：往往通过setsockopt()设置了缓冲区大小，但还不能满足数据的传输需求，</span></p>
+<p class="p8"><span class="s1">我的习惯是自己写个处理网络缓冲的类，动态分配内存;下面我将这个类写出，希望对</span></p>
+<p class="p8"><span class="s1">初学者有所帮助：</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">//仿照String 改写而成</span></p>
+<p class="p8"><span class="s1">//==============================================================================</span></p>
+<p class="p8"><span class="s1">// 二进制数据，主要用于收发网络缓冲区的数据</span></p>
+<p class="p8"><span class="s1">// CNetIOBuffer 以 MFC 类 CString 的源代码作为蓝本改写而成，用法与 CString 类似，</span></p>
+<p class="p8"><span class="s1">// 但是 CNetIOBuffer 中存放的是纯粹的二进制数据，'/0' 并不作为它的结束标志。</span></p>
+<p class="p8"><span class="s1">// 其数据长度可以通过 GetLength() 获得，缓冲区地址可以通过运算符 LPBYTE 获得。</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">//==============================================================================</span></p>
+<p class="p8"><span class="s1">// Copyright (c) All-Vision Corporation. All rights reserved.</span></p>
+<p class="p8"><span class="s1">// Module: NetObject</span></p>
+<p class="p8"><span class="s1">// File: SimpleIOBuffer.h</span></p>
+<p class="p8"><span class="s1">// Author: gdy119</span></p>
+<p class="p10"><span class="s4">// Email :&nbsp;<a href="mailto:8751webmaster@126.com"><span class="s5">8751webmaster@126.com</span></a></span></p>
+<p class="p8"><span class="s1">// Date: 2004.11.26</span></p>
+<p class="p8"><span class="s1">//==============================================================================</span></p>
+<p class="p8"><span class="s1">// NetIOBuffer.h</span></p>
+<p class="p8"><span class="s1">#ifndef _NETIOBUFFER_H</span></p>
+<p class="p8"><span class="s1">#define _NETIOBUFFER_H</span></p>
+<p class="p8"><span class="s1">//=============================================================================</span></p>
+<p class="p8"><span class="s1">#define MAX_BUFFER_LENGTH 1024*1024</span></p>
+<p class="p8"><span class="s1">//=============================================================================</span></p>
+<p class="p8"><span class="s1">//主要用来处理网络缓冲的数据</span></p>
+<p class="p8"><span class="s1">class CNetIOBuffer</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">protected:</span></p>
+<p class="p8"><span class="s1">LPBYTE m_pbinData;</span></p>
+<p class="p8"><span class="s1">int m_nLength;</span></p>
+<p class="p8"><span class="s1">int m_nTotalLength;</span></p>
+<p class="p8"><span class="s1">CRITICAL_SECTIONm_cs;</span></p>
+<p class="p8"><span class="s1">void Initvalibers();</span></p>
+<p class="p8"><span class="s1">public:</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer();</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer(const LPBYTE lbbyte, int nLength);</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer(const CNetIOBuffer&amp;binarySrc);</span></p>
+<p class="p8"><span class="s1">virtual ~CNetIOBuffer();</span></p>
+<p class="p8"><span class="s1">//=============================================================================</span></p>
+<p class="p8"><span class="s1">BOOL CopyData(const LPBYTE lbbyte, int nLength);</span></p>
+<p class="p8"><span class="s1">BOOL ConcatData(const LPBYTE lbbyte, int nLength);</span></p>
+<p class="p8"><span class="s1">void ResetIoBuffer();</span></p>
+<p class="p8"><span class="s1">int GetLength() const;</span></p>
+<p class="p8"><span class="s1">BOOL SetLength(int nLen);</span></p>
+<p class="p8"><span class="s1">LPBYTE GetCurPos();</span></p>
+<p class="p8"><span class="s1">int GetRemainLen();</span></p>
+<p class="p8"><span class="s1">BOOL IsEmpty() const;</span></p>
+<p class="p8"><span class="s1">operator LPBYTE() const;</span></p>
+<p class="p8"><span class="s1">static GetMaxLength() { return MAX_BUFFER_LENGTH; }</span></p>
+<p class="p8"><span class="s1">const CNetIOBuffer&amp; operator=(const CNetIOBuffer&amp; buffSrc);</span></p>
+<p class="p8"><span class="s1">};</span></p>
+<p class="p8"><span class="s1">#endif //</span></p>
+<p class="p8"><span class="s1">// NetOBuffer.cpp: implementation of the CNetIOBuffer class.</span></p>
+<p class="p8"><span class="s1">//======================================================================</span></p>
+<p class="p8"><span class="s1">#include "stdafx.h"</span></p>
+<p class="p8"><span class="s1">#include "NetIOBuffer.h"</span></p>
+<p class="p8"><span class="s1">//======================================================================</span></p>
+<p class="p8"><span class="s1">//=======================================================================</span></p>
+<p class="p8"><span class="s1">// Construction/Destruction</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer::CNetIOBuffer()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">Initvalibers();</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer::CNetIOBuffer(const LPBYTE lbbyte, int nLength)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">Initvalibers();</span></p>
+<p class="p8"><span class="s1">CopyData(lbbyte, nLength);</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer::~CNetIOBuffer()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">delete []m_pbinData;</span></p>
+<p class="p8"><span class="s1">m_pbinData=NULL;</span></p>
+<p class="p8"><span class="s1">DeleteCriticalSection(&amp;m_cs);</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer::CNetIOBuffer(const CNetIOBuffer&amp;binarySrc)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">Initvalibers();</span></p>
+<p class="p8"><span class="s1">CopyData(binarySrc,binarySrc.GetLength());</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">void CNetIOBuffer::Initvalibers()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">m_pbinData = NULL;</span></p>
+<p class="p8"><span class="s1">m_nLength = 0;</span></p>
+<p class="p8"><span class="s1">m_nTotalLength = MAX_BUFFER_LENGTH;</span></p>
+<p class="p8"><span class="s1">if(m_pbinData==NULL)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">m_pbinData=new BYTE[m_nTotalLength];</span></p>
+<p class="p8"><span class="s1">ASSERT(m_pbinData!=NULL);</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">InitializeCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">void CNetIOBuffer::ResetIoBuffer()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">EnterCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">m_nLength = 0;</span></p>
+<p class="p8"><span class="s1">memset(m_pbinData,0,m_nTotalLength);</span></p>
+<p class="p8"><span class="s1">LeaveCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">BOOL CNetIOBuffer::CopyData(const LPBYTE lbbyte, int nLength)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">if( nLength &gt; MAX_BUFFER_LENGTH )</span></p>
+<p class="p8"><span class="s1">return FALSE;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">ResetIoBuffer();</span></p>
+<p class="p8"><span class="s1">EnterCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">memcpy(m_pbinData, lbbyte, nLength );</span></p>
+<p class="p8"><span class="s1">m_nLength = nLength;</span></p>
+<p class="p8"><span class="s1">LeaveCriticalSection(&amp;m_cs);</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">return TRUE;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">BOOL CNetIOBuffer::ConcatData(const LPBYTE lbbyte, int nLength)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">if( m_nLength + nLength &gt; MAX_BUFFER_LENGTH )</span></p>
+<p class="p8"><span class="s1">return FALSE;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">EnterCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">memcpy(m_pbinData+m_nLength, lbbyte, nLength );</span></p>
+<p class="p8"><span class="s1">m_nLength += nLength;</span></p>
+<p class="p8"><span class="s1">LeaveCriticalSection(&amp;m_cs);</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">return TRUE;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">int CNetIOBuffer::GetLength() const</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">return m_nLength;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">BOOL CNetIOBuffer::SetLength(int nLen)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">if( nLen &gt; MAX_BUFFER_LENGTH )</span></p>
+<p class="p8"><span class="s1">return FALSE;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">EnterCriticalSection(&amp;m_cs);</span></p>
+<p class="p8"><span class="s1">m_nLength = nLen;</span></p>
+<p class="p8"><span class="s1">LeaveCriticalSection(&amp;m_cs);</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">return TRUE;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">LPBYTE CNetIOBuffer::GetCurPos()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">if( m_nLength &lt; MAX_BUFFER_LENGTH )</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">return (m_pbinData+m_nLength);</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">else</span></p>
+<p class="p8"><span class="s1">return NULL;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">CNetIOBuffer:: operator LPBYTE() const</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">return m_pbinData;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">int CNetIOBuffer::GetRemainLen()</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">return MAX_BUFFER_LENGTH - m_nLength;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">BOOL CNetIOBuffer::IsEmpty() const</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">return m_nLength == 0;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">const CNetIOBuffer&amp; CNetIOBuffer:: operator=(const CNetIOBuffer&amp; buffSrc)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">if(&amp;buffSrc!=this)</span></p>
+<p class="p8"><span class="s1">{</span></p>
+<p class="p8"><span class="s1">CopyData(buffSrc, buffSrc.GetLength());</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p8"><span class="s1">return *this;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">}</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">回复人： PiggyXP(【小猪】●至爱VC，至爱网络版●) ( ) 信誉：204</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">其实我觉得第5条很应该值得注意</span></p>
+<p class="p8"><span class="s1">int nZero=0;</span></p>
+<p class="p8"><span class="s1">setsockopt(socket，SOL_S0CKET,SO_SNDBUF，(char *)&amp;nZero,sizeof(nZero));</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">记得以前有些朋友讨论过，socket虽然send成功了，但是其实只是发送到数据缓冲区里面了，而并没有真正的在物理设备上发送出去；而通过这条语句，将发送缓冲区设置为0，即屏蔽掉发送缓冲以后，一旦send返回（当然是就阻塞套结字来说），就可以肯定数据已经在发送的途中了^_^，但是这样做也许会影响系统的性能</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p9"><span class="s1">&nbsp;</span></p>
+<p class="p8"><span class="s1">to:Sander()</span></p>
+<p class="p8"><span class="s1">UDP也有拷贝过程，但是UDP包有最大限制为64K；</span></p>
+<p class="p8"><span class="s1">TCP_NODELAY 一般用在the normal data stream 上；</span></p>
+<p class="p8"><span class="s1">12.发送数据时候一般是系统缓冲区满以后才发送，现在设置为只要系统</span></p>
+<p class="p8"><span class="s1">缓冲区有数据就立刻发送：</span></p>
+<p class="p8"><span class="s1">BOOL bNodelay=TRUE;</span></p>
+<p class="p8"><span class="s1">SetSockOpt(s,IPPROTO_TCP,TCP_NODELAY,(const char*)&amp;bNodelayt,sizeof(BOOL));</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p>
+<p class="p2"><span class="s1">&nbsp;</span></p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(4841471,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;68ebe755-1c1a-e511-b908-9dcfd8948a71&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/lsx1993/" target="_blank"><img src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/20150624110032.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/lsx1993/">Uncle_Nucky</a><br>
+            <a href="https://home.cnblogs.com/u/lsx1993/followees">关注 - 0</a><br>
+            <a href="https://home.cnblogs.com/u/lsx1993/followers">粉丝 - 25</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;68ebe755-1c1a-e511-b908-9dcfd8948a71&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(4841471,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">1</span>
+    </div>
+    <div class="buryit" onclick="votePost(4841471,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/lsx1993/p/4841469.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/lsx1993/p/4841469.html" title="发布于2015-09-26 22:37">HTTP报文</a><br><a href="https://www.cnblogs.com/lsx1993/p/4841475.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/lsx1993/p/4841475.html" title="发布于2015-09-26 22:39">算法总复习</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2015-09-26 22:38</span> <a href="https://www.cnblogs.com/lsx1993/">Uncle_Nucky</a> 阅读(<span id="post_view_count">1329</span>) 评论(<span id="post_comment_count">0</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=4841471" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/lsx1993/p/4841471.html#" onclick="AddToWz(4841471);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=232697,cb_entryId=4841471,cb_blogApp=currentBlogApp,cb_blogUserGuid='68ebe755-1c1a-e511-b908-9dcfd8948a71',cb_entryCreatedDate='2015/9/26 22:38:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=false;</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/lsx1993/p/4841471.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/lsx1993/p/4841471.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万C++/C#源码: 大型实时仿真组态图形源码</a><br><a href="https://q.cnblogs.com/" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-博问&#39;)">【推荐】程序员问答平台，解决您开发中遇到的技术难题</a><br></div>
+<div id="opt_under_post"></div>
+<script async="async" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/gpt.js"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c1" class="c_ad_block">
+    <div id="div-gpt-ad-1546353474406-0" style="height:250px; width:300px;" data-google-query-id="CPDy9_3h6-MCFQiKwgodUu0INg"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C1_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="1" data-load-complete="true" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/saved_resource(1).html"></iframe></div></div>
+</div>
+<div id="under_post_news"><div class="recomm-block"><b>相关博文：</b><br>·  <a href="https://www.cnblogs.com/presleyren/p/10671762.html" target="_blank" onclick="clickRecomItmem(10671762)">关于socket的setsockopt的使用</a><br>·  <a href="https://www.cnblogs.com/riky/archive/2006/11/23/570276.html" target="_blank" onclick="clickRecomItmem(570276)">socket相关2</a><br>·  <a href="https://www.cnblogs.com/cynthia116/p/4583393.html" target="_blank" onclick="clickRecomItmem(4583393)">浅析：setsockopt（）</a><br>·  <a href="https://www.cnblogs.com/hateislove214/archive/2010/11/05/1869886.html" target="_blank" onclick="clickRecomItmem(1869886)">setsockopt设置socket状态</a><br>·  <a href="https://www.cnblogs.com/wujie2014/p/4029992.html" target="_blank" onclick="clickRecomItmem(4029992)">linux网络编程函数——地址复用setsockopt()</a><br></div></div>
+<div id="cnblogs_c2" class="c_ad_block">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="CPHy9_3h6-MCFQiKwgodUu0INg"><div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none; display: inline-block; width: 320px; height: 50px;"><iframe frameborder="0" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/container.html" id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="" scrolling="no" marginwidth="0" marginheight="0" width="320" height="50" data-is-safeframe="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" data-google-container-id="2" style="border: 0px; vertical-align: bottom;" data-load-complete="true"></iframe></div></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block"><b>最新新闻</b>：<br> ·  <a href="https://news.cnblogs.com/n/629230/" target="_blank">快递业“不告而投”有治吗？</a><br> ·  <a href="https://news.cnblogs.com/n/629229/" target="_blank">因融资重组不顺 尚品网宣布暂停营业</a><br> ·  <a href="https://news.cnblogs.com/n/629228/" target="_blank">1亿银行用户信息失窃之谜：黑客是怎么找到漏洞的？</a><br> ·  <a href="https://news.cnblogs.com/n/629227/" target="_blank">一位学者人生中最沉重的任务：用代码拯救儿子的生命</a><br> ·  <a href="https://news.cnblogs.com/n/629226/" target="_blank">干细胞图谱揭示无脊椎动物水螅如何永生</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+			<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(237)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/lsx1993/category/913525.html">Hadoop</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/lsx1993/category/707663.html">Hibernate(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/lsx1993/category/707658.html">Java(32)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/lsx1993/category/707666.html">JVM(17)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/lsx1993/category/717802.html">Linux(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/lsx1993/category/707665.html">MySQL数据库(40)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/lsx1993/category/707657.html">Redis缓存(48)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/lsx1993/category/910398.html">Spark(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/lsx1993/category/913439.html">Spark SQL(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/lsx1993/category/709374.html">Spring(20)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_10" href="https://www.cnblogs.com/lsx1993/category/739306.html">Struts(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_11" href="https://www.cnblogs.com/lsx1993/category/707659.html">并发(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_12" href="https://www.cnblogs.com/lsx1993/category/708555.html">高性能通信(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_13" href="https://www.cnblogs.com/lsx1993/category/707656.html">淘宝技术(8)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_14" href="https://www.cnblogs.com/lsx1993/category/709436.html">微服务(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_15" href="https://www.cnblogs.com/lsx1993/category/708574.html">消息总线(25)</a> </li>
+
+</ul>
+
+</div>
+
+</div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2019 Uncle_Nucky
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+
+<iframe id="google_osd_static_frame_2642095088075" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./socket接收发送缓冲区 - Uncle_Nucky - 博客园_files/saved_resource(2).html"></iframe></body></html>

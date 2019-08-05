@@ -1,0 +1,32 @@
+ss命令可以用来获取socket统计信息，它可以显示和netstat类似的内容。ss的优势在于它能够显示更多更详细的有关TCP和连接状态的信息，而且比netstat更快速更高效。
+curl是一个非常实用的、用来与服务器之间传输数据的工具，在Linux中curl是一个利用URL规则在命令行下工作的文件传输工具，可以说是一款很强大的http命令行工具。它支持文件的上传和下载，是综合传输工具，但按传统，习惯称url为下载工具。
+
+要让Linux系统具有路由转发功能，需要配置一个Linux的内核参数net.ipv4.ip_forward。这个参数指定了Linux系统当前对路由转发功能的支持情况；其值为0时表示禁止进行IP转发；如果是1,则说明IP转发功能已经打开。
+
+sysctl命令用于运行时配置内核参数，这些参数位于/proc/sys目录下。sysctl配置与显示在/proc/sys目录中的内核参数．可以用sysctl来设置或重新设置联网功能，如IP转发、IP碎片去除以及源路由检查等。用户只需要编辑/etc/sysctl.conf文件，即可手工或自动执行由sysctl控制的功能。
+
+
+systemd是Linux系统最新的初始化系统(init),作用是提高系统的启动速度，尽可能启动较少的进程，尽可能更多进程并发启动。
+systemd对应的进程管理命令是systemctl
+
+1)systemctl命令兼容了service
+即systemctl也会去/etc/init.d目录下，查看，执行相关程序
+
+
+
+echo net.ipv4.ipforward=1 >> /etc/sysctl.conf
+sysctl -p 让他生效
+sysctl -a |grep ip_forward 检查是否生效
+iptables -vnl 关防火墙
+getenforce
+
+ss -ntul检查端口是否被打开
+
+rs：
+把网关改为lvs的地址
+yum install httpd -y
+
+ ipvsadm -lnc
+
+
+

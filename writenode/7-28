@@ -1,0 +1,8 @@
+oltp行存，数据库
+olap列存，仓库，批量处理，不支持增删改，统计
+即席查询，聚合查询
+01.2
+sqlserver 分页top
+orcalk块存（根据硬件结构）
+hive,spark
+

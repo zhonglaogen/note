@@ -1,0 +1,106 @@
+阻塞：accept，线程固定，socket绑定线程，有限（sendbuffer，rebuffer，tcp协议）
+进程：对应内核线程
+线程：进程的实现，无内存
+自用线程：用户态假线程，公用一个线程 ～～～～java多个线程公用一个内核线程，java有一个没用完。内核再开一个线程，线程注册表
+纤程：自管理，无内核线程，并发，非并行（单线程），慢（线程切换）
+协程：不共享数据，单线程
+
+selector（ss注册，轮询，清空，放进去）java的select，epoll变select，有bug
+#define selector=1024
+1.长度
+2.清空
+3.全轮询（空转）
+poll
+无长度限制，（有一个位置）标注事件，不用清空，直接拿
+epoll（适合频发数据）
+两条队列：
+第一条注册socket，ss
+有事就把事挪到第二条队列，循环第二条队列
+
+数据非频发bio，直接开线程一直连着好
+
+同步 | 异步
+客户端：访问白页，ajax分线程
+服务端：bio线程，NIO注册到中断
+
+被动 | 主动
+tomcat。。800		
+mysql。。80短板
+记日志，然后主动入库
+
+
+带宽都是位，网速要/8	
+
+reactor：NIO被动模型，request、response
+服务端：NIO
+客户端：连接少，用BIO
+
+0.0.0.0：所有网卡
+255.255.255.255:广播
+普通数字：就只能连这个ip
+
+
+mina（封装的javaNIO）-》netty（reactor模型被动）：epoll 空跑60000
+tomcat：800 加apr能到4000
+
+协议栈，epoll有用的拿出来放队列，取出处理事件
+相当于servlet的forward，netty的fire
+write返回
+out1	|
+out2	|
+write： out3
+
+版本号：大版本。加功能。安全（bug）。迭代（改bug）a内侧，b公测，rc发行，std稳定
+
+～事件队列模型：reactor：有个事请求事件
+
+bytebuf：直接内存，不gc，引用计数器法
+
+～httpdecoder ,头fire一次，体fire一次
+httpObjectAggregator，把两次合并成了在fire
+
+
+拆开response的消息体
+～chunckwriteHandler，分好几个response发送，response太大
+～grpc
+
+request的Bytebuf
+～计数器法：Bytebuf
+～release是-1
+～fire+1
+～write-1
+～粘包拆包
+
+Spark
+thread假死
+双锥对等网
+服务逆转
+
+～主动给client推数据
+。 fireUserEventTriggered（不用计数）堆内存
+
+
+udp：无连接，不影响下一个包，tcp有序包都到了才能解析，没有失败重发，没有1518
+quic：2.0回应头只发一次，以后只发体，发的是2进制不是String，http3.0
+1518字节:1460头体
+舆论算法
+udp单播组博广播
+
+1.编译内核
+2.r1,r2,
+3.svm客户太，错误中断到root态==intel：vt-x
+bioss-虚拟化-enable----激活客户态root态，独立虚拟机和宿主机，不能访问用户态和内核态
+docker：linux：3.8，命名空间，进程树结构，cgroup限制配额
+
+brige： 共用一个网卡，同时只能一台上网
+nat：端口转发
+hostonly：主机是路由器
+
+udp的p2p：丢弃第一次的包，然后主动发包，误认为回包，可以沟通
+
+
+
+
+
+
+

@@ -63,7 +63,7 @@ mvcc多版本控制：每行数据都由时间戳，数据提交按时间先后�
 where 1=1无优化 把所有数据都写入缓存，内存崩溃
 
 
-setfetchsize（）；每次指定数据条数，
+setfetchsize（）；每次指定数据条数(数据库取)，
 setMaxROws（）；拿指定条数
 
 mysql要一条一条的反
@@ -80,6 +80,6 @@ bitmap索引（Oracle）
 优化：
 show processlist 相当于ps-ef
 mysql执行语句生成线程，以前生成进程
-Oracle存在队列中，拿线程去执行
+Oracle存在队列中，拿线程去执行,没有自增，有sequence序列
 partion（分两个文件）改成文件夹，mount
 

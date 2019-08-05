@@ -47,8 +47,9 @@ ajax不能上传文件：
 form的form的target为ifram的name；
 ifram闪，回调主页面
 
-etl
+etl工具
 
+kettle spoon
 Apache开源，随便用，标注署名
 GPL商业
 gun，必开redhat有插件，centos

@@ -1,0 +1,4 @@
+session：
+1.建一张session表对应服务器
+2.每台服务器都有相同的session
+3.建立专门的session服务器

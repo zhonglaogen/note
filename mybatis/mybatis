@@ -1,0 +1,47 @@
+分布式数据库的id要设置为String
+databaseid：数据库名，动态选择数据库
+1、如果存在大量的数据，可能会超出自增长的取值范围
+2、很难（并不是不能）处理分布式存储的数据表，尤其是需要合并表的情况下
+3、安全性低，因为是有规律的，容易被非法获取数据
+
+模糊查询用%${String}%
+#{}参数传入%String%
+bind
+
+
+1多个参数，不用写输入值paramterType
+用arg0，arg1，……或param0，param1
+接口加注解@Param（“”）变名字(arg1)
+2对象加基本类型参数
+对象.属性,@注解的名字
+
+事物自动提交.opensession(true),不用commit
+
+mysql支持自增，oracle不支持
+1增加的句子里写useGeneratedKeys=true，keyproperty=“自增属性”
+ 2<selectKey keyProperty="tId" order="AFTER" resultType="java.lang.Integer">
+            select LAST_INSERT_ID()
+        </selectKey>
+Oracle自增要用
+序列名。nextval：序列中下一个值
+序列名。currval当前值
+create sequence myseq ……
+
+增加null，mybatis会自动把null，设置为other类型，mysql自动转化为null，orcal不处理
+Oracle：插入为空，报错
+1.修改具体标签，当某个类型无法处理，告诉它jdbctype=null，默认为null，不会影响正常的值
+2.配置全局配置文件，setting标签：jdbcTypeFornull，value=null
+mysql:不会
+
+
+返回类型是HashMap，返回sql设置别名作为key，不加别名是字段名（一条）
+@MapKey（“key的列”），返回key，对象
+Orcal的元数据（字段名，表明）都是大写
+
+解决and第一个动态sql格式不对
+1.1=1
+2.where标签自动干掉动态sql的第一个and
+3.trim可以处理最后一个and，或者第一个and
+开头：<trim prefix="where" pefixOverrides="and">给拼接sql加and，处理拼接sql的第一个and
+结尾：<trim prefix="where" suffixOverrides="and">……
+950435035
