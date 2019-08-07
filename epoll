@@ -30,3 +30,6 @@ epoll	因为epoll内核中实现是根据每个fd上的callback函数来实现�
 select	内核需要将消息传递到用户空间，都需要内核拷贝动作
 poll	同上
 epoll	epoll通过内核和用户空间共享一块内存来实现的
+
+select会清除所有socket
+poll 会有一个标记，只会清除当前socket

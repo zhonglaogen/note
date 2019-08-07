@@ -1,0 +1,89 @@
+
+var i:int =1
+val i:int=1常量
+for（i<-1 to 10）
+1 to 10
+var a={
+1
+2
+4
+}
+def plus(i:Int):Int={}
+def plus(i:Int):Int=i+j
+def plus(i:Int)=i+j
+def f=(a:Int,b:Int)=>Int
+
+def
+
+def add(a:Int,b:Int)=a+b
+def add(a:Int)(b:Int)=a+b
+def v=add(1)(_)
+v(2)
+v(3)
+
+match{
+()
+()
+}
+
+双重循环
+yield用在循环，解决循环返回值是（）
+this是构造函数
+self是本身
+
+重载
+1（xx：Int=1）
+2（）
+（xx：INt）
+构造重载
+def this（）{
+this（）
+}
+
+继承：
+要写父类的构造参数
+接口trait with
+解决菱形继承
+混入，代码放到一起，Python：key，v，第一个有用
+
+动态混入：log()是Obj1
+new student() with obj1
+s.log()
+
+数组相加
+变量++=，+=
+常量：：：，：：
+元组
+var xxx=(1,"aa",23)
+xx._1
+xx._2
+var （id,name,age）=xxx
+id,name
+可以改类库名称
+
+flatMap降维
+
+case类
+apply
+List（）
+option：some
+match自动模式匹配，只会返回null或泛型类型
+
+implicit隐式转换函数，隐世类，隐士参数
+
+spark程序雷子12new
+流，sql，rdd批计算，图计算（graphx）
+
+transform只构建dag图
+action生成结果，找到最短路径，在处理，例如print
+～～Hbase
+所以快
+
+。cache（）checkpoint（）必经路径，下次直接在内存找
+
+数据倾斜（某个机器压力大）：repartion（机器）重新分配，开始均匀分配，中间慢计算
+
+spark sql
+thriftserver（thymlife）-hive-spark-hbase
+
+RDD：一个list，和操作list的方法

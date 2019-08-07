@@ -1,0 +1,10 @@
+Eureka服务注册与发现（zookeeper）
+Ribbon负载均衡（nginx）
+Feign负载均衡
+Hystrix断路器
+服务雪崩
+服务降级
+服务熔断
+服务扇出
+zuul路由网关
+SpringCloud Config分布式配置中心	

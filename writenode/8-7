@@ -1,0 +1,27 @@
+登录问题：用tonmcat下面接一层sharenothing
+redis:mod
+remod加一道，解决耦合
+hash
+一致性hash
+编码
+明文化：base64，urlencode
+字符化：utf8    gbk asill都通用
+效验crc 奇偶校验
+摘要 md5 sha1 
+单项加密：m1
+防盗链：流媒体（每一部分都有一个头，下载一部分就可以播放了），盗取音乐
+对称
+非对称
+压缩：有损，无损（int，char）
+水印
+
+hash槽集群
+neon 用c++
+rust归
+go稳定上手，全，不满
+有状态无状态
+容器vm
+k8s
+
+servermatch
+serverless，挂载扔进去
