@@ -40,7 +40,7 @@ kafka的bug
 jmq
 mqtt
 tcp
-两个字节 ，一个定死 1可变
+两个字节 ，一个定死 1可变(协议简短)
 速度块
 
 chrukwa

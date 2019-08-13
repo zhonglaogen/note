@@ -90,7 +90,7 @@ udp单播组博广播
 2.r1,r2,
 3.svm客户太，错误中断到root态==intel：vt-x
 bioss-虚拟化-enable----激活客户态root态，独立虚拟机和宿主机，不能访问用户态和内核态
-docker：linux：3.8，命名空间，进程树结构，cgroup限制配额
+docker：linux：3.8内核，命名空间，进程树结构，cgroup限制配额
 
 brige： 共用一个网卡，同时只能一台上网
 nat：端口转发

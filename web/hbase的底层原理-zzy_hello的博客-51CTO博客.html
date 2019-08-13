@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)https://blog.51cto.com/14048416/2343242 -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="favicon" rel="shortcut icon" href="https://blog.51cto.com/favicon.ico">
+        <title>hbase的底层原理-zzy_hello的博客-51CTO博客</title>
+    <meta name="keywords" content="hbase,底层,原理">
+<meta name="description" content="1.hbase的底层逻辑架构（1）新旧版本的hbase的架构区别这是旧版本的hbase的架构图，一个regionserver中只有一个Hlog。这一张是新版本的图，每一个regionserver中可以有30个Hlog。老版本和新版本的变动：&amp;emsp;&amp;emsp;-0.96版本以前，一个regionserver只有一个HLog，并且管理元数据有.meta.-root-两个元数据表。&amp;emsp;&amp;e">    <link href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/header.css" rel="stylesheet"><link href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/other.css" rel="stylesheet"><link href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/right.css" rel="stylesheet"><link href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/blog_details.css" rel="stylesheet"><link href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/highlight.css" rel="stylesheet">
+    <script type="text/javascript" async="" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/vds.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/push.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/hm.js"></script><script>
+        var HOME_URL = 'https://home.51cto.com/';
+    </script>
+    <script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/jquery.min.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/cookie.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/login.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/common.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/mbox.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/follow.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/vip.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/window.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/share.js"></script><style></style><link rel="stylesheet" href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/share_style0_16.css"></head>
+<body>
+<img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/share_default.jpg" border="0" style="width:0; height:0; position:absolute;">
+<style type="text/css">
+	.service-btn{
+		width: 53px;
+height: 36px;
+color: #1ac6fe;
+line-height: 16px;
+padding-top: 50px;
+		display: inline-block;
+		background: url(https://s1.51cto.com/images/blog/201811/02/463350acf4c693cfb3dc248bc8a2a0eb.png) no-repeat center;
+	}
+	.service-btn:hover{
+		background: url(https://s1.51cto.com/images/blog/201811/02/2d5fa2ff4eb9ef66847aff20ba4c8bae.png) no-repeat center;
+height: 36px;
+color: #fff;
+line-height: 16px;
+padding-top: 50px;
+	}
+</style>
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+<div id="topbanner14" style="position: relative;width:100%;height:40px;background:url(https://s1.51cto.com/images/blog/201908/06/070ba55a1e82da70f59cd4ffae807ae4.jpg)">
+<a class="close fl" href="javascript:;" style="position:absolute;width:13px;height:13px;top:0px;z-index: 20;background: url(&#39;https://s1.51cto.com/images/blog/201808/23/0363c65f527ea7c9880ab5f275303d1a.png&#39;) 0 0 no-repeat;background-size: 100% 100%;left: 50%;margin-left: 587px;"></a>
+<a href="https://blog.51cto.com/cloumn/composedetail?id=9&amp;banner" target="_blank">
+  <img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/cc4a204f7f5a4e387ddf1129c428d579.jpg" alt="" style="position:absolute;width:1200px;height:40px;margin-left: -600px;left:50%;z-index: 10;">
+</a>
+</div>
+<script>
+    $("#topbanner14").on("click",".close",function(){
+        $("#topbanner14").remove();
+    })
+</script>
+<div class="Header">
+  <div class="Page ">
+    <h1 class="Logo"><a href="https://blog.51cto.com/">Logo</a></h1>
+    <ul class="Navigates fl">
+      <li><a href="https://blog.51cto.com/">首页</a></li>
+      <li><a href="https://blog.51cto.com/original">文章</a></li>
+      <li><a href="https://blog.51cto.com/blog/follow">关注</a></li>
+      <li class="">
+        <a class="column-stress" href="https://blog.51cto.com/cloumn/index" target="_blank">订阅专栏</a>
+      </li>
+                    
+                  </ul>
+    <ul class="Navigates Navigates-right fr">
+      <li class="more maps">
+        <a href="javascript:void(0);">网站导航</a>
+        <div>
+            <a href="https://edu.51cto.com/" target="_blank">学院</a>
+            <a href="https://e.51cto.com/" target="_blank">微职位</a>
+            <a href="https://blog.51cto.com/" target="_blank">博客</a>
+            <a href="http://down.51cto.com/" target="_blank">下载</a>
+            <a href="https://home.51cto.com/" target="_blank">家园</a>
+            <a href="http://bbs.51cto.com/" target="_blank">论坛</a>
+            <a href="http://x.51cto.com/" target="_blank">CTO训练营</a>
+            <!--a href=" http://club.51cto.com?blog" target="_blank">CTO俱乐部</a-->
+            <a href="http://wot.51cto.com/" target="_blank">WOT</a>
+            <a href="http://www.51cto.com/" target="_blank">51CTO</a>
+            <i class="arrow"></i>
+        </div>
+      </li>
+                <li><a href="https://blog.51cto.com/site/login?reback=https%3A%2F%2Fblog.51cto.com%2F14048416%2F2343242&amp;logintype=reg" target="_self">注册</a></li>
+          <li class="login"><a href="https://blog.51cto.com/site/login?reback=https%3A%2F%2Fblog.51cto.com%2F14048416%2F2343242" target="_self">登录</a></li>
+                        <li class="mRead">
+          <a href="javascript:;">手机阅读</a>
+          <div>
+            <img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/blog_qr.png">
+            <p>扫一扫体验手机阅读</p>
+            <i class="arrow"></i>
+          </div>
+        </li>
+            <li class="search"><a href="https://blog.51cto.com/search/index" target="_self">搜索</a></li>
+                  <li class="write"><a href="javascript:;" onclick="Login()">写文章</a></li>
+                  </ul>
+
+          <div class="clear"></div>
+  </div>
+</div>
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/box.js"></script> 
+<script>
+    var isLogin = '0';
+    var userId = '';
+    var imgpath = 'https://s1.51cto.com/';
+    var BLOG_URL = 'https://blog.51cto.com/';
+    var msg_num_url = '/index/ajax-msg-num';
+    $('.msg-follow, .msg-follow-max').eq(1).css({top: '91px'});
+    $('.msg-follow, .msg-follow-max').eq(2).css({top: '121px'});
+    setTimeout(function(){
+            $.ajax({
+                url:msg_num_url,
+                type:"get",
+                dataType:'json',
+                success:function(res){
+                    if(res.status == '0'){
+                       //
+                       var hasNewMsg = false;
+                       if(res.data.msgNum > 0 && !$('#myMsg i').hasClass('dot')){
+                            $('#myMsg i').addClass('dot');
+                            hasNewMsg = true;
+                       }
+                       if(res.data.notifyNum > 0 && !$('#myNotify i').hasClass('dot')){
+                           $('#myNotify i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(res.data.recommend_new > 0 && !$('#myRecommend i').hasClass('dot')){
+                           $('#myRecommend i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(hasNewMsg && !$('#myAllMsg i').hasClass('dot')){
+                           $('#myAllMsg i').addClass('dot');
+                       }
+                    }
+
+                }
+            });
+    },70);
+    //广告图
+$(function(){
+     new AutoAD({
+      ADD:$('<a href="https://blog.51cto.com/cloumn/composedetail?id=9" class="closeMB" target="_blank" styel="display:block;"><img src="https://s1.51cto.com/images/blog/201908/06/d16da149d76dfa4521d2f43d49981cc4.jpg"></a><a class="closeMB" style="position: absolute;right:2px;top: 3px;width: 50px;height: 40px;cursor: pointer;" href="javascript:;"></a>'),
+      W:500,
+      H:400,
+      cookie:'blog_activity_blog81',
+      mask:"#000",
+      ts:'21600',
+      noCBtn: true
+    }) 
+})    
+</script>
+ <script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/entrance.js" id="zhichiScript" class="zhiCustomBtn" data-args="manual=true"></script>
+<a href="javascript:;" class="zhiCustomBtn" style="position: fixed;z-index: 2147483583;width: 60px;height: 6px;text-align: center;bottom:275px;right:0px;">
+<span class="service-btn">在线<br>客服</span>
+</a>
+
+<script type="text/javascript">
+var zhiManager = (getzhiSDKInstance());
+zhiManager.on("load", function() {
+    zhiManager.initBtnDOM();
+});
+//zhiManager.set('title','垃圾/广告信息举报');
+zhiManager.set('powered',false);
+zhiManager.set('color', '4285f4');
+zhiManager.set('customBtn', 'true');
+zhiManager.set('moduleType',2);
+zhiManager.set('size',{'width':360,'height':500});
+
+zhiManager.set('userinfo', {partnerId:'',uname:'',params:'{"用户名":""}'});
+zhiManager.set('customMargin', 20);
+zhiManager.set('horizontal', 20);
+zhiManager.set('vertical', 90);
+zhiManager.set('preVisitArgs',{'preVisitUrl': document.referrer?document.referrer:''});
+zhiManager.set('curVisitArgs',{'curVisitUrl': location.href,curVisitTitle:document.title,});
+</script>
+<div class="Content-box" style="min-height: 500px;">
+    	<link rel="stylesheet" href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/mdeShow.css">
+<link rel="stylesheet" href="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/tinyscrollbar.css">
+<script type="text/javascript" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/jquery.tinyscrollbar.js"></script>
+<div class="Content Index" style="padding-bottom: 50px;">
+	<div class="Page M764">
+		<!-- left start -->
+		<div class="artical-Left-blog">
+			<div class="status">
+	        					<a class="tab_name original">原创</a>
+							</div>
+			<h1 class="artical-title">hbase的底层原理</h1>
+			<div class="artical-title-list">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/14048416" class="a-img" target="_blank"><img class="is-vip-img is-vip-img-4" data-uid="14038416" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/f71e2ecb3d7303af04038cdcafd3807e.jpg"></a>
+				</div>
+				<a href="https://blog.51cto.com/14048416" class="name fl" target="_blank" style="margin-right:0;">原生zzy</a>
+												<a class="comment comment-num fr"><font class="comment_number">0</font>人评论</a>
+				<span class="fr"></span>
+				<a href="javascript:;" class="read fr">791人阅读</a>
+				<a href="javascript:;" class="time fr">2019-01-16 11:08:01</a>
+				<div class="clear"></div>
+			</div>
+							<div class="artical-content-bak main-content">
+					<div class="con artical-content editor-preview-side"><h2>1.hbase的底层逻辑架构</h2>
+<h3>（1）新旧版本的hbase的架构区别</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/5ed1372a92132d02bace52b7d061d5fa.png" alt="hbase的底层原理" style="cursor: pointer;"><br>这是旧版本的hbase的架构图，一个regionserver中只有一个Hlog。<br><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/e554085fcd211694b0a90145461aeed7.png" alt="hbase的底层原理" style="cursor: pointer;"><br>这一张是新版本的图，每一个regionserver中可以有30个Hlog。<br><strong>老版本和新版本的变动</strong>：<br>  - 0.96版本以前，一个regionserver只有一个HLog，并且管理元数据有.meta. -root-两个元数据表。<br>  - 0.98版本以后，一个regionserver可以有多个Hlog，并且管理元数据，只有.meta.表。</p>
+<h3>（2）hbase的中两张特殊的表</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/1474e4f4e260973d4893e0b6cd4b32ca.png" alt="hbase的底层原理" style="cursor: pointer;"><br>  - <strong>.MEAT.</strong>：记录了用户所有表拆分出来的region映射信息（各个region的rowkey范围，以及存在的节点），.MEAT.可以有多个region。对应的用户表中切分出来的每一个region就对应.META.表中的一个记录<br>  - <strong>-ROOT-</strong>：记录了.META.表的 Region 信息，-ROOT-只有一个 Region，无论如何不会分裂，同样的.META.表切分出来的一个region就是-    ROO-表中的一个记录。</p>
+<h3>（3）hbase架构角色职责</h3>
+<h4> 1）client</h4>
+<p>    - Client访问用户表前需要首先访问zookeeper，找到对应的-ROOT-表的region所在位置，然后访问-ROOT-表，找到.meta.表的访问位置，然后找到.meta.表，最后通过.meta.表找到用户数据的位置去访问，中间需要多次网络操作，并且client 端会做 cache 缓存（即如果下一次查找的记录在上一次已经查询了，可以不进行以上操作，直接在缓存中得到） </p>
+<h4> 2）zookeeper</h4>
+<p>    - zookeeper为HBASE提供failover机制，选主master，避免单点故障，其实HBASE中的master，宕机一段时间对集群影响不大，因为master，及时master宕机，HBASE集群仍然可以做：查看，上传操作，但是不能创建和修改表。但是master宕机很长时间是不行的，因为master需要做负载。<br>    - 存储所有Region 的寻址入口：-ROOT-表在哪台服务器上。-ROOT-这张表的位置信息<br>    -  实时监控regionserver的状态，将regionserver的上线和下线信息实时通知给master<br>    - 存储HBASE的schema（包括有哪些 Table，每个 Table 有哪些 Column Family）；默认情况下：  /hbase/table：是zookeeper中存储HBASE中表名的目录</p>
+<h4> 3）Master</h4>
+<p>    -  为regionserver分配region（并且做负载均衡）<br>    -  发现失效的 RegionServer 并重新分配其上的 Region（即，如果有相应的RegionServer宕机的时候，master会将其宕机节点上的region，复制到其他节点上），高容错。<br>    - HDFS 上的垃圾文件（HBase）回收<br>    - 处理HBASE的schema（表的创建、删除、修改、列簇的增加…）</p>
+<h4> 4）RegionServer</h4>
+<p>    -    RegionServer 维护 Master 分配给它的 Region，处理对这些 Region 的 IO 请求（即对表中数据的增、删、改）<br>    -  负责和底层的文件系统hdfs交互，存储数据到hdfs<br>    -  负责 Store 中的 HFile 的合并工作<br>    - RegionServer 负责 Split 在运行过程中变得过大的 Region，负责 Compact （切分）操作 <br><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/62e5d3510b5ba256d33dfb5524b0db3c.png" alt="hbase的底层原理" style="cursor: pointer;"><br><strong>切分原则</strong>：<br>第一次：128*（1*1）<br>第二次：128*（3*3）<br>第三次：128*（5*5） 直到计算的结果&gt;10G的时候，以后就按照10G切分</p>
+<h2>2.hbase的底层物理存储原理</h2>
+<h3>（1）整体物理结构</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/4ea490f14158280d24d9b745464953f0.png" alt="hbase的底层原理" style="cursor: pointer;"><br>上图是一个regionserver的存储<br>  -  Table中的所有行按照rowkey进行字典排序，然后根据rowkey范围，切分出不同的region<br>  -   Region的默认大小为10G，每个表一开始只有一个 HRegion，随着数据不断插入 表，HRegion 不断增大，当增大到一个阀值的时候，HRegion 就会等分会两个新的 HRegion。 当表中的行不断增多，就会有越来越多的 HRegion<br>  -   Region是Hbase 中分布式存储和负载均衡的最小单元。同一个region中的数据一定是存储在同一个节点上的，但是region切分后，可以存储的不同的节点<br>  -  Region虽然是负载的最小单元，但是不是物理存储的最小单元。实际上，region由一个或者多个store组成，每一个store，存储的是region中的一个列簇中的所有数据。每个 Strore 又由一个 MemStore 和 0 至多个 StoreFile 组成</p>
+<h3>（2）MemStore和StoreFile</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/b0f7225b4d81e065f769fe08ae590a74.png" alt="hbase的底层原理" style="cursor: pointer;"><br>   一个region由多个store组成，每一个store包含一个列簇的所有数据，一个region由多个store组成，每一个store包含一个列簇的所有数据。<br>    <strong>原理</strong>：在写入数据的时候，现将数据写入到Memstore，当 Memstore 中的数据量达到某个阈值，regionserver启动flushcache 进程写入 Storefile，每次写入形成单独一个 HFile。（即，当达到阈值的时候，首先会将存储在Memstore中的数据写入磁盘，形式为hfile,当磁盘中有多个Hfile的时候，又会进行合并，合并成一个storefile）。</p>
+<h3>（3）storefile和hfile结构</h3>
+<p>   StoreFile 以 HFile 格式保存在 HDFS 上，请看下图 HFile 的数据组织格式：<br><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/a8cc52e439e8292a167ab1445e950ff0.png" alt="hbase的底层原理" style="cursor: pointer;"><br>其中：首先 HFile 文件是不定长的，长度固定的只有其中的两块：Trailer 和 FileInfo。<br>   - Trailer：有指针，指向其他数据块的起始点<br>   - FileInfo：记录本文件的元数据信息<br>   - Data：存储的是表中的数据<br>   - Meta：保存用户自定义的 kv 对<br>   - Data Index：data的索引，每条索引的 key 是被索引的 block 的第一条记录的 key<br>   - Meta Index：Meta的索引，记录着Meta数据的起始位置<br>   - Data中的magic：用于校验，判断是否有数据损坏<br>其中，除了trailer和fileinfo两个定长的数据以外，其他的数据都可以进行压缩。<br><strong>data中的K-V键值的介绍</strong>：<br><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/b0774efb41835ddb62cf217618dc90a6.png" alt="hbase的底层原理" style="cursor: pointer;"><br>   两个固定长度的数值，分别表示key的长度和value的长度。紧接着是key，开始是固定长度的数值，表示rowkey的长度，紧接着是rowkey，然后是固定长度的数值，紧接着是列簇名（最好是16），接着是 Qualifier（列名），然后是两个固定长度的数值，表示 TimeStamp 和 KeyType（Put/Delete）。Value 部分没有这么复杂的结构，就是纯粹的二进制数据了。</p>
+<h3>（4）Hlog---WAL</h3>
+<p>  <strong>WAL</strong> 意为 Write ahead log，用于做灾难恢复的，HLog 记录数据的所有变更，一旦数据修改，就可以从 Log 中 进行恢复。<br>  <strong>灾难恢复的解释</strong>：开始的时候region的数据时存储在内存中的metestore，此时还没有达到阈值，数据仍在内存中，没有持久化到磁盘，如果此时机器突然宕机，储存在内存的数据，会丢失，此时需要hlog进行数据的恢复。但是hlog只会保存，在没有同步到磁盘中的那部分操作的日志，已同步到磁盘的数据，那部分的日志，会被存放到oldWAL目录下，10分钟后删除。<br>  HLog 的文件结构：<br>    -    HLog Sequence File 的 Key 是 HLogKey 对象，HLogKey 中记录了写入数据的归属信息，除 了 table 和 region 名字外，同时还包括 sequence number 和 timestamp，timestamp 是”写入 时间”，sequence number 的起始值为 0，或者是最近一次存入文件系统中 sequence number。<br>    -  HLog Sequece File 的 Value 是 HBase 的 KeyValue 对象，即对应 HFile 中的 KeyValue</p>
+<h2>3.hbase的寻址机制</h2>
+<p>  <strong>介绍</strong> ：读写是在regionserver上发生，每个 RegionSever 为一定数量的 Region 服务，如果client要对某一行数据做读写的时候，我们该访问哪一个regionserver？，可以使用寻址的方式解决。</p>
+<h3>（1）老版本的region的寻址机制（0.96以前）</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/17c9139c2eefcae8c291ebd84a92e5e1.png" alt="hbase的底层原理" style="cursor: pointer;"><br><strong>解释</strong>：<br>   - client请求zookeeper获得-root-所在的regionserver地址<br>   - client请求-root-所在的regionserver,获取取.META.表的地址。client 会将-ROOT-的相关 信息 cache 下来，以便下一次快速访问<br>   -  client请求.META.表的regionserver，获取访问数据所在的regionserver的地址（仍然有缓存）<br>   - client请求访问数据所在的regionserver，获取相应的数据</p>
+<h3>（2）新的region寻址方式（0.98版本）</h3>
+<p><img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/3040fb73056faa017dfcf10b57d39d9e.png" alt="hbase的底层原理" style="cursor: pointer;"><br>   -  Client 请求 ZooKeeper 获取.META.所在的 RegionServer 的地址<br>   -  Client 请求.META.所在的 RegionServer 获取访问数据所在的 RegionServer 地址，Client 会将.META.的相关信息 cache 下来，以便下一次快速访问<br>   -  Client 请求数据所在的 RegionServer，获取所需要的数据</p>
+<h2>4.hbase的读写过程</h2>
+<h3>（1）读流程：</h3>
+<p>   -  客户端通过zookeeper以及-root-表和.mate.表找到目标数据所在的regionserver（寻址）<br>   -  联系regionserve查询目标数据<br>   -  Region先在memstore中查找，命中则返回 <br>   -      如果memstore找不到，则在storefile中扫描 ，  为了能快速的判断要查询的数据在不在这个 StoreFile 中，应用了 BloomFilter（布隆过滤）   </p>
+<h3>（2）写流程：</h3>
+<p>   -  Client先根据rowkey找到对应的region所在的regionserver(寻址)<br>   -  Client向regionserver提交请求<br>   -  Regionserver找到目标region<br>   -  Regionserver检查数据是否与 Schema 一致<br>   -  如果客户端没有指定版本，则获取当前系统时间作为数据版本<br>   - 将更新写入Hlog <br>   - 将数据写入memstore<br>   -  判断memstore的是否需要flush为storefile<br><strong>注意</strong>：<br>   -  数据在更新时首先写入 HLog(WAL Log)，再写入内存(MemStore)中，MemStore 中的数据是排序的<br>   -  Storefile是只读的，一旦创建就不能在修改，因此HBASE的更新/修改其实是不断追加的操作，根据版本的保留策略，会将旧的数据删除</p>
+<h2>5.master和Regionserver的工作机制</h2>
+<h3>（1）Regionserver的工作机制</h3>
+<h4> 1）   region的分配</h4>
+<p>  任何时刻，一个region只能分配一个regionserver。Master记录了当前有哪些可用的regionserver。以及当前哪些region分配给了哪些regionserver，哪些region还没有分配。当需要分配新的region的时候，master就给一个有可用空间的regionserver发送装载region的请求。把这个region分配个这个regionserver。</p>
+<h4> 2）RegionServer 上线</h4>
+<p>   Master 使用 zookeeper 来跟踪 RegionServer 状态。当某个 RegionServer 启动时，会首先在 ZooKeeper 上的 server 目录下建立代表自己的 znode。由于 Master 订阅了ZooKeeper server 目录上的变 更消息，当 server 目录下的文件出现新增或删除操作时，Master 可以得到来自 ZooKeeper 的实时通知。因此一旦 RegionServer 上线，Master 能马上得到消息</p>
+<h4> 3）RegionServer 下线</h4>
+<p>  当 RegionServer 下线时，它和 zookeeper 的会话断开，ZooKeeper 而自动释放代表这台 server 的文件上的独占锁。Master 就可以确定，regionserver和zookeeper之间无法通行了，regionserver可能宕机了。</p>
+<h3>（2）master的工作机制</h3>
+<h4> 1）master的启动步骤：</h4>
+<p>  -  从zookeeper上获取唯一代表Active Master 的锁，用来阻止其它 Master 成为 Master<br>  -   扫描zookeeper上的server的节点，获得当前可用的regionserver节点列表。<br>  -   和每一个regionserver通信，获得当前分配的region和regionserver的对应关系。<br>  -   扫描.META. Region 的集合，计算得到当前还未分配的region，将他们放入待分配region列表。</p>
+<h4> 2）master的下线：</h4>
+<p>  由于master只维护表和region的元数据，而不参与数据IO的过程，master下线仅导致所有的元数据的修改被冻结（无法创建表，无法修改表的schema，无法进行region的负载均衡），表的数据读写还可以正常进行。因此master可以短暂的下线。从上线过程可以看到，Master 保存的信息全是可以冗余信息（都可以从系统其它地方 收集到或者计算出来）</p></div>
+				</div>
+													<div class="artical-copyright mt26">©著作权归作者所有：来自51CTO博客作者原生zzy的原创作品，如需转载，请注明出处，否则将追究法律责任</div>
+									<div class="for-tag mt26">
+																						<a href="https://blog.51cto.com/search/result?q=hbase" target="_blank">hbase</a>
+																								<a href="https://blog.51cto.com/search/result?q=%E5%BA%95%E5%B1%82" target="_blank">底层</a>
+																								<a href="https://blog.51cto.com/search/result?q=%E5%8E%9F%E7%90%86" target="_blank">原理</a>
+															                				<a class="last" href="https://blog.51cto.com/14048416/category6.html" target="_blank"><i></i>hbase</a>
+                				<div class="clear"></div>
+			</div>
+			<div class="more-list">
+				<p class="is-praise fl "><span type="1" blog_id="2343242" userid="14038416">2</span></p>
+				<div class="share-box fr">
+					<p class="share"><i></i>分享</p>
+					<div class="bdsharebuttonbox bdshare-button-style0-16" data-bd-bind="1565534921778">
+					  <span></span>
+					  <a class="bds_tsina" data-cmd="tsina">微博</a>
+					  <a class="bds_sqq" data-cmd="sqq">QQ</a>
+					  <a class="bds_weixin" data-cmd="weixin">微信</a>
+					  <img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/qr-url">
+					</div>
+				</div>
+				<p class="favorites favorites-opt fr"><i></i>收藏</p>
+								<div class="clear"></div>
+			</div>
+							<div class="artical-list">
+	            					<a class="fl" href="https://blog.51cto.com/14048416/2343093" title="hbase的典型场景">
+						上一篇：hbase的典型场景</a>
+	            	            					<a class="fr" href="https://blog.51cto.com/14048416/2343709" title="flume的初体验">
+						下一篇：flume的初体验</a>
+	            					<div class="clear"></div>
+				</div>
+						<div class="author-module">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/14048416" class="a-img" target="_blank">
+						<img class="is-vip-img is-vip-img-4" data-uid="14038416" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/f71e2ecb3d7303af04038cdcafd3807e.jpg">
+					</a>
+				</div>
+				<div class="author-module-center fl">
+					<a class="h2" href="https://blog.51cto.com/14048416" target="_blank" style="display:inline-block;">原生zzy</a>
+										<h3>137篇文章，11W+人气，0粉丝</h3>
+					<h4>善始善终</h4>				</div>
+								<div class="clear"></div>
+			</div>
+		</div>
+		<div class="artical-Left" id="comment">
+			<!-- 发布评论 -->
+			<div class="comment-creat">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/14048416" class="header-img" target="_blank">
+						<img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/noavatar_middle.gif">
+					</a>
+				</div>
+				<div class="first-publish fr publish_user_id">
+					<textarea class="textareadiv textareadiv-publish" name="" id="" placeholder="提问和评论都可以，用心的回复会被更多人看到和认可" maxlength="500"></textarea>
+					<div class="comment-push">
+						<p class="msg fl">Ctrl+Enter&nbsp;发布</p>
+													<p class="publish-btn blue-btn fr" flag="1">发布</p>
+												<p class="cancel-btn cancel-btn-1 fr">取消</p>
+						<div class="clear"></div>
+					</div>
+					<input type="hidden" class="user_id" value="14038416">
+					<input type="hidden" class="reply_id" value="2343242">
+					<input type="hidden" class="first_pid" value="">
+				</div>
+				<div class="clear"></div>
+			</div>
+						<div class="commentList"></div>
+			<!-- page -->
+			<div class="act_pageList_box"></div>
+		</div>
+		<!-- end left -->
+		<!-- right start -->
+		<div class="Blog-Right artical-Right">
+			<a class="catalog"></a>
+			<a class="scrollTop" href="javascript:void(0);" onclick="$(window).scrollTop(0);"></a>
+		<div class="directoryBox"><span class="top-icon"></span><div class="list directory"><ul class="directory-list"><li class="lv1">1.hbase的底层逻辑架构</li><li class="lv3">（1）新旧版本的hbase的架构区别</li><li class="lv3">（2）hbase的中两张特殊的表</li><li class="lv3">（3）hbase架构角色职责</li><li class="lv1">2.hbase的底层物理存储原理</li><li class="lv3">（1）整体物理结构</li><li class="lv3">（2）MemStore和StoreFile</li><li class="lv3">（3）storefile和hfile结构</li><li class="lv3">（4）Hlog---WAL</li><li class="lv1">3.hbase的寻址机制</li><li class="lv3">（1）老版本的region的寻址机制（0.96以前）</li><li class="lv3">（2）新的region寻址方式（0.98版本）</li><li class="lv1">4.hbase的读写过程</li><li class="lv3">（1）读流程：</li><li class="lv3">（2）写流程：</li><li class="lv1">5.master和Regionserver的工作机制</li><li class="lv3">（1）Regionserver的工作机制</li><li class="lv3">（2）master的工作机制</li><div class="arrow"></div></ul></div><span class="bot-icon"></span></div></div>
+		<!-- end right  -->
+	</div>
+			<div class="special-column">
+			<div class="Page M764">
+									<div class="column-1">
+						<h2 class="column-tit">推荐专栏<a href="https://blog.51cto.com/cloumn/index?utm_source=p" target="_blank"><span class="recommend-more-span" style="">更多</span></a></h2>
+													<div class="column-box">
+								<a href="https://blog.51cto.com/cloumn/detail/5" class="a-img fl cloumn-tab-par" target="_blank">
+									<img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/dc6736c5fd50474b5df8b76b040e3d03.jpg">
+                													</a>
+								<div class="center fl">
+									<a class="h2 white-space left-list" href="https://blog.51cto.com/cloumn/detail/5" target="_blank"> 带你玩转高可用</a>
+									<h3 class="white-space">前百度高级工程师的架构高可用实战</h3>
+									<h4 class="white-space">共15章&nbsp;|&nbsp;<a href="https://blog.51cto.com/13527416" target="_blank">曹林华</a></h4>
+									<h5><span class="price">
+                                    ￥51.00
+                                    </span><span>477人订阅</span></h5>
+								</div>
+								<div class="right fr">
+							        																							<a class="cloumn-subscribe left-list" cid="5" href="https://blog.51cto.com/cloumn/detail/5" ask="1" target="_blank">订&nbsp;&nbsp;&nbsp;阅</a>
+																			    								</div>
+								<div class="clear"></div>
+							</div>
+											</div>
+													<div class="column-2" style="margin-top: 76px;">
+						<h2 class="column-tit">猜你喜欢</h2>
+						<div class="column-box">
+															<a class="white-space" href="https://blog.51cto.com/14048416/2426750?source=dra" target="_blank">hbase导数据的几种方式</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/14048416/2426016?source=dra" target="_blank">Java  中常见的排序算法</a>
+															<a class="white-space" href="https://blog.51cto.com/369369/812889?source=drt" target="_blank">DNS原理及其解析过程【精彩剖析】</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/dreamfire/121273?source=drt" target="_blank">不同VLAN之间相互通信的两种方式（单臂路由、三层交换）</a>
+															<a class="white-space" href="https://blog.51cto.com/lavasoft/99150?source=drt" target="_blank">Java线程：概念与原理</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/winda/1063951?source=drt" target="_blank">最通俗的CRC校验原理剖析</a>
+															<a class="white-space" href="https://blog.51cto.com/lavasoft/181907?source=drt" target="_blank">深入解读Quartz的原理</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/chen0547/1963879?source=drt" target="_blank">I2C通信基本原理及其实现</a>
+															<a class="white-space" href="https://blog.51cto.com/ganbing/2087598?source=drt" target="_blank">“深入浅出”来解读Docker网络核心原理</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/atong/1343950?source=drt" target="_blank">NFS原理详解</a>
+															<a class="white-space" href="https://blog.51cto.com/freeloda/1306743?source=drt" target="_blank">SNMP 原理与实战详解</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/andygao/817518?source=drt" target="_blank">Vmware vSphere 5.0系列教程之四  vSphere网络原理及vSwitch简介</a>
+															<a class="white-space" href="https://blog.51cto.com/14408894/2426907?source=drh" target="_blank">5G丨5G承载光模块</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/14159827/2425851?source=drh" target="_blank">关系型数据库全表扫描分片详解</a>
+															<a class="white-space" href="https://blog.51cto.com/14159827/2425148?source=drh" target="_blank">基于可视化配置的日志结构化转换实现</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/youerning/2424082?source=drh" target="_blank">python股票市场数据探索指北</a>
+															<a class="white-space" href="https://blog.51cto.com/14159827/2418305?source=drh" target="_blank">大数据虚拟混算平台Moonbox配置指南</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/14159827/2416118?source=drh" target="_blank">如何设计实时数据平台（设计篇）</a>
+															<a class="white-space" href="https://blog.51cto.com/xinsir/2415723?source=drh" target="_blank">docker k8s 集群部署tomcat，使用一个镜像，增加镜像的复用性。</a>
+															<a class="white-space left-list" href="https://blog.51cto.com/14309075/2415046?source=drh" target="_blank">Maxwell读取MySQL binlog日志到Kafka</a>
+														<div class="clear"></div>
+						</div>
+					</div>
+							</div>
+		</div>
+		<div class="group_img_box">
+		<div class="group_git_box">
+                	 <img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/f92360e227f9d91cdff7ea95120630ef.png" style="width:70px;height:70px;"> 	
+			<!--<img src="https://s1.51cto.com/images/blog/201810/22/078772c84eb23213ea90f577d9316ce4.png"/>-->
+        		</div>
+			<div class="group_code_box">
+			<img src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/left-qr.jpg" width="130" height="130">
+			<p>扫一扫,领取大礼包</p>
+		</div>
+	</div>		
+	<div class="the-lowest-bg">
+		<div class="the-lowest Page M764">
+			<p class="is-praise fl "><span type="1" blog_id="2343242" userid="14038416">2</span></p>
+			<p class="b-favorites favorites-opt fl"><i></i><b>0</b></p>
+			<a class="b-reply fl"><i></i><font class="comment_number"></font></a>
+			<div class="b-share fl">
+				<i></i>分享
+				<div class="bdsharebuttonbox bdshare-button-style0-16" data-bd-bind="1565534921778">
+				  <a class="bds_tsina p2" data-cmd="tsina"></a>
+				  <a class="bds_sqq p3" data-cmd="sqq"></a>
+				  <a class="bds_weixin p1" data-cmd="weixin"><em class="code-icon"></em><img class="code-img" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/qr-url"></a>
+				</div>
+			</div>
+      						<a href="https://blog.51cto.com/14048416" class="b-name fr">原生zzy</a>
+			<div class="is-vip-bg-6 fr">
+				<a href="https://blog.51cto.com/14048416" class="b-img"><img class="is-vip-img is-vip-img-4" data-uid="14038416" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/f71e2ecb3d7303af04038cdcafd3807e.jpg"></a>
+			</div>
+			<div class="clear"></div>
+
+		</div>
+	</div>
+</div>
+<!-- 老博文美观处理 -->
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/countDown.js"></script>
+<script>
+	var praise_url = 'https://blog.51cto.com/praise/praise'
+    	addReply_url = 'https://blog.51cto.com/comments/add'
+    	removeUrl = 'https://blog.51cto.com/comments/del'
+    	blog_id = '2343242'
+    	pv_log_info = {
+            'pv_type':'blog',
+            'user_id':'14038416',
+            'blog_id':'2343242'
+        };
+    	rid = '0'
+    	is_comment = '0'
+    	comment_list = '/blog/ajax-comment-list'
+    	comment_sort = "asc"
+    	index_url = 'https://blog.51cto.com/14048416';
+    	uc_url = 'https://ucenter.51cto.com/'
+    	blog_url = 'https://blog.51cto.com/'
+    	img_url = 'https://static1.51cto.com/edu/blog/'
+    	i_user_id = ''
+    	c_user_id ='14038416'
+    	collect_url = 'https://blog.51cto.com/collect/add'
+    	is_old = '0'
+    	nicknameurl = 'https://blog.51cto.com/14048416'
+    	nickname = '原生zzy'
+    	myself = window.location.href;
+	$('.you-like-list li:odd').css({'margin-left': '10%'});
+	$('.column-box a:odd').addClass('left-list')
+	$('.myUrl').text(myself).click(function(){window.open(myself)})
+	setTimeout(function(){$('.Footer').css({'margin-top':'-50px'})},50)
+        	if(is_old==1){
+    // SyntaxHighlighter.all();
+    insertCodeElement("## 1.hbase\u7684\u5e95\u5c42\u903b\u8f91\u67b6\u6784\n### \uff081\uff09\u65b0\u65e7\u7248\u672c\u7684hbase\u7684\u67b6\u6784\u533a\u522b\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/5ed1372a92132d02bace52b7d061d5fa.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n\u8fd9\u662f\u65e7\u7248\u672c\u7684hbase\u7684\u67b6\u6784\u56fe\uff0c\u4e00\u4e2aregionserver\u4e2d\u53ea\u6709\u4e00\u4e2aHlog\u3002\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/e554085fcd211694b0a90145461aeed7.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n\u8fd9\u4e00\u5f20\u662f\u65b0\u7248\u672c\u7684\u56fe\uff0c\u6bcf\u4e00\u4e2aregionserver\u4e2d\u53ef\u4ee5\u670930\u4e2aHlog\u3002\n**\u8001\u7248\u672c\u548c\u65b0\u7248\u672c\u7684\u53d8\u52a8**\uff1a\n&emsp;&emsp;- 0.96\u7248\u672c\u4ee5\u524d\uff0c\u4e00\u4e2aregionserver\u53ea\u6709\u4e00\u4e2aHLog\uff0c\u5e76\u4e14\u7ba1\u7406\u5143\u6570\u636e\u6709.meta. -root-\u4e24\u4e2a\u5143\u6570\u636e\u8868\u3002\n&emsp;&emsp;- 0.98\u7248\u672c\u4ee5\u540e\uff0c\u4e00\u4e2aregionserver\u53ef\u4ee5\u6709\u591a\u4e2aHlog\uff0c\u5e76\u4e14\u7ba1\u7406\u5143\u6570\u636e\uff0c\u53ea\u6709.meta.\u8868\u3002\n### \uff082\uff09hbase\u7684\u4e2d\u4e24\u5f20\u7279\u6b8a\u7684\u8868\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/1474e4f4e260973d4893e0b6cd4b32ca.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n&emsp;&emsp;- **.MEAT.**\uff1a\u8bb0\u5f55\u4e86\u7528\u6237\u6240\u6709\u8868\u62c6\u5206\u51fa\u6765\u7684region\u6620\u5c04\u4fe1\u606f\uff08\u5404\u4e2aregion\u7684rowkey\u8303\u56f4\uff0c\u4ee5\u53ca\u5b58\u5728\u7684\u8282\u70b9\uff09\uff0c.MEAT.\u53ef\u4ee5\u6709\u591a\u4e2aregion\u3002\u5bf9\u5e94\u7684\u7528\u6237\u8868\u4e2d\u5207\u5206\u51fa\u6765\u7684\u6bcf\u4e00\u4e2aregion\u5c31\u5bf9\u5e94.META.\u8868\u4e2d\u7684\u4e00\u4e2a\u8bb0\u5f55\n&emsp;&emsp;- **-ROOT-**\uff1a\u8bb0\u5f55\u4e86.META.\u8868\u7684 Region \u4fe1\u606f\uff0c-ROOT-\u53ea\u6709\u4e00\u4e2a Region\uff0c\u65e0\u8bba\u5982\u4f55\u4e0d\u4f1a\u5206\u88c2\uff0c\u540c\u6837\u7684.META.\u8868\u5207\u5206\u51fa\u6765\u7684\u4e00\u4e2aregion\u5c31\u662f-\tROO-\u8868\u4e2d\u7684\u4e00\u4e2a\u8bb0\u5f55\u3002\n### \uff083\uff09hbase\u67b6\u6784\u89d2\u8272\u804c\u8d23\n#### &emsp;1\uff09client\n&emsp;&emsp;&emsp; - Client\u8bbf\u95ee\u7528\u6237\u8868\u524d\u9700\u8981\u9996\u5148\u8bbf\u95eezookeeper\uff0c\u627e\u5230\u5bf9\u5e94\u7684-ROOT-\u8868\u7684region\u6240\u5728\u4f4d\u7f6e\uff0c\u7136\u540e\u8bbf\u95ee-ROOT-\u8868\uff0c\u627e\u5230.meta.\u8868\u7684\u8bbf\u95ee\u4f4d\u7f6e\uff0c\u7136\u540e\u627e\u5230.meta.\u8868\uff0c\u6700\u540e\u901a\u8fc7.meta.\u8868\u627e\u5230\u7528\u6237\u6570\u636e\u7684\u4f4d\u7f6e\u53bb\u8bbf\u95ee\uff0c\u4e2d\u95f4\u9700\u8981\u591a\u6b21\u7f51\u7edc\u64cd\u4f5c\uff0c\u5e76\u4e14client \u7aef\u4f1a\u505a cache \u7f13\u5b58\uff08\u5373\u5982\u679c\u4e0b\u4e00\u6b21\u67e5\u627e\u7684\u8bb0\u5f55\u5728\u4e0a\u4e00\u6b21\u5df2\u7ecf\u67e5\u8be2\u4e86\uff0c\u53ef\u4ee5\u4e0d\u8fdb\u884c\u4ee5\u4e0a\u64cd\u4f5c\uff0c\u76f4\u63a5\u5728\u7f13\u5b58\u4e2d\u5f97\u5230\uff09 \n#### &emsp;2\uff09zookeeper\n&emsp;&emsp;&emsp; - zookeeper\u4e3aHBASE\u63d0\u4f9bfailover\u673a\u5236\uff0c\u9009\u4e3bmaster\uff0c\u907f\u514d\u5355\u70b9\u6545\u969c\uff0c\u5176\u5b9eHBASE\u4e2d\u7684master\uff0c\u5b95\u673a\u4e00\u6bb5\u65f6\u95f4\u5bf9\u96c6\u7fa4\u5f71\u54cd\u4e0d\u5927\uff0c\u56e0\u4e3amaster\uff0c\u53ca\u65f6master\u5b95\u673a\uff0cHBASE\u96c6\u7fa4\u4ecd\u7136\u53ef\u4ee5\u505a\uff1a\u67e5\u770b\uff0c\u4e0a\u4f20\u64cd\u4f5c\uff0c\u4f46\u662f\u4e0d\u80fd\u521b\u5efa\u548c\u4fee\u6539\u8868\u3002\u4f46\u662fmaster\u5b95\u673a\u5f88\u957f\u65f6\u95f4\u662f\u4e0d\u884c\u7684\uff0c\u56e0\u4e3amaster\u9700\u8981\u505a\u8d1f\u8f7d\u3002\n&emsp;&emsp;&emsp; - \u5b58\u50a8\u6240\u6709Region \u7684\u5bfb\u5740\u5165\u53e3\uff1a-ROOT-\u8868\u5728\u54ea\u53f0\u670d\u52a1\u5668\u4e0a\u3002-ROOT-\u8fd9\u5f20\u8868\u7684\u4f4d\u7f6e\u4fe1\u606f\n&emsp;&emsp;&emsp; -  \u5b9e\u65f6\u76d1\u63a7regionserver\u7684\u72b6\u6001\uff0c\u5c06regionserver\u7684\u4e0a\u7ebf\u548c\u4e0b\u7ebf\u4fe1\u606f\u5b9e\u65f6\u901a\u77e5\u7ed9master\n&emsp;&emsp;&emsp; - \u5b58\u50a8HBASE\u7684schema\uff08\u5305\u62ec\u6709\u54ea\u4e9b Table\uff0c\u6bcf\u4e2a Table \u6709\u54ea\u4e9b Column Family\uff09\uff1b\u9ed8\u8ba4\u60c5\u51b5\u4e0b\uff1a\t\/hbase\/table\uff1a\u662fzookeeper\u4e2d\u5b58\u50a8HBASE\u4e2d\u8868\u540d\u7684\u76ee\u5f55\n#### &emsp;3\uff09Master\n&emsp;&emsp;&emsp; -  \u4e3aregionserver\u5206\u914dregion\uff08\u5e76\u4e14\u505a\u8d1f\u8f7d\u5747\u8861\uff09\n&emsp;&emsp;&emsp; -  \u53d1\u73b0\u5931\u6548\u7684 RegionServer \u5e76\u91cd\u65b0\u5206\u914d\u5176\u4e0a\u7684 Region\uff08\u5373\uff0c\u5982\u679c\u6709\u76f8\u5e94\u7684RegionServer\u5b95\u673a\u7684\u65f6\u5019\uff0cmaster\u4f1a\u5c06\u5176\u5b95\u673a\u8282\u70b9\u4e0a\u7684region\uff0c\u590d\u5236\u5230\u5176\u4ed6\u8282\u70b9\u4e0a\uff09\uff0c\u9ad8\u5bb9\u9519\u3002\n&emsp;&emsp;&emsp; - HDFS \u4e0a\u7684\u5783\u573e\u6587\u4ef6\uff08HBase\uff09\u56de\u6536\n&emsp;&emsp;&emsp; - \u5904\u7406HBASE\u7684schema\uff08\u8868\u7684\u521b\u5efa\u3001\u5220\u9664\u3001\u4fee\u6539\u3001\u5217\u7c07\u7684\u589e\u52a0\u2026\uff09\n#### &emsp;4\uff09RegionServer\n&emsp;&emsp;&emsp; -  \tRegionServer \u7ef4\u62a4 Master \u5206\u914d\u7ed9\u5b83\u7684 Region\uff0c\u5904\u7406\u5bf9\u8fd9\u4e9b Region \u7684 IO \u8bf7\u6c42\uff08\u5373\u5bf9\u8868\u4e2d\u6570\u636e\u7684\u589e\u3001\u5220\u3001\u6539\uff09\n&emsp;&emsp;&emsp; -  \u8d1f\u8d23\u548c\u5e95\u5c42\u7684\u6587\u4ef6\u7cfb\u7edfhdfs\u4ea4\u4e92\uff0c\u5b58\u50a8\u6570\u636e\u5230hdfs\n&emsp;&emsp;&emsp; -  \u8d1f\u8d23 Store \u4e2d\u7684 HFile \u7684\u5408\u5e76\u5de5\u4f5c\n&emsp;&emsp;&emsp; - RegionServer \u8d1f\u8d23 Split \u5728\u8fd0\u884c\u8fc7\u7a0b\u4e2d\u53d8\u5f97\u8fc7\u5927\u7684 Region\uff0c\u8d1f\u8d23 Compact \uff08\u5207\u5206\uff09\u64cd\u4f5c \n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/62e5d3510b5ba256d33dfb5524b0db3c.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n**\u5207\u5206\u539f\u5219**\uff1a\n\u7b2c\u4e00\u6b21\uff1a128\\*\uff081\\*1\uff09\n\u7b2c\u4e8c\u6b21\uff1a128\\*\uff083\\*3\uff09\n\u7b2c\u4e09\u6b21\uff1a128\\*\uff085\\*5\uff09 \u76f4\u5230\u8ba1\u7b97\u7684\u7ed3\u679c>10G\u7684\u65f6\u5019\uff0c\u4ee5\u540e\u5c31\u6309\u716710G\u5207\u5206\n## 2.hbase\u7684\u5e95\u5c42\u7269\u7406\u5b58\u50a8\u539f\u7406\n### \uff081\uff09\u6574\u4f53\u7269\u7406\u7ed3\u6784\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/4ea490f14158280d24d9b745464953f0.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n\u4e0a\u56fe\u662f\u4e00\u4e2aregionserver\u7684\u5b58\u50a8\n&emsp;&emsp;-  Table\u4e2d\u7684\u6240\u6709\u884c\u6309\u7167rowkey\u8fdb\u884c\u5b57\u5178\u6392\u5e8f\uff0c\u7136\u540e\u6839\u636erowkey\u8303\u56f4\uff0c\u5207\u5206\u51fa\u4e0d\u540c\u7684region\n&emsp;&emsp;- \tRegion\u7684\u9ed8\u8ba4\u5927\u5c0f\u4e3a10G\uff0c\u6bcf\u4e2a\u8868\u4e00\u5f00\u59cb\u53ea\u6709\u4e00\u4e2a HRegion\uff0c\u968f\u7740\u6570\u636e\u4e0d\u65ad\u63d2\u5165 \u8868\uff0cHRegion \u4e0d\u65ad\u589e\u5927\uff0c\u5f53\u589e\u5927\u5230\u4e00\u4e2a\u9600\u503c\u7684\u65f6\u5019\uff0cHRegion \u5c31\u4f1a\u7b49\u5206\u4f1a\u4e24\u4e2a\u65b0\u7684 HRegion\u3002 \u5f53\u8868\u4e2d\u7684\u884c\u4e0d\u65ad\u589e\u591a\uff0c\u5c31\u4f1a\u6709\u8d8a\u6765\u8d8a\u591a\u7684 HRegion\n&emsp;&emsp;-  \tRegion\u662fHbase \u4e2d\u5206\u5e03\u5f0f\u5b58\u50a8\u548c\u8d1f\u8f7d\u5747\u8861\u7684\u6700\u5c0f\u5355\u5143\u3002\u540c\u4e00\u4e2aregion\u4e2d\u7684\u6570\u636e\u4e00\u5b9a\u662f\u5b58\u50a8\u5728\u540c\u4e00\u4e2a\u8282\u70b9\u4e0a\u7684\uff0c\u4f46\u662fregion\u5207\u5206\u540e\uff0c\u53ef\u4ee5\u5b58\u50a8\u7684\u4e0d\u540c\u7684\u8282\u70b9\n&emsp;&emsp;-  Region\u867d\u7136\u662f\u8d1f\u8f7d\u7684\u6700\u5c0f\u5355\u5143\uff0c\u4f46\u662f\u4e0d\u662f\u7269\u7406\u5b58\u50a8\u7684\u6700\u5c0f\u5355\u5143\u3002\u5b9e\u9645\u4e0a\uff0cregion\u7531\u4e00\u4e2a\u6216\u8005\u591a\u4e2astore\u7ec4\u6210\uff0c\u6bcf\u4e00\u4e2astore\uff0c\u5b58\u50a8\u7684\u662fregion\u4e2d\u7684\u4e00\u4e2a\u5217\u7c07\u4e2d\u7684\u6240\u6709\u6570\u636e\u3002\u6bcf\u4e2a Strore \u53c8\u7531\u4e00\u4e2a MemStore \u548c 0 \u81f3\u591a\u4e2a StoreFile \u7ec4\u6210\n\n### \uff082\uff09MemStore\u548cStoreFile\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/b0f7225b4d81e065f769fe08ae590a74.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n&emsp;&emsp; \u4e00\u4e2aregion\u7531\u591a\u4e2astore\u7ec4\u6210\uff0c\u6bcf\u4e00\u4e2astore\u5305\u542b\u4e00\u4e2a\u5217\u7c07\u7684\u6240\u6709\u6570\u636e\uff0c\u4e00\u4e2aregion\u7531\u591a\u4e2astore\u7ec4\u6210\uff0c\u6bcf\u4e00\u4e2astore\u5305\u542b\u4e00\u4e2a\u5217\u7c07\u7684\u6240\u6709\u6570\u636e\u3002\n&emsp;&emsp;  **\u539f\u7406**\uff1a\u5728\u5199\u5165\u6570\u636e\u7684\u65f6\u5019\uff0c\u73b0\u5c06\u6570\u636e\u5199\u5165\u5230Memstore\uff0c\u5f53 Memstore \u4e2d\u7684\u6570\u636e\u91cf\u8fbe\u5230\u67d0\u4e2a\u9608\u503c\uff0cregionserver\u542f\u52a8flushcache \u8fdb\u7a0b\u5199\u5165 Storefile\uff0c\u6bcf\u6b21\u5199\u5165\u5f62\u6210\u5355\u72ec\u4e00\u4e2a HFile\u3002\uff08\u5373\uff0c\u5f53\u8fbe\u5230\u9608\u503c\u7684\u65f6\u5019\uff0c\u9996\u5148\u4f1a\u5c06\u5b58\u50a8\u5728Memstore\u4e2d\u7684\u6570\u636e\u5199\u5165\u78c1\u76d8\uff0c\u5f62\u5f0f\u4e3ahfile,\u5f53\u78c1\u76d8\u4e2d\u6709\u591a\u4e2aHfile\u7684\u65f6\u5019\uff0c\u53c8\u4f1a\u8fdb\u884c\u5408\u5e76\uff0c\u5408\u5e76\u6210\u4e00\u4e2astorefile\uff09\u3002\n### \uff083\uff09storefile\u548chfile\u7ed3\u6784\n&emsp;&emsp; StoreFile \u4ee5 HFile \u683c\u5f0f\u4fdd\u5b58\u5728 HDFS \u4e0a\uff0c\u8bf7\u770b\u4e0b\u56fe HFile \u7684\u6570\u636e\u7ec4\u7ec7\u683c\u5f0f\uff1a\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/a8cc52e439e8292a167ab1445e950ff0.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n\u5176\u4e2d\uff1a\u9996\u5148 HFile \u6587\u4ef6\u662f\u4e0d\u5b9a\u957f\u7684\uff0c\u957f\u5ea6\u56fa\u5b9a\u7684\u53ea\u6709\u5176\u4e2d\u7684\u4e24\u5757\uff1aTrailer \u548c FileInfo\u3002\n&emsp;&emsp; - Trailer\uff1a\u6709\u6307\u9488\uff0c\u6307\u5411\u5176\u4ed6\u6570\u636e\u5757\u7684\u8d77\u59cb\u70b9\n&emsp;&emsp; - FileInfo\uff1a\u8bb0\u5f55\u672c\u6587\u4ef6\u7684\u5143\u6570\u636e\u4fe1\u606f\n&emsp;&emsp; - Data\uff1a\u5b58\u50a8\u7684\u662f\u8868\u4e2d\u7684\u6570\u636e\n&emsp;&emsp; - Meta\uff1a\u4fdd\u5b58\u7528\u6237\u81ea\u5b9a\u4e49\u7684 kv \u5bf9\n&emsp;&emsp; - Data Index\uff1adata\u7684\u7d22\u5f15\uff0c\u6bcf\u6761\u7d22\u5f15\u7684 key \u662f\u88ab\u7d22\u5f15\u7684 block \u7684\u7b2c\u4e00\u6761\u8bb0\u5f55\u7684 key\n&emsp;&emsp; - Meta Index\uff1aMeta\u7684\u7d22\u5f15\uff0c\u8bb0\u5f55\u7740Meta\u6570\u636e\u7684\u8d77\u59cb\u4f4d\u7f6e\n&emsp;&emsp; - Data\u4e2d\u7684magic\uff1a\u7528\u4e8e\u6821\u9a8c\uff0c\u5224\u65ad\u662f\u5426\u6709\u6570\u636e\u635f\u574f\n\u5176\u4e2d\uff0c\u9664\u4e86trailer\u548cfileinfo\u4e24\u4e2a\u5b9a\u957f\u7684\u6570\u636e\u4ee5\u5916\uff0c\u5176\u4ed6\u7684\u6570\u636e\u90fd\u53ef\u4ee5\u8fdb\u884c\u538b\u7f29\u3002\n**data\u4e2d\u7684K-V\u952e\u503c\u7684\u4ecb\u7ecd**\uff1a\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/b0774efb41835ddb62cf217618dc90a6.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n&emsp;&emsp; \u4e24\u4e2a\u56fa\u5b9a\u957f\u5ea6\u7684\u6570\u503c\uff0c\u5206\u522b\u8868\u793akey\u7684\u957f\u5ea6\u548cvalue\u7684\u957f\u5ea6\u3002\u7d27\u63a5\u7740\u662fkey\uff0c\u5f00\u59cb\u662f\u56fa\u5b9a\u957f\u5ea6\u7684\u6570\u503c\uff0c\u8868\u793arowkey\u7684\u957f\u5ea6\uff0c\u7d27\u63a5\u7740\u662frowkey\uff0c\u7136\u540e\u662f\u56fa\u5b9a\u957f\u5ea6\u7684\u6570\u503c\uff0c\u7d27\u63a5\u7740\u662f\u5217\u7c07\u540d\uff08\u6700\u597d\u662f16\uff09\uff0c\u63a5\u7740\u662f Qualifier\uff08\u5217\u540d\uff09\uff0c\u7136\u540e\u662f\u4e24\u4e2a\u56fa\u5b9a\u957f\u5ea6\u7684\u6570\u503c\uff0c\u8868\u793a TimeStamp \u548c KeyType\uff08Put\/Delete\uff09\u3002Value \u90e8\u5206\u6ca1\u6709\u8fd9\u4e48\u590d\u6742\u7684\u7ed3\u6784\uff0c\u5c31\u662f\u7eaf\u7cb9\u7684\u4e8c\u8fdb\u5236\u6570\u636e\u4e86\u3002\n\n### \uff084\uff09Hlog---WAL\n&emsp;&emsp;**WAL** \u610f\u4e3a Write ahead log\uff0c\u7528\u4e8e\u505a\u707e\u96be\u6062\u590d\u7684\uff0cHLog \u8bb0\u5f55\u6570\u636e\u7684\u6240\u6709\u53d8\u66f4\uff0c\u4e00\u65e6\u6570\u636e\u4fee\u6539\uff0c\u5c31\u53ef\u4ee5\u4ece Log \u4e2d \u8fdb\u884c\u6062\u590d\u3002\n&emsp;&emsp;**\u707e\u96be\u6062\u590d\u7684\u89e3\u91ca**\uff1a\u5f00\u59cb\u7684\u65f6\u5019region\u7684\u6570\u636e\u65f6\u5b58\u50a8\u5728\u5185\u5b58\u4e2d\u7684metestore\uff0c\u6b64\u65f6\u8fd8\u6ca1\u6709\u8fbe\u5230\u9608\u503c\uff0c\u6570\u636e\u4ecd\u5728\u5185\u5b58\u4e2d\uff0c\u6ca1\u6709\u6301\u4e45\u5316\u5230\u78c1\u76d8\uff0c\u5982\u679c\u6b64\u65f6\u673a\u5668\u7a81\u7136\u5b95\u673a\uff0c\u50a8\u5b58\u5728\u5185\u5b58\u7684\u6570\u636e\uff0c\u4f1a\u4e22\u5931\uff0c\u6b64\u65f6\u9700\u8981hlog\u8fdb\u884c\u6570\u636e\u7684\u6062\u590d\u3002\u4f46\u662fhlog\u53ea\u4f1a\u4fdd\u5b58\uff0c\u5728\u6ca1\u6709\u540c\u6b65\u5230\u78c1\u76d8\u4e2d\u7684\u90a3\u90e8\u5206\u64cd\u4f5c\u7684\u65e5\u5fd7\uff0c\u5df2\u540c\u6b65\u5230\u78c1\u76d8\u7684\u6570\u636e\uff0c\u90a3\u90e8\u5206\u7684\u65e5\u5fd7\uff0c\u4f1a\u88ab\u5b58\u653e\u5230oldWAL\u76ee\u5f55\u4e0b\uff0c10\u5206\u949f\u540e\u5220\u9664\u3002\n&emsp;&emsp;HLog \u7684\u6587\u4ef6\u7ed3\u6784\uff1a\n&emsp;&emsp;&emsp; -  \tHLog Sequence File \u7684 Key \u662f HLogKey \u5bf9\u8c61\uff0cHLogKey \u4e2d\u8bb0\u5f55\u4e86\u5199\u5165\u6570\u636e\u7684\u5f52\u5c5e\u4fe1\u606f\uff0c\u9664 \u4e86 table \u548c region \u540d\u5b57\u5916\uff0c\u540c\u65f6\u8fd8\u5305\u62ec sequence number \u548c timestamp\uff0ctimestamp \u662f\u201d\u5199\u5165 \u65f6\u95f4\u201d\uff0csequence number \u7684\u8d77\u59cb\u503c\u4e3a 0\uff0c\u6216\u8005\u662f\u6700\u8fd1\u4e00\u6b21\u5b58\u5165\u6587\u4ef6\u7cfb\u7edf\u4e2d sequence number\u3002\n&emsp;&emsp;&emsp; -  HLog Sequece File \u7684 Value \u662f HBase \u7684 KeyValue \u5bf9\u8c61\uff0c\u5373\u5bf9\u5e94 HFile \u4e2d\u7684 KeyValue\n## 3.hbase\u7684\u5bfb\u5740\u673a\u5236\n&emsp;&emsp;**\u4ecb\u7ecd** \uff1a\u8bfb\u5199\u662f\u5728regionserver\u4e0a\u53d1\u751f\uff0c\u6bcf\u4e2a RegionSever \u4e3a\u4e00\u5b9a\u6570\u91cf\u7684 Region \u670d\u52a1\uff0c\u5982\u679cclient\u8981\u5bf9\u67d0\u4e00\u884c\u6570\u636e\u505a\u8bfb\u5199\u7684\u65f6\u5019\uff0c\u6211\u4eec\u8be5\u8bbf\u95ee\u54ea\u4e00\u4e2aregionserver\uff1f\uff0c\u53ef\u4ee5\u4f7f\u7528\u5bfb\u5740\u7684\u65b9\u5f0f\u89e3\u51b3\u3002\n### \uff081\uff09\u8001\u7248\u672c\u7684region\u7684\u5bfb\u5740\u673a\u5236\uff080.96\u4ee5\u524d\uff09\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/17c9139c2eefcae8c291ebd84a92e5e1.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n**\u89e3\u91ca**\uff1a\n&emsp;&emsp; - client\u8bf7\u6c42zookeeper\u83b7\u5f97-root-\u6240\u5728\u7684regionserver\u5730\u5740\n&emsp;&emsp; - client\u8bf7\u6c42-root-\u6240\u5728\u7684regionserver,\u83b7\u53d6\u53d6.META.\u8868\u7684\u5730\u5740\u3002client \u4f1a\u5c06-ROOT-\u7684\u76f8\u5173 \u4fe1\u606f cache \u4e0b\u6765\uff0c\u4ee5\u4fbf\u4e0b\u4e00\u6b21\u5feb\u901f\u8bbf\u95ee\n&emsp;&emsp; -  client\u8bf7\u6c42.META.\u8868\u7684regionserver\uff0c\u83b7\u53d6\u8bbf\u95ee\u6570\u636e\u6240\u5728\u7684regionserver\u7684\u5730\u5740\uff08\u4ecd\u7136\u6709\u7f13\u5b58\uff09\n&emsp;&emsp; - client\u8bf7\u6c42\u8bbf\u95ee\u6570\u636e\u6240\u5728\u7684regionserver\uff0c\u83b7\u53d6\u76f8\u5e94\u7684\u6570\u636e\n### \uff082\uff09\u65b0\u7684region\u5bfb\u5740\u65b9\u5f0f\uff080.98\u7248\u672c\uff09\n![](https:\/\/s1.51cto.com\/images\/blog\/201901\/16\/3040fb73056faa017dfcf10b57d39d9e.png?x-oss-process=image\/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)\n&emsp;&emsp; -  Client \u8bf7\u6c42 ZooKeeper \u83b7\u53d6.META.\u6240\u5728\u7684 RegionServer \u7684\u5730\u5740\n&emsp;&emsp; -  Client \u8bf7\u6c42.META.\u6240\u5728\u7684 RegionServer \u83b7\u53d6\u8bbf\u95ee\u6570\u636e\u6240\u5728\u7684 RegionServer \u5730\u5740\uff0cClient \u4f1a\u5c06.META.\u7684\u76f8\u5173\u4fe1\u606f cache \u4e0b\u6765\uff0c\u4ee5\u4fbf\u4e0b\u4e00\u6b21\u5feb\u901f\u8bbf\u95ee\n&emsp;&emsp; -  Client \u8bf7\u6c42\u6570\u636e\u6240\u5728\u7684 RegionServer\uff0c\u83b7\u53d6\u6240\u9700\u8981\u7684\u6570\u636e\n## 4.hbase\u7684\u8bfb\u5199\u8fc7\u7a0b\n### \uff081\uff09\u8bfb\u6d41\u7a0b\uff1a\n&emsp;&emsp; -  \u5ba2\u6237\u7aef\u901a\u8fc7zookeeper\u4ee5\u53ca-root-\u8868\u548c.mate.\u8868\u627e\u5230\u76ee\u6807\u6570\u636e\u6240\u5728\u7684regionserver\uff08\u5bfb\u5740\uff09\n&emsp;&emsp; -  \u8054\u7cfbregionserve\u67e5\u8be2\u76ee\u6807\u6570\u636e\n&emsp;&emsp; -  Region\u5148\u5728memstore\u4e2d\u67e5\u627e\uff0c\u547d\u4e2d\u5219\u8fd4\u56de \n&emsp;&emsp; -  \t\u5982\u679cmemstore\u627e\u4e0d\u5230\uff0c\u5219\u5728storefile\u4e2d\u626b\u63cf \uff0c\t\u4e3a\u4e86\u80fd\u5feb\u901f\u7684\u5224\u65ad\u8981\u67e5\u8be2\u7684\u6570\u636e\u5728\u4e0d\u5728\u8fd9\u4e2a StoreFile \u4e2d\uff0c\u5e94\u7528\u4e86 BloomFilter\uff08\u5e03\u9686\u8fc7\u6ee4\uff09\t\n ### \uff082\uff09\u5199\u6d41\u7a0b\uff1a\n&emsp;&emsp; -  Client\u5148\u6839\u636erowkey\u627e\u5230\u5bf9\u5e94\u7684region\u6240\u5728\u7684regionserver(\u5bfb\u5740)\n&emsp;&emsp; -  Client\u5411regionserver\u63d0\u4ea4\u8bf7\u6c42\n&emsp;&emsp; -  Regionserver\u627e\u5230\u76ee\u6807region\n&emsp;&emsp; -  Regionserver\u68c0\u67e5\u6570\u636e\u662f\u5426\u4e0e Schema \u4e00\u81f4\n&emsp;&emsp; -  \u5982\u679c\u5ba2\u6237\u7aef\u6ca1\u6709\u6307\u5b9a\u7248\u672c\uff0c\u5219\u83b7\u53d6\u5f53\u524d\u7cfb\u7edf\u65f6\u95f4\u4f5c\u4e3a\u6570\u636e\u7248\u672c\n&emsp;&emsp; - \u5c06\u66f4\u65b0\u5199\u5165Hlog \n&emsp;&emsp; - \u5c06\u6570\u636e\u5199\u5165memstore\n&emsp;&emsp; -  \u5224\u65admemstore\u7684\u662f\u5426\u9700\u8981flush\u4e3astorefile\n**\u6ce8\u610f**\uff1a\n&emsp;&emsp; -  \u6570\u636e\u5728\u66f4\u65b0\u65f6\u9996\u5148\u5199\u5165 HLog(WAL Log)\uff0c\u518d\u5199\u5165\u5185\u5b58(MemStore)\u4e2d\uff0cMemStore \u4e2d\u7684\u6570\u636e\u662f\u6392\u5e8f\u7684\n&emsp;&emsp; -  Storefile\u662f\u53ea\u8bfb\u7684\uff0c\u4e00\u65e6\u521b\u5efa\u5c31\u4e0d\u80fd\u5728\u4fee\u6539\uff0c\u56e0\u6b64HBASE\u7684\u66f4\u65b0\/\u4fee\u6539\u5176\u5b9e\u662f\u4e0d\u65ad\u8ffd\u52a0\u7684\u64cd\u4f5c\uff0c\u6839\u636e\u7248\u672c\u7684\u4fdd\u7559\u7b56\u7565\uff0c\u4f1a\u5c06\u65e7\u7684\u6570\u636e\u5220\u9664\n\n## 5.master\u548cRegionserver\u7684\u5de5\u4f5c\u673a\u5236\n### \uff081\uff09Regionserver\u7684\u5de5\u4f5c\u673a\u5236\n#### &emsp;1\uff09\tregion\u7684\u5206\u914d\n&emsp;&emsp;\u4efb\u4f55\u65f6\u523b\uff0c\u4e00\u4e2aregion\u53ea\u80fd\u5206\u914d\u4e00\u4e2aregionserver\u3002Master\u8bb0\u5f55\u4e86\u5f53\u524d\u6709\u54ea\u4e9b\u53ef\u7528\u7684regionserver\u3002\u4ee5\u53ca\u5f53\u524d\u54ea\u4e9bregion\u5206\u914d\u7ed9\u4e86\u54ea\u4e9bregionserver\uff0c\u54ea\u4e9bregion\u8fd8\u6ca1\u6709\u5206\u914d\u3002\u5f53\u9700\u8981\u5206\u914d\u65b0\u7684region\u7684\u65f6\u5019\uff0cmaster\u5c31\u7ed9\u4e00\u4e2a\u6709\u53ef\u7528\u7a7a\u95f4\u7684regionserver\u53d1\u9001\u88c5\u8f7dregion\u7684\u8bf7\u6c42\u3002\u628a\u8fd9\u4e2aregion\u5206\u914d\u4e2a\u8fd9\u4e2aregionserver\u3002\n#### &emsp;2\uff09RegionServer \u4e0a\u7ebf\n&emsp;&emsp; Master \u4f7f\u7528 zookeeper \u6765\u8ddf\u8e2a RegionServer \u72b6\u6001\u3002\u5f53\u67d0\u4e2a RegionServer \u542f\u52a8\u65f6\uff0c\u4f1a\u9996\u5148\u5728 ZooKeeper \u4e0a\u7684 server \u76ee\u5f55\u4e0b\u5efa\u7acb\u4ee3\u8868\u81ea\u5df1\u7684 znode\u3002\u7531\u4e8e Master \u8ba2\u9605\u4e86ZooKeeper server \u76ee\u5f55\u4e0a\u7684\u53d8 \u66f4\u6d88\u606f\uff0c\u5f53 server \u76ee\u5f55\u4e0b\u7684\u6587\u4ef6\u51fa\u73b0\u65b0\u589e\u6216\u5220\u9664\u64cd\u4f5c\u65f6\uff0cMaster \u53ef\u4ee5\u5f97\u5230\u6765\u81ea ZooKeeper \u7684\u5b9e\u65f6\u901a\u77e5\u3002\u56e0\u6b64\u4e00\u65e6 RegionServer \u4e0a\u7ebf\uff0cMaster \u80fd\u9a6c\u4e0a\u5f97\u5230\u6d88\u606f\n#### &emsp;3\uff09RegionServer \u4e0b\u7ebf\n&emsp;&emsp;\u5f53 RegionServer \u4e0b\u7ebf\u65f6\uff0c\u5b83\u548c zookeeper \u7684\u4f1a\u8bdd\u65ad\u5f00\uff0cZooKeeper \u800c\u81ea\u52a8\u91ca\u653e\u4ee3\u8868\u8fd9\u53f0 server \u7684\u6587\u4ef6\u4e0a\u7684\u72ec\u5360\u9501\u3002Master \u5c31\u53ef\u4ee5\u786e\u5b9a\uff0cregionserver\u548czookeeper\u4e4b\u95f4\u65e0\u6cd5\u901a\u884c\u4e86\uff0cregionserver\u53ef\u80fd\u5b95\u673a\u4e86\u3002\n### \uff082\uff09master\u7684\u5de5\u4f5c\u673a\u5236\n#### &emsp;1\uff09master\u7684\u542f\u52a8\u6b65\u9aa4\uff1a\n&emsp;&emsp;-  \u4ecezookeeper\u4e0a\u83b7\u53d6\u552f\u4e00\u4ee3\u8868Active Master \u7684\u9501\uff0c\u7528\u6765\u963b\u6b62\u5176\u5b83 Master \u6210\u4e3a Master\n&emsp;&emsp;-  \t\u626b\u63cfzookeeper\u4e0a\u7684server\u7684\u8282\u70b9\uff0c\u83b7\u5f97\u5f53\u524d\u53ef\u7528\u7684regionserver\u8282\u70b9\u5217\u8868\u3002\n&emsp;&emsp;-  \t\u548c\u6bcf\u4e00\u4e2aregionserver\u901a\u4fe1\uff0c\u83b7\u5f97\u5f53\u524d\u5206\u914d\u7684region\u548cregionserver\u7684\u5bf9\u5e94\u5173\u7cfb\u3002\n&emsp;&emsp;-  \t\u626b\u63cf.META. Region \u7684\u96c6\u5408\uff0c\u8ba1\u7b97\u5f97\u5230\u5f53\u524d\u8fd8\u672a\u5206\u914d\u7684region\uff0c\u5c06\u4ed6\u4eec\u653e\u5165\u5f85\u5206\u914dregion\u5217\u8868\u3002\n#### &emsp;2\uff09master\u7684\u4e0b\u7ebf\uff1a\n&emsp;&emsp;\u7531\u4e8emaster\u53ea\u7ef4\u62a4\u8868\u548cregion\u7684\u5143\u6570\u636e\uff0c\u800c\u4e0d\u53c2\u4e0e\u6570\u636eIO\u7684\u8fc7\u7a0b\uff0cmaster\u4e0b\u7ebf\u4ec5\u5bfc\u81f4\u6240\u6709\u7684\u5143\u6570\u636e\u7684\u4fee\u6539\u88ab\u51bb\u7ed3\uff08\u65e0\u6cd5\u521b\u5efa\u8868\uff0c\u65e0\u6cd5\u4fee\u6539\u8868\u7684schema\uff0c\u65e0\u6cd5\u8fdb\u884cregion\u7684\u8d1f\u8f7d\u5747\u8861\uff09\uff0c\u8868\u7684\u6570\u636e\u8bfb\u5199\u8fd8\u53ef\u4ee5\u6b63\u5e38\u8fdb\u884c\u3002\u56e0\u6b64master\u53ef\u4ee5\u77ed\u6682\u7684\u4e0b\u7ebf\u3002\u4ece\u4e0a\u7ebf\u8fc7\u7a0b\u53ef\u4ee5\u770b\u5230\uff0cMaster \u4fdd\u5b58\u7684\u4fe1\u606f\u5168\u662f\u53ef\u4ee5\u5197\u4f59\u4fe1\u606f\uff08\u90fd\u53ef\u4ee5\u4ece\u7cfb\u7edf\u5176\u5b83\u5730\u65b9 \u6536\u96c6\u5230\u6216\u8005\u8ba1\u7b97\u51fa\u6765\uff09", '#result');
+  }
+
+  function insertCodeElement(content, container){
+    container = container || document;
+    // 创建一个 div 来放置获取到的内容，这样就可以把 content 字符串内容转换成 dom
+    // 方便我们对这个 dom 进行操作（只是创建 div，并没有插入到文档，他只存在于内存中）
+    var parent = document.createElement('div');
+    parent.innerHTML = content;
+
+    // 找到 parent 中的所有 pre 标签，并遍历
+    var $pres = $(parent).find('pre');
+    $pres.each(function(index, el) {
+      var $el = $(el),
+          html = $el.html(),
+          code = document.createElement('code'),
+          elClass = $el.attr('class');
+      if(!elClass) {return};
+          // 获取 pre 标签中，class 属性中包含的本段代码所有的编程语言
+      var language = elClass.substring(6, elClass.indexOf(';'));
+
+      code.className = 'language-' + language;
+      code.innerHTML = html;
+
+      $el.html(code);
+    });
+
+    $(container).html(parent.innerHTML);
+
+    // 最后，调用 Prism 的方法来高亮代码
+    Prism.highlightAll();
+  }
+	window._bd_share_config={
+    "common":{
+      "bdText":"hbase的底层原理",
+      "bdDesc":$("#abstract_bdshare").text(),
+      "bdMini":"2",
+      "bdMiniList":false,
+      "bdPic":"https://s1.51cto.com/images/201710/25/bd540a4f14d822f6e69087758699358b.jpg",
+      "bdStyle":"0",
+      "bdSize":"16"
+    },
+    "share":{}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+  setTimeout(function(){
+  	$('.bdsharebuttonbox a').removeAttr('title')
+  },1000);
+
+	var now_time = 1565534920; //当前时间
+  setInterval(function(){now_time+=0.01},10);
+
+  // 初始化页面
+  updatePage();
+  // 页面tab切换
+  zDate.visibilityAction(function () {
+    zDate.getServerTime(function (e) {
+      var updateResult = new Date(e).getTime();
+      now_time = +updateResult.toString().substr(0, 10);
+      updatePage();
+    });
+   })
+  // 定时刷新现在时间
+  setInterval(function () {
+    zDate.getServerTime(function (e) {
+      var updateResult = new Date(e).getTime();
+      now_time = +updateResult.toString().substr(0, 10);
+      updatePage();
+    });
+  }, 1000*60*2);
+  // 页面刷新
+  function updatePage() {
+    $('.presell').each(function(index, item) {
+      var end_time = $(this).data('end'); // 结束时间
+      if (!end_time) {
+        return;
+      }
+      var me = $(this);
+      if (me.lastTime) {
+        clearInterval(me.lastTime);
+        me.lastTime = null;
+      } else {
+        me.lastTime = setInterval(function() {
+          zDate.setLastTimePc(me.find('.timespan'), (end_time*1000-now_time*1000), me.lastTime, function() {
+						me.parents('.right').find('.cloumn-subscribe').removeClass('presell-color');
+						me.remove();
+						$('.pre-tips').remove();
+					});
+        }, 10);
+      }
+    });
+  }
+		//二维码显示
+		$(".group_git_box").hover(function(){
+			$(this).parents('.group_img_box').find(".group_code_box").show()
+		},function(){
+			$(this).parents('.group_img_box').find(".group_code_box").hide()
+		})  
+</script>
+</div>
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/marked.min.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/highlight.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/detail_mp.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/detail.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/details_new.js"></script><script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/copy.js"></script>    
+<div style="display:none">
+    <iframe frameborder="0" scrolling="no" width="0" height="0" src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/pageview.html"></iframe>
+</div>
+
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/pvlog.js"></script>
+<script>
+  $(".gotop").click(function(){$(window).scrollTop(0)})
+</script>
+
+
+    <script type="text/javascript">
+    //百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?2283d46608159c3b39fc9f1178809c21";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+
+    //自动推送链接
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+    </script>
+
+    <script type="text/javascript">
+      var _vds = _vds || [];
+      window._vds = _vds;
+      (function(){
+        _vds.push(['setAccountId', '8c51975c40edfb67']);
+        (function() {
+          var vds = document.createElement('script');
+          vds.type='text/javascript';
+          vds.async = true;
+          vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'assets.growingio.com/vds.js';
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(vds, s);
+        })();
+      })();
+      //document.write(decodeURI("%3Cscript src='https://tongji.51cto.com/frontend/tj.gif' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    
+<script>
+  var uid = '';
+  var BLOG_URL = 'https://blog.51cto.com/';
+</script>
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/jquery.cookie.js"></script>
+<script src="./hbase的底层原理-zzy_hello的博客-51CTO博客_files/time-on-page.js" charset="utf-8"></script>
+<script>
+    (function(){
+        var wh=$(window).height(),fh=$('.Footer').outerHeight(true),hh=$('.Header').outerHeight(true)
+        $('.Content-box').css({'min-height': wh-fh-hh})
+    })()
+</script>
+
+
+<div id="zhichiBtnBox" style="position: fixed; z-index: 2147483583; box-shadow: rgba(15, 66, 76, 0.25) 0px 0px 14px 0px; width: 60px; height: 60px; border-radius: 50%; background-color: rgb(66, 133, 244); background-image: url(&quot;//www.sobot.com/chat/frame/imgs/icon.png&quot;); background-repeat: no-repeat; background-position: 18px -58px; right: 40px; bottom: 90px; display: none;"><a hidefocus="" id="zhichiBtn" style="position:relative;text-decoration: none; outline: none; font-family: Microsoft Yahei, Arial, Helvetica; color: #fff; font-size: 16px; display: inline-block; margin: 0; padding: 0; border: none; line-height:43px; float:none;width:100%;height:100%;border-radius:50%;"><span class="zc-advice-icon-btn-title" style="box-shadow: rgba(107, 113, 114, 0.15) 0px 2px 4px 0px; border: 1px solid rgb(235, 239, 240); font-family: &quot;Microsoft Yahei&quot;, Arial, Helvetica; color: rgb(85, 85, 86); font-size: 13px; margin: 0px; text-align: right; background: rgb(255, 255, 255); position: absolute; top: 15px; right: 70px; text-overflow: ellipsis; white-space: nowrap; word-break: normal; display: none; border-radius: 3px; padding: 0px 5px; height: 30px; line-height: 30px;">咨询在线客服</span></a><i style="position:absolute;top:0px;right:0px;padding:1px;line-height:20px;text-align:center;color:#fff;font-weight:bold;height:18px;min-width:18px;background-color:#ed5c5c;border-radius:18px;font-size:12px;display:none;font-style:normal;" id="zhichiCount"></i></div></body></html>

@@ -1,0 +1,35 @@
+manglo管理工具robo
+elesearch
+mango
+多数据源
+security
+索引最左原则：两个列的索引，创建最左边的索引
+一致性hash算法：murmurHash3
+数据库分布式分数据分库分表
+id——orderId
+mongodb正则查询
+
+spring.jpa.properties.hibernate.hbm2ddl.auto=update
+update自动增加表和字段
+validate自动增加字段
+create删除所有表和字段再加一遍
+
+
+redis缓存
+jedis lettuce （异步）
+ @Cacheable：查库，有数据回缓存
+@CachePut写缓存，写库
+redis和mysql不一致，删除redis数据
+流程
+dock～link -p 连接
+1mango
+redis：themplate
+2ehcache
+3kafka
+
+element：UI框架
+vue：方便显示数据，简化jquery
+typescript：java版的js
+angulr类似vue
+
+

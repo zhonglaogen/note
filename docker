@@ -1,0 +1,4 @@
+启动mylsq容器时，要把端口映射为3306
+docker启动报错，要把setlinux改为false
+
+把数据库连接池配置写在properties，写在yml里报错

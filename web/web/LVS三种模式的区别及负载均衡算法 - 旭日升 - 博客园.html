@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)https://www.cnblogs.com/gaoxu387/p/7941381.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="origin">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <title>LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园</title>
+    <meta property="og:description" content="LVS简介 LVS（Linux Virtual Server）即Linux虚拟服务器，是一个虚拟的服务器集群系统，由 &#39;章文嵩&#39; 博士在1998年5月成立，在linux2.6+后将lvs自动加入了ke">
+    <link type="text/css" rel="stylesheet" href="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/bundle-AnotherEon001.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/bundle-AnotherEon001-mobile.css">
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/gaoxu387/rss">
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/gaoxu387/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/gaoxu387/wlwmanifest.xml">
+    <script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/amp4ads-host-v0.js"></script><script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/pubads_impl_rendering_2019072201.js"></script><script async="" src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/analytics.js"></script><script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/jquery-2.2.0.min.js"></script>
+    <script>var currentBlogId=87095;var currentBlogApp='gaoxu387',cb_enable_mathjax=false;var isLogined=false;</script>
+    <script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/blog-common.js" type="text/javascript"></script>
+<link rel="preload" href="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/f.txt" as="script"><script type="text/javascript" src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/f.txt"></script><script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/pubads_impl_2019072201.js" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-35/html/container.html"></head>
+<body>
+<a name="top"></a>
+
+
+<div id="wrapper">
+<div id="header">
+
+<div id="top">
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/gaoxu387/">旭日升</a></h1>
+<div id="subtitle">爱好折腾各种服务端开发技术</div>
+</div>
+<div id="sub"><div id="blog_stats">
+<div class="BlogStats">随笔 - 57, 文章 - 0, 评论 - 25, 引用 - 0</div>
+</div></div>
+
+
+
+</div>
+<div id="main_container">
+<div id="main_content">
+<div id="content">
+	
+        <div id="post_detail">
+	<div class="post">
+		<h2>
+			<a id="cb_post_title_url" href="https://www.cnblogs.com/gaoxu387/p/7941381.html">LVS三种模式的区别及负载均衡算法</a>
+		</h2>
+		<div class="postbody">
+		<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown"><h2 id="lvs简介">LVS简介</h2>
+<p>LVS（Linux Virtual Server）即Linux虚拟服务器，是一个虚拟的服务器集群系统，由<a href="https://baike.baidu.com/item/%E7%AB%A0%E6%96%87%E5%B5%A9">章文嵩</a>博士在1998年5月成立，在linux2.6+后将lvs自动加入了kernel模块，我们看下lvs在我们日常的服务器架构所在的位置：</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201111518211-1854078899.jpg"></p>
+<h2 id="正向代理">正向代理</h2>
+<p>只用于代理内部网络对Internet的连接请求，客户机必须指定代理服务器,并将本来要直接发送到Web服务器上的http请求发送到代理服务器中，正向代理指的是客户端代理，是由用户控制并知晓的代理方式，如我不能访问fb，然后使用了某国外服务器作为跳板机，最后成功访问了就是正向代理。</p>
+<h2 id="反向代理">反向代理</h2>
+<p>指以代理服务器来接受Internet上的连接请求，然后将请求转发给内部网络上的服务器；并将从服务器上得到的结果返回给Internet上请求连接的客户端，此时代理服务器对外就表现为一个服务器，反向代理指的是服务端代理，在大型网站背后并不是只有一台机器提供服务，比如我访问微博，微博的某一个反向代理服务器将我解析到内部服务器的一台机器，然后这台机器给我提供微博的消息（当然实际情况比这个复杂的多），这些对于用户都是不可见的，我们只会感觉只有一台机器与我交互。</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201104958195-1132620006.jpg"></p>
+<h2 id="负载均衡">负载均衡</h2>
+<p>(Load Balance)让负载均衡，当然这是一个简单的概括，我在微信里看的架构师之路写的一篇如何实现负载均衡的文章就不错，我有10台机器都提供web服务，那么我如何均衡的利用这10台机器呢，让这10台机器保证高性能、高可用、高并发就是负载均衡要考虑和要做的事情。</p>
+<p>实现负载均衡一般可以使用顺序、比重、流量、服务类别等进行分配，负载均衡的部署方式也分为路由和服务直接返回模式，实现负载均衡的主要几个方式：</p>
+<ul>
+<li><p>http重定向</p>
+<p>下载网站用的较多，其实也算一种负载均衡，工作在应用层的业务代码中</p></li>
+<li><p>DNS负载均衡</p>
+<p>DNS负载提供域名到IP解析的过程，我们实例查看百度的域名解析其实是一对多的，这时候DNS服务器也就充当了负载均衡，很多域名运营商提供的智能dns以及多线解析都是利用了DNS负载均衡的技术，开源的BIND就可提供电信联通多线解析等强大的技术。</p></li>
+</ul>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201110010898-1899012561.png"></p>
+<ul>
+<li><p>反向代理负载均衡</p></li>
+<li><p>IP负载均衡</p></li>
+<li><p>直接路由</p></li>
+<li><p>IP隧道</p></li>
+<li><p>F5硬件负载均衡</p></li>
+</ul>
+<h2 id="四层负载和七层负载">四层负载和七层负载</h2>
+<p>所谓四层就是基于IP+端口的负载均衡，主要代表有lvs。</p>
+<p>七层负载也称内容交换，就是基于URL等应用层信息的负载均衡，主要代表有nginx。</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201115536336-2016943223.png"></p>
+<h2 id="lvs工作原理">LVS工作原理</h2>
+<p>LVS 的 IP 负载均衡技术是通过 IPVS 模块来实现的，IPVS 是 LVS集群系统的核心软件，它的主要作用是：安装在 Director Server 上，同时在 Director Server上虚拟出一个IP 地址，用户必须通过这个虚拟的 IP 地址访问服务器。这个虚拟 IP 一般称为 LVS 的VIP，即 Virtual IP。访问的请求首先经过 VIP 到达负载调度器，然后由负载调度器从Real Server 列表中选取一个服务节点响应用户的请求。 在用户的请求到达负载调度器后，调度器如何将请求发送到提供服务的 Real Server 节点，而 Real Server节点如何返回数据给用户，是 IPVS 实现的重点技术。</p>
+<p><code>ipvs</code> ： 工作于内核空间，主要用于使用户定义的策略生效</p>
+<p><code>ipvsadm</code> : 工作于用户空间，主要用于用户定义和管理集群服务的工具</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201111214133-2071825454.jpg"></p>
+<p>上图所示，ipvs工作于内核空间的INPUT链上，当收到用户请求某集群服务时，经过PREROUTING链，经检查本机路由表，送往INPUT链；在进入netfilter的INPUT链时，ipvs强行将请求报文通过ipvsadm定义的集群服务策略的路径改为FORWORD链，将报文转发至后端真实提供服务的主机。</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201112800227-876845657.png"></p>
+<h2 id="lvs工作模式">LVS工作模式</h2>
+<h3 id="vsdr模式">VS/DR模式</h3>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201113821258-1269645020.jpg"></p>
+<p>①.客户端将请求发往前端的负载均衡器，请求报文源地址是CIP，目标地址为VIP。</p>
+<p>②.负载均衡器收到报文后，发现请求的是在规则里面存在的地址，那么它将客户端请求报文的源MAC地址改为自己DIP的MAC地址，目标MAC改为了RIP的MAC地址，并将此包发送给RS。</p>
+<p>③.RS发现请求报文中的目的MAC是自己，就会将次报文接收下来，处理完请求报文后，将响应报文通过lo接口送给eth0网卡直接发送给客户端。</p>
+<p><strong>注意：</strong></p>
+<p>需要设置lo接口的VIP不能响应本地网络内的arp请求。</p>
+<p><strong>总结：</strong></p>
+<p>1、通过在调度器 LB 上修改数据包的目的 MAC 地址实现转发。注意源地址仍然是 CIP，目的地址仍然是 VIP 地址。</p>
+<p>2、请求的报文经过调度器，而 RS 响应处理后的报文无需经过调度器 LB，因此并发访问量大时使用效率很高（和 NAT 模式比）</p>
+<p>3、因为 DR 模式是通过 MAC 地址改写机制实现转发，因此所有 RS 节点和调度器 LB 只能在一个局域网里面</p>
+<p>4、RS 主机需要绑定 VIP 地址在 LO 接口（掩码32 位）上，并且需要配置 ARP 抑制。</p>
+<p>5、RS 节点的默认网关不需要配置成 LB，而是直接配置为上级路由的网关，能让 RS 直接出网就可以。</p>
+<p>6、由于 DR 模式的调度器仅做 MAC 地址的改写，所以调度器 LB 就不能改写目标端口，那么 RS 服务器就得使用和 VIP 相同的端口提供服务。</p>
+<p>7、直接对外的业务比如WEB等，RS 的IP最好是使用公网IP。对外的服务，比如数据库等最好使用内网IP。</p>
+<p><strong>优点</strong>：</p>
+<p>和TUN（隧道模式）一样，负载均衡器也只是分发请求，应答包通过单独的路由方法返回给客户端。与VS-TUN相比，VS-DR这种实现方式不需要隧道结构，因此可以使用大多数操作系统做为物理服务器。</p>
+<p>DR模式的效率很高，但是配置稍微复杂一点，因此对于访问量不是特别大的公司可以用haproxy/nginx取代。日1000-2000W PV或者并发请求1万一下都可以考虑用haproxy/nginx。</p>
+<p><strong>缺点</strong>：</p>
+<p>所有 RS 节点和调度器 LB 只能在一个局域网里面。</p>
+<h3 id="vstun模式">VS/TUN模式</h3>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201114349664-1780195000.jpg"></p>
+<p>①.客户端将请求发往前端的负载均衡器，请求报文源地址是CIP，目标地址为VIP。</p>
+<p>②.负载均衡器收到报文后，发现请求的是在规则里面存在的地址，那么它将在客户端请求报文的首部再封装一层IP报文,将源地址改为DIP，目标地址改为RIP,并将此包发送给RS。</p>
+<p>③.RS收到请求报文后，会首先拆开第一层封装,然后发现里面还有一层IP首部的目标地址是自己lo接口上的VIP，所以会处理次请求报文，并将响应报文通过lo接口送给eth0网卡直接发送给客户端。</p>
+<p><strong>注意：</strong></p>
+<p>需要设置lo接口的VIP不能在共网上出现。</p>
+<p><strong>总结：</strong></p>
+<p>1.TUNNEL 模式必须在所有的 realserver 机器上面绑定 VIP 的 IP 地址</p>
+<p>2.TUNNEL 模式的 vip ------&gt;realserver 的包通信通过 TUNNEL 模式，不管是内网和外网都能通信，所以不需要 lvs vip 跟 realserver 在同一个网段内</p>
+<p>3.TUNNEL 模式 realserver 会把 packet 直接发给 client 不会给 lvs 了</p>
+<p>4.TUNNEL 模式走的隧道模式，所以运维起来比较难，所以一般不用。</p>
+<p><strong>优点</strong>：</p>
+<p>负载均衡器只负责将请求包分发给后端节点服务器，而RS将应答包直接发给用户。所以，减少了负载均衡器的大量数据流动，负载均衡器不再是系统的瓶颈，就能处理很巨大的请求量，这种方式，一台负载均衡器能够为很多RS进行分发。而且跑在公网上就能进行不同地域的分发。</p>
+<p><strong>缺点：</strong></p>
+<p>隧道模式的RS节点需要合法IP，这种方式需要所有的服务器支持”IP Tunneling”(IP Encapsulation)协议，服务器可能只局限在部分Linux系统上。</p>
+<h3 id="vsnat模式">VS/NAT模式</h3>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201113236914-384152735.jpg"></p>
+<p>①.客户端将请求发往前端的负载均衡器，请求报文源地址是CIP(客户端IP),后面统称为CIP)，目标地址为VIP(负载均衡器前端地址，后面统称为VIP)。</p>
+<p>②.负载均衡器收到报文后，发现请求的是在规则里面存在的地址，那么它将客户端请求报文的目标地址改为了后端服务器的RIP地址并将报文根据算法发送出去。</p>
+<p>③.报文送到Real Server后，由于报文的目标地址是自己，所以会响应该请求，并将响应报文返还给LVS。</p>
+<p>④.然后lvs将此报文的源地址修改为本机并发送给客户端。</p>
+<p><strong>注意：</strong></p>
+<p>在NAT模式中，Real Server的网关必须指向LVS，否则报文无法送达客户端</p>
+<p><strong>特点：</strong></p>
+<p>1、NAT 技术将请求的报文和响应的报文都需要通过 LB 进行地址改写，因此网站访问量比较大的时候 LB 负载均衡调度器有比较大的瓶颈，一般要求最多之能 10-20 台节点</p>
+<p>2、只需要在 LB 上配置一个公网 IP 地址就可以了。</p>
+<p>3、每台内部的 realserver 服务器的网关地址必须是调度器 LB 的内网地址。</p>
+<p>4、NAT 模式支持对 IP 地址和端口进行转换。即用户请求的端口和真实服务器的端口可以不一致。</p>
+<p><strong>优点：</strong></p>
+<p>集群中的物理服务器可以使用任何支持TCP/IP操作系统，只有负载均衡器需要一个合法的IP地址。</p>
+<p><strong>缺点</strong>：</p>
+<p>扩展性有限。当服务器节点（普通PC服务器）增长过多时,负载均衡器将成为整个系统的瓶颈，因为所有的请求包和应答包的流向都经过负载均衡器。当服务器节点过多时，大量的数据包都交汇在负载均衡器那，速度就会变慢！</p>
+<h3 id="fullnat模式">FULLNAT模式</h3>
+<p>无论是 DR 还是 NAT 模式，不可避免的都有一个问题：LVS 和 RS 必须在同一个 VLAN 下，否则 LVS 无法作为 RS 的网关。</p>
+<p>这引发的两个问题是：</p>
+<p>1、同一个 VLAN 的限制导致运维不方便，跨 VLAN 的 RS 无法接入。</p>
+<p>2、LVS 的水平扩展受到制约。当 RS 水平扩容时，总有一天其上的单点 LVS 会成为瓶颈。</p>
+<p>Full-NAT 由此而生，解决的是 LVS 和 RS 跨 VLAN 的问题，而跨 VLAN 问题解决后，LVS 和 RS 不再存在 VLAN 上的从属关系，可以做到多个 LVS 对应多个 RS，解决水平扩容的问题。</p>
+<p>Full-NAT 相比 NAT 的主要改进是，在 SNAT/DNAT 的基础上，加上另一种转换，转换过程如下：</p>
+<p><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/204688-20171201114806477-1126009824.png"></p>
+<p>在包从 LVS 转到 RS 的过程中，源地址从客户端 IP 被替换成了 LVS 的内网 IP。</p>
+<p>内网 IP 之间可以通过多个交换机跨 VLAN 通信。</p>
+<p>当 RS 处理完接受到的包，返回时，会将这个包返回给 LVS 的内网 IP，这一步也不受限于 VLAN。</p>
+<p>LVS 收到包后，在 NAT 模式修改源地址的基础上，再把 RS 发来的包中的目标地址从 LVS 内网 IP 改为客户端的 IP。</p>
+<p>Full-NAT 主要的思想是把网关和其下机器的通信，改为了普通的网络通信，从而解决了跨 VLAN 的问题。采用这种方式，LVS 和 RS 的部署在 VLAN 上将不再有任何限制，大大提高了运维部署的便利性。</p>
+<h5 id="总结">总结</h5>
+<p>1.FULL NAT 模式也不需要 LBIP 和 realserver ip 在同一个网段； full nat 跟 nat 相比的优点是：保证 RS 回包一定能够回到 LVS；因为源地址就是 LVS--&gt; 不确定</p>
+<p>2.full nat 因为要更新 sorce ip 所以性能正常比 nat 模式下降 10%</p>
+<h3 id="三种工作模式比较">三种工作模式比较</h3>
+<table>
+<thead>
+<tr class="header">
+<th>工作模式</th>
+<th>VS/NAT</th>
+<th>VS/TUN</th>
+<th>VS/DR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Real server（节点服务器）</td>
+<td>Config dr gw</td>
+<td>Tunneling</td>
+<td>Non-arp device/tie vip</td>
+</tr>
+<tr class="even">
+<td>Server Network</td>
+<td>Private</td>
+<td>LAN/WAN</td>
+<td>LAN</td>
+</tr>
+<tr class="odd">
+<td>Server number（节点数量）</td>
+<td>Low 10-20</td>
+<td>High 100</td>
+<td>High 100</td>
+</tr>
+<tr class="even">
+<td>Real server gateway</td>
+<td>Load balance</td>
+<td>Own router</td>
+<td>Own router</td>
+</tr>
+<tr class="odd">
+<td>优点</td>
+<td>地址和端口转换</td>
+<td>Wan环境加密数据</td>
+<td>性能最高</td>
+</tr>
+<tr class="even">
+<td>缺点</td>
+<td>效率低</td>
+<td>需要隧道支持</td>
+<td>不能跨域LAN</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lvs调度算法">LVS调度算法</h2>
+<p>在内核中的连接调度算法上，IPVS已实现了以下八种调度算法：</p>
+<ul>
+<li>轮叫调度（Round-Robin Scheduling）</li>
+<li>加权轮叫调度（Weighted Round-Robin Scheduling）</li>
+<li>最小连接调度（Least-Connection Scheduling）</li>
+<li>加权最小连接调度（Weighted Least-Connection Scheduling）</li>
+<li>基于局部性的最少链接（Locality-Based Least Connections Scheduling）</li>
+<li>带复制的基于局部性最少链接（Locality-Based Least Connections with Replication Scheduling）</li>
+<li>目标地址散列调度（Destination Hashing Scheduling）</li>
+<li>源地址散列调度（Source Hashing Scheduling）</li>
+</ul>
+<p><strong>固定调度算法：</strong>rr，wrr，dh，sh</p>
+<p><strong>动态调度算法：</strong>wlc，lc，lblc，lblcr</p>
+<table>
+<thead>
+<tr class="header">
+<th>一般应用场景</th>
+<th>常用调度算法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>一般的网络服务，如 http，mail，mysql</td>
+<td>基本轮训、加权最小连接、加权轮训</td>
+</tr>
+<tr class="even">
+<td>防火墙集群</td>
+<td>源地址散列调度SH和目标地址散列调度DH</td>
+</tr>
+<tr class="odd">
+<td>web cache和DB cache</td>
+<td>局部最小、带复制的局部最小</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lvs支持ssl">LVS支持SSL</h2>
+<p>测试http和https耗时<br>
+curl -w "tcp: %{time_connect}, ssl: %{time_appconnect}\n" -so /dev/null <a href="https://www.alipay.com/" class="uri">https://www.alipay.com</a></p>
+<p>SSL是在TCP三次握手后又进行SSL握手，SSL一般使用的加密算法是RSA加密算法，比较耗费CPU计算，SSL加速卡可以解决CPU消耗高的问题。</p>
+<h2 id="keepalived和haproxy">Keepalived和Haproxy</h2>
+<h3 id="参考文章">参考文章</h3>
+<ul>
+<li>lvs官网 <a href="http://www.linuxvirtualserver.org/zh/lvs2.html" class="uri">http://www.linuxvirtualserver.org/zh/lvs2.html</a></li>
+<li>lvs三种负载均衡技术 <a href="http://blog.csdn.net/u013256816/article/details/50705578" class="uri">http://blog.csdn.net/u013256816/article/details/50705578</a></li>
+<li>lvs原理详解 <a href="http://www.it165.net/admin/html/201401/2248.html" class="uri">http://www.it165.net/admin/html/201401/2248.html</a></li>
+<li>lvs调度算法 <a href="http://www.linuxvirtualserver.org/zh/lvs4.html" class="uri">http://www.linuxvirtualserver.org/zh/lvs4.html</a></li>
+<li>lvs介绍及配置应用 <a href="https://www.cnblogs.com/yangliheng/p/5692068.html" class="uri">https://www.cnblogs.com/yangliheng/p/5692068.html</a></li>
+</ul>
+</div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="https://www.cnblogs.com/gaoxu387/category/1120270.html" target="_blank">Linux相关</a>,<a href="https://www.cnblogs.com/gaoxu387/category/1124179.html" target="_blank">TCP/IP协议相关</a>,<a href="https://www.cnblogs.com/gaoxu387/category/1120285.html" target="_blank">运维相关</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(7941381,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;f6415378-74f3-df11-ac81-842b2b196315&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/gaoxu387/" target="_blank"><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/u204688.jpg" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/gaoxu387/">旭日升</a><br>
+            <a href="https://home.cnblogs.com/u/gaoxu387/followees">关注 - 8</a><br>
+            <a href="https://home.cnblogs.com/u/gaoxu387/followers">粉丝 - 28</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;f6415378-74f3-df11-ac81-842b2b196315&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(7941381,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">1</span>
+    </div>
+    <div class="buryit" onclick="votePost(7941381,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/gaoxu387/p/7890021.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/gaoxu387/p/7890021.html" title="发布于2017-11-24 12:18">ELK Betas 6.0安装及使用</a><br><a href="https://www.cnblogs.com/gaoxu387/p/7993671.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/gaoxu387/p/7993671.html" title="发布于2017-12-06 16:59">使用nginx+docker配置https负载均衡</a><br></div>
+</div>
+
+
+		</div>
+		<p class="postfoot">
+			posted on <span id="post-date">2017-12-01 12:03</span> <a href="https://www.cnblogs.com/gaoxu387/">旭日升</a> 阅读(<span id="post_view_count">12111</span>) 评论(<span id="post_comment_count">1</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=7941381" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/gaoxu387/p/7941381.html#" onclick="AddToWz(7941381);return false;">收藏</a>
+		</p>
+	</div>
+	<script src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/highlight.min.js"></script><script>markdown_highlight();</script><script type="text/javascript">var allowComments=true,cb_blogId=87095,cb_entryId=7941381,cb_blogApp=currentBlogApp,cb_blogUserGuid='f6415378-74f3-df11-ac81-842b2b196315',cb_entryCreatedDate='2017/12/1 12:03:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=true;</script>
+	
+	</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<a name="评论"></a>
+<div id="comments">
+<h3>评论</h3>
+	
+	
+			<div class="post">
+				<h2>
+					<a href="https://www.cnblogs.com/gaoxu387/p/7941381.html#4214656" class="layer">#1楼</a><a name="4214656" id="comment_anchor_4214656"></a><span id="comment-maxId" style="display:none;">4214656</span><span id="comment-maxDate" style="display:none;">2019/3/27 11:11:49</span>
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</h2>
+				<div id="comment_body_4214656" class="blog_comment_body">受益</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(4214656,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(4214656,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_4214656_avatar" style="display:none;">http://pic.cnblogs.com/face/u430742.jpg?id=24154049</span>
+				<div class="postfoot">
+					 <span class="comment_date">2019-03-27 11:11</span> | <a id="a_comment_author_4214656" href="https://www.cnblogs.com/itaceo-o/" target="_blank">印在车轮下的青春2013</a> <a href="http://msg.cnblogs.com/send/%E5%8D%B0%E5%9C%A8%E8%BD%A6%E8%BD%AE%E4%B8%8B%E7%9A%84%E9%9D%92%E6%98%A52013" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+				</div>
+			</div>
+		
+</div>
+<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/gaoxu387/p/7941381.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/gaoxu387/p/7941381.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万C++/C#源码: 大型实时仿真组态图形源码</a><br><a href="https://www.grapecity.com.cn/developer/spreadjs?utm_source=cnblogs&amp;utm_medium=blogpage&amp;utm_term=bottom&amp;utm_content=SpreadJS&amp;utm_campaign=community" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-SpreadJS&#39;)">【前端】SpreadJS表格控件，可嵌入系统开发的在线Excel</a><br><a href="https://group.cnblogs.com/topic/81799.html" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-Dell&#39;)">【戴尔】Vostro 5481小机身大视野，新一代职场搭档就是它</a><br><a href="https://q.cnblogs.com/" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-博问&#39;)">【推荐】程序员问答平台，解决您开发中遇到的技术难题</a><br></div>
+<div id="opt_under_post"></div>
+<script async="async" src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/gpt.js"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c1" class="c_ad_block">
+    <div id="div-gpt-ad-1546353474406-0" style="height:250px; width:300px;" data-google-query-id="CITDhqHi0uMCFYluiwodkKMMEQ"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C1_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="1" data-load-complete="true" src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/saved_resource.html"></iframe></div></div>
+</div>
+<div id="under_post_news"><div class="recomm-block"><b>相关博文：</b><br>·  <a href="https://www.cnblogs.com/xiaopaipai/p/10411937.html" target="_blank" onclick="clickRecomItmem(10411937)">LVS三种模式区别</a><br>·  <a href="https://www.cnblogs.com/benjamin77/p/8445145.html" target="_blank" onclick="clickRecomItmem(8445145)">负载均衡技术之-lvs</a><br>·  <a href="https://www.cnblogs.com/zhangeamon/p/5544695.html" target="_blank" onclick="clickRecomItmem(5544695)">LVS负载均衡的三种模式和八种算法总结</a><br>·  <a href="https://www.cnblogs.com/sellsa/p/5402459.html" target="_blank" onclick="clickRecomItmem(5402459)">LVS负载均衡系统</a><br>·  <a href="https://www.cnblogs.com/yingdiblog/p/7049875.html" target="_blank" onclick="clickRecomItmem(7049875)">lvs负载均衡连接</a><br></div></div>
+<div id="cnblogs_c2" class="c_ad_block">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="COeYhaHi0uMCFYluiwodkKMMEQ"><div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C2_0" width="468" height="60" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="2" data-load-complete="true" src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/saved_resource(1).html"></iframe></div></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block"><b>最新新闻</b>：<br> ·  <a href="https://news.cnblogs.com/n/628820/" target="_blank">NVIDIA发布431.68版补丁驱动：修复鼠标光标问题</a><br> ·  <a href="https://news.cnblogs.com/n/628819/" target="_blank">因制裁 GitHub 限制克里米亚的账号</a><br> ·  <a href="https://news.cnblogs.com/n/628818/" target="_blank">小区业主不让建基站 三大运营商和铁塔公司集体断网</a><br> ·  <a href="https://news.cnblogs.com/n/628817/" target="_blank">假如把地球46亿年历史压缩到一天</a><br> ·  <a href="https://news.cnblogs.com/n/628816/" target="_blank">华为何刚：华为在5G初期不考虑盈利</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+</div>
+</div>
+<div id="leftmenu">
+
+
+<h3>导航</h3>
+<ul>
+<li>
+<a id="blog_nav_sitehome" href="https://www.cnblogs.com/">博客园</a></li>
+<li>
+<a id="blog_nav_myhome" class="two_words" href="https://www.cnblogs.com/gaoxu387/">首页</a></li>
+<li>
+<a id="blog_nav_newpost" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li>
+<a id="blog_nav_contact" accesskey="9" class="two_words" rel="nofollow" href="https://msg.cnblogs.com/send/%E6%97%AD%E6%97%A5%E5%8D%87">联系</a></li>
+<li>
+<a id="blog_nav_rss" class="two_words" href="https://www.cnblogs.com/gaoxu387/rss">订阅</a>
+<a id="blog_nav_rss_image" href="https://www.cnblogs.com/gaoxu387/rss"><img src="./LVS三种模式的区别及负载均衡算法 - 旭日升 - 博客园_files/xml.gif" alt="订阅"></a>
+</li>
+<li>
+<a id="blog_nav_admin" class="two_words" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+
+<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/06/01&#39;);return false;">&lt;</a></td><td align="center">2019年7月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/08/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">30</td><td align="center">1</td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td class="CalWeekendDay" align="center">6</td></tr><tr><td class="CalWeekendDay" align="center">7</td><td align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center">11</td><td align="center">12</td><td class="CalWeekendDay" align="center">13</td></tr><tr><td class="CalWeekendDay" align="center">14</td><td align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center">18</td><td align="center">19</td><td class="CalWeekendDay" align="center">20</td></tr><tr><td class="CalWeekendDay" align="center">21</td><td align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td class="CalTodayDay" align="center">26</td><td class="CalWeekendDay" align="center">27</td></tr><tr><td class="CalWeekendDay" align="center">28</td><td align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td></tr><tr><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td><td class="CalOtherMonthDay" align="center">8</td><td class="CalOtherMonthDay" align="center">9</td><td class="CalOtherMonthDay" align="center">10</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+<meta name="vs_showGrid" content="False">
+
+<h3>公告</h3>
+<div id="blog-news"><div id="profile_block">昵称：<a href="https://home.cnblogs.com/u/gaoxu387/">旭日升</a><br>园龄：<a href="https://home.cnblogs.com/u/gaoxu387/" title="入园时间：2010-11-19">8年8个月</a><br>粉丝：<a href="https://home.cnblogs.com/u/gaoxu387/followers/">28</a><br>关注：<a href="https://home.cnblogs.com/u/gaoxu387/followees/">8</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;f6415378-74f3-df11-ac81-842b2b196315&#39;)">+加关注</a></div><script>getFollowStatus('f6415378-74f3-df11-ac81-842b2b196315')</script></div></div><script type="text/javascript">loadBlogNews();</script>
+
+<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="https://www.cnblogs.com/gaoxu387/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="https://www.cnblogs.com/gaoxu387/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="https://www.cnblogs.com/gaoxu387/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="https://www.cnblogs.com/gaoxu387/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="https://www.cnblogs.com/gaoxu387/tag/" title="我的博客的标签列表">我的标签</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+
+</div></div><div id="sidebar_recentposts" class="sidebar-block">
+<h3 class="catListTitle">最新随笔</h3>
+<div class="RecentComment" id="RecentPosts">
+<ul style="word-break:break-all">
+<li><a href="https://www.cnblogs.com/gaoxu387/p/10229429.html">1. 组装台式电脑的一些踩坑和总结2018-01</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/10149211.html">2. 线上Redis偶发性链接失败排查记</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/10063622.html">3. TCP协议基础知识及wireshark抓包分析实战</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/10002684.html">4. 58到家mysql数据库军规及解读分享</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/8033796.html">5. centos pure-ftpd配置及错误解决</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/8028967.html">6. phpstrom+xdebug+chrome+postman调试工具搭建</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/8000407.html">7. Docker常用命令</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/7993671.html">8. 使用nginx+docker配置https负载均衡</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/7941381.html">9. LVS三种模式的区别及负载均衡算法</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/7890021.html">10. ELK Betas 6.0安装及使用</a></li>
+</ul>
+</div>
+</div><div id="sidebar_toptags" class="sidebar-block">
+<h3 class="catListTitle">我的标签</h3>
+<div id="MyTag">
+<ul>
+<li><a href="https://www.cnblogs.com/gaoxu387/tag/memcache%20php%20memcached%20%E7%BC%93%E5%86%B2/">memcache php memcached 缓冲</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/php%E8%B0%83%E8%AF%95%20xdebug/">php调试 xdebug</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/xdebug%20%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%20thread%20safety%20VC6%20VC9/">xdebug 线程安全 thread safety VC6 VC9</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/ELK/">ELK</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/Elasticsearch/">Elasticsearch</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/%E6%97%A0%E9%99%90%E5%88%86%E7%B1%BB%20%E8%A1%A8%E6%A0%BC%E6%97%A0%E9%99%90%E5%88%86%E7%B1%BB/">无限分类 表格无限分类</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/THINKPHP%20PHP%20%E6%B5%81%E7%A8%8B%E5%9B%BE/">THINKPHP PHP 流程图</a>(1)</li><li><a href="https://www.cnblogs.com/gaoxu387/tag/TCP%20SWOOLE/">TCP SWOOLE</a>(1)</li>
+</ul>
+</div></div><div id="sidebar_categories">
+		<h3>随笔分类</h3>
+		
+				<ul>
+			
+				<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/gaoxu387/category/1127104.html">Docker(1)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/gaoxu387/category/1120272.html">Golang相关</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/gaoxu387/category/1120268.html">JS相关(9)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/gaoxu387/category/1120270.html">Linux相关(7)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/gaoxu387/category/1120274.html">Message Queue</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/gaoxu387/category/1120277.html">Nosql相关</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/gaoxu387/category/1120253.html">PHP相关(21)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/gaoxu387/category/1124179.html">TCP/IP协议相关(1)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/gaoxu387/category/1120283.html">分布式技术</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/gaoxu387/category/1120275.html">全文检索(5)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_10" href="https://www.cnblogs.com/gaoxu387/category/1120269.html">数据库相关(3)</a></li>
+			
+				<li><a id="CatList_LinkList_0_Link_11" href="https://www.cnblogs.com/gaoxu387/category/1120285.html">运维相关(4)</a></li>
+			
+				</ul>
+			
+	
+		<h3>随笔档案</h3>
+		
+				<ul>
+			
+				<li><a id="CatList_LinkList_1_Link_0" href="https://www.cnblogs.com/gaoxu387/archive/2019/01.html">2019年1月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_1" href="https://www.cnblogs.com/gaoxu387/archive/2018/12.html">2018年12月 (2)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_2" href="https://www.cnblogs.com/gaoxu387/archive/2018/11.html">2018年11月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_3" href="https://www.cnblogs.com/gaoxu387/archive/2017/12.html">2017年12月 (5)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_4" href="https://www.cnblogs.com/gaoxu387/archive/2017/11.html">2017年11月 (3)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_5" href="https://www.cnblogs.com/gaoxu387/archive/2015/03.html">2015年3月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_6" href="https://www.cnblogs.com/gaoxu387/archive/2013/08.html">2013年8月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_7" href="https://www.cnblogs.com/gaoxu387/archive/2013/07.html">2013年7月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_8" href="https://www.cnblogs.com/gaoxu387/archive/2012/12.html">2012年12月 (3)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_9" href="https://www.cnblogs.com/gaoxu387/archive/2012/11.html">2012年11月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_10" href="https://www.cnblogs.com/gaoxu387/archive/2012/09.html">2012年9月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_11" href="https://www.cnblogs.com/gaoxu387/archive/2012/08.html">2012年8月 (3)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_12" href="https://www.cnblogs.com/gaoxu387/archive/2012/07.html">2012年7月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_13" href="https://www.cnblogs.com/gaoxu387/archive/2012/04.html">2012年4月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_14" href="https://www.cnblogs.com/gaoxu387/archive/2012/03.html">2012年3月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_15" href="https://www.cnblogs.com/gaoxu387/archive/2012/02.html">2012年2月 (2)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_16" href="https://www.cnblogs.com/gaoxu387/archive/2011/12.html">2011年12月 (1)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_17" href="https://www.cnblogs.com/gaoxu387/archive/2011/10.html">2011年10月 (8)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_18" href="https://www.cnblogs.com/gaoxu387/archive/2011/09.html">2011年9月 (3)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_19" href="https://www.cnblogs.com/gaoxu387/archive/2011/08.html">2011年8月 (4)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_20" href="https://www.cnblogs.com/gaoxu387/archive/2011/07.html">2011年7月 (6)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_21" href="https://www.cnblogs.com/gaoxu387/archive/2011/05.html">2011年5月 (4)</a></li>
+			
+				<li><a id="CatList_LinkList_1_Link_22" href="https://www.cnblogs.com/gaoxu387/archive/2011/04.html">2011年4月 (3)</a></li>
+			
+				</ul>
+			
+	</div><div id="sidebar_scorerank" class="sidebar-block">
+<h3>积分与排名</h3>
+<ul>
+	<li>
+		积分 -
+		66647
+	</li><li>
+		排名 -
+		8721
+	</li>
+</ul>
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<h3 class="catListTitle">最新评论</h3>
+<div class="RecentComment" id="RecentComments">
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/gaoxu387/p/7941381.html#4214656">1. Re:LVS三种模式的区别及负载均衡算法</a></li>
+        <li class="recent_comment_body">受益</li>
+        <li class="recent_comment_author">--印在车轮下的青春2013</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/gaoxu387/p/10149211.html#4144341">2. Re:线上Redis偶发性链接失败排查记</a></li>
+        <li class="recent_comment_body">@不会Redisredis是使用php的扩展phpredis调用方法是直接调用，扩展上会有影响吗？```php$redis = new Redis();$redis-&gt;connect(ip, port......</li>
+        <li class="recent_comment_author">--旭日升</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/gaoxu387/p/10149211.html#4143777">3. Re:线上Redis偶发性链接失败排查记</a></li>
+        <li class="recent_comment_body">redis过度封装.封装类自锁伪造了并发等待了。</li>
+        <li class="recent_comment_author">--不会Redis</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/gaoxu387/p/7890021.html#3867979">4. Re:ELK Betas 6.0安装及使用</a></li>
+        <li class="recent_comment_body">@song-liang用这个命令创建索引，然后去kibana后台就可以看到了./metricbeat setup --dashboards具体你可以参考下官方文档...</li>
+        <li class="recent_comment_author">--旭日升</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/gaoxu387/p/7890021.html#3867263">5. Re:ELK Betas 6.0安装及使用</a></li>
+        <li class="recent_comment_body">想请教下，后面的仪表盘需要怎么配置？</li>
+        <li class="recent_comment_author">--song-liang</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<h3 class="catListTitle">阅读排行榜</h3>
+<div class="RecentComment" id="TopViewPosts"> 
+	<div id="TopViewPostsBlock"><ul><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/26/2225429.html">1. swfobject.js 2.2简单使用方法(48353)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/26/2224740.html">2. PHP异步调用实现方式(24371)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2012/04/23/2466133.html">3. THINKPHP URL漏洞可执行任意系统命令(13262)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/7941381.html">4. LVS三种模式的区别及负载均衡算法(12111)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/07/01/2095398.html">5. PHP采集利器：Snoopy 试用心得(12003)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<h3 class="catListTitle">评论排行榜</h3>
+<div class="RecentComment" id="TopCommentsPosts">
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="https://www.cnblogs.com/gaoxu387/archive/2012/03/16/2399923.html">1. THINKPHP3.0执行流程图(6)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2012/08/20/2647639.html">2. jquery bankInput银行卡账号格式化(3)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2012/04/23/2466133.html">3. THINKPHP URL漏洞可执行任意系统命令(2)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/p/7890021.html">4. ELK Betas 6.0安装及使用(2)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/31/2230733.html">5. 使用PHPRPC实现AJAX安全登录(2)</a></li></ul></div>
+</div></div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div class="RecentComment">
+	<div id="TopDiggPostsBlock"><ul><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/26/2224740.html">1. PHP异步调用实现方式(4)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/24/2222753.html">2. 基于JQUERY使用FLASH的AJAX上传进度条插件uploadify(3)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/07/30/2121804.html">3. 关于.htaccess的配置(2)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/05/27/2059459.html">4. C#之基本知识和语法3 - 数据类型(2)</a></li><li><a href="https://www.cnblogs.com/gaoxu387/archive/2011/10/26/2225429.html">5. swfobject.js 2.2简单使用方法(2)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+
+</div>
+</div>
+<div class="clear"></div>
+<div id="footer">
+
+<p id="footer">
+	Powered by: 
+	<br>
+	
+	<a id="Footer1_Hyperlink3" name="Hyperlink1" href="https://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>
+	<br>
+	Copyright © 旭日升
+</p>
+</div>
+</div>
+
+
+
+
+</body></html>

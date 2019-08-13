@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)https://www.cnblogs.com/chiclee/p/9097772.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="origin">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <title>为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园</title>
+    
+    <link rel="shortcut icon" href="https://common.cnblogs.com/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/blog-common.min.css">
+    <link id="MainCss" rel="stylesheet" href="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/bundle-simpleblue.min.css">
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/bundle-simpleblue-mobile.min.css">
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/chiclee/rss">
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/chiclee/rsd.xml">
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/chiclee/wlwmanifest.xml">
+    <script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/osd.js"></script><script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/pubads_impl_rendering_2019080101.js"></script><script async="" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/encoder.js"></script><script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/jquery-2.2.0.min.js"></script>
+    <script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/blog-common.min.js"></script>
+    <script>
+        var currentBlogId = 270677;
+        var currentBlogApp = 'chiclee';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+    </script>
+    
+    
+    
+<link rel="preload" href="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/f(2).txt" as="script"><script type="text/javascript" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/f(2).txt"></script><script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/pubads_impl_2019080101.js" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-35/html/container.html"></head>
+<body>
+    <a name="top"></a>
+    
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            
+<div class="title">
+<a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/chiclee/">李子沫</a>
+</div>
+<div class="subtitle">
+
+</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/chiclee/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%9D%8E%E5%AD%90%E6%B2%AB">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="https://www.cnblogs.com/chiclee/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                
+<span id="stats_post_count">随笔 - 
+8&nbsp;</span>
+<span id="stats_article_count">文章 - 
+0&nbsp;</span>
+<!-- <span id="stats-comment_count"></span> -->
+<span id="stats_comment_count">评论 - 
+4</span>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/chiclee/p/9097772.html">为什么要用枚举实现单例模式（避免反射、序列化问题）</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                
+<div id="cnblogs_post_body" class="blogpost-body ">
+    <h2><span style="color: #3366ff;">1 引言</span></h2>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; 相信如果能看到我这篇博客的小伙伴，肯定都看过Joshua Bloch大神说过的这句话：<span style="color: #ff0000;">“单元素的枚举类型已经成为实现Singleton的最佳方法”</span>。其实，第一次读到这句话，我连其中说的单元素指什么都不知道，尴尬。后来，网上看了搜索了好几篇文章，发现基本上都是转载自相同的一篇文章，而我的困惑是<em><strong><span style="background-color: #c0c0c0;">“为什么要用枚举类型实现单例模式呢</span></strong></em>”，文章中都说的很笼统，于是决定自己结合Joshua Bloch的《effective java》写一篇总结下，给后来的同学做个参考。</p>
+<h2><span style="color: #3366ff;">2 什么是单例模式</span></h2>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;关于什么是单例模式的定义，我之前的一篇文章（<span style="font-size: 18px;"><a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/chiclee/p/6475864.html">最简单的设计模式--单例模式</a></span>）中有写过，主要是讲恶汉懒汉、线程安全方面得问题，我就不再重复了，只是做下单例模式的总结。之前文章中实现单例模式三个主要特点：<span style="color: #ff0000;">1、构造方法私有化；2、实例化的变量引用私有化；3、获取实例的方法共有。</span></p>
+<p>&nbsp; &nbsp; &nbsp; <span style="color: #3366ff;">&nbsp;&nbsp;如果不使用枚举，大家采用的一般都是“双重检查加锁”这种方式，如下，对单例模式还不了解的同学希望先大致看下这种思路，接下来的3.1和3.2都是针对这种实现方式进行探讨，了解过单例模式的同学可以跳过直接看3.1的内容</span>：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span><span style="color: #000000;"> Singleton {
+</span><span style="color: #008080;"> 2</span>     <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">volatile</span> <span style="color: #0000ff;">static</span><span style="color: #000000;"> Singleton uniqueInstance;
+</span><span style="color: #008080;"> 3</span>     <span style="color: #0000ff;">private</span><span style="color: #000000;"> Singleton() {}
+</span><span style="color: #008080;"> 4</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span><span style="color: #000000;"> Singleton getInstance() {
+</span><span style="color: #008080;"> 5</span>         <span style="color: #0000ff;">if</span> (uniqueInstance == <span style="color: #0000ff;">null</span><span style="color: #000000;">) {
+</span><span style="color: #008080;"> 6</span>             <span style="color: #0000ff;">synchronized</span> (Singleton.<span style="color: #0000ff;">class</span><span style="color: #000000;">){
+</span><span style="color: #008080;"> 7</span>                 <span style="color: #0000ff;">if</span>(uniqueInstance == <span style="color: #0000ff;">null</span>){<span style="color: #008000;">//</span><span style="color: #008000;">进入区域后，再检查一次，如果仍是null,才创建实例</span>
+<span style="color: #008080;"> 8</span>                     uniqueInstance = <span style="color: #0000ff;">new</span><span style="color: #000000;"> Singleton();
+</span><span style="color: #008080;"> 9</span> <span style="color: #000000;">                }
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">            }
+</span><span style="color: #008080;">11</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">12</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> uniqueInstance;
+</span><span style="color: #008080;">13</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">14</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<h2><span style="color: #3366ff;">3 为什么要用枚举单例</span></h2>
+<h3><span style="color: #3366ff;">3.1 私有化构造器并不保险</span></h3>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;《effective java》中只简单的提了几句话：<span style="color: #3366ff;">“享有特权的客户端可以借助AccessibleObject.setAccessible方法，通过反射机制调用私有构造器。如果需要低于这种攻击，可以修改构造器，让它在被要求创建第二个实例的时候抛出异常。</span>”下面我以代码来演示一下，大家就能明白：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span>  <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> main(String[] args) <span style="color: #0000ff;">throws</span><span style="color: #000000;"> NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+</span><span style="color: #008080;"> 2</span>         Singleton s=<span style="color: #000000;">Singleton.getInstance();
+</span><span style="color: #008080;"> 3</span>         Singleton sUsual=<span style="color: #000000;">Singleton.getInstance();
+</span><span style="color: #008080;"> 4</span>         Constructor&lt;Singleton&gt; constructor=Singleton.<span style="color: #0000ff;">class</span><span style="color: #000000;">.getDeclaredConstructor();
+</span><span style="color: #008080;"> 5</span>         constructor.setAccessible(<span style="color: #0000ff;">true</span><span style="color: #000000;">);
+</span><span style="color: #008080;"> 6</span>         Singleton sReflection=<span style="color: #000000;">constructor.newInstance();
+</span><span style="color: #008080;"> 7</span>         System.out.println(s+"\n"+sUsual+"\n"+<span style="color: #000000;">sReflection);
+</span><span style="color: #008080;"> 8</span>         System.out.println("正常情况下，实例化两个实例是否相同："+(s==<span style="color: #000000;">sUsual));
+</span><span style="color: #008080;"> 9</span>         System.out.println("通过反射攻击单例模式情况下，实例化两个实例是否相同："+(s==<span style="color: #000000;">sReflection));
+</span><span style="color: #008080;">10</span>     }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>输出为：</p>
+<div class="cnblogs_code">
+<pre>com.lxp.pattern.singleton.Singleton@1540e19d<span style="color: #000000;">
+com.lxp.pattern.singleton.Singleton@</span>1540e19d<span style="color: #000000;">
+com.lxp.pattern.singleton.Singleton@677327b6
+正常情况下，实例化两个实例是否相同：</span><span style="color: #0000ff;">true</span><span style="color: #000000;">
+通过反射攻击单例模式情况下，实例化两个实例是否相同：</span><span style="color: #0000ff;">false</span></pre>
+</div>
+<p><span style="color: #3366ff;">既然存在反射可以攻击的问题，就需要按照Joshua Bloch做说的，加个异常处理。这里我就不演示了，等会讲到枚举我再演示。</span></p>
+<h3><span style="color: #3366ff;">3.2 序列化问题</span></h3>
+<p>大家先看下面这个代码：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span> SerSingleton <span style="color: #0000ff;">implements</span><span style="color: #000000;"> Serializable {
+</span><span style="color: #008080;"> 2</span>     <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">volatile</span> <span style="color: #0000ff;">static</span><span style="color: #000000;"> SerSingleton uniqueInstance;
+</span><span style="color: #008080;"> 3</span>     <span style="color: #0000ff;">private</span><span style="color: #000000;">  String content;
+</span><span style="color: #008080;"> 4</span>     <span style="color: #0000ff;">public</span><span style="color: #000000;"> String getContent() {
+</span><span style="color: #008080;"> 5</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> content;
+</span><span style="color: #008080;"> 6</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;"> 7</span> 
+<span style="color: #008080;"> 8</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span><span style="color: #000000;"> setContent(String content) {
+</span><span style="color: #008080;"> 9</span>         <span style="color: #0000ff;">this</span>.content =<span style="color: #000000;"> content;
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">11</span>     <span style="color: #0000ff;">private</span><span style="color: #000000;"> SerSingleton() {
+</span><span style="color: #008080;">12</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">13</span> 
+<span style="color: #008080;">14</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span><span style="color: #000000;"> SerSingleton getInstance() {
+</span><span style="color: #008080;">15</span>         <span style="color: #0000ff;">if</span> (uniqueInstance == <span style="color: #0000ff;">null</span><span style="color: #000000;">) {
+</span><span style="color: #008080;">16</span>             <span style="color: #0000ff;">synchronized</span> (SerSingleton.<span style="color: #0000ff;">class</span><span style="color: #000000;">) {
+</span><span style="color: #008080;">17</span>                 <span style="color: #0000ff;">if</span> (uniqueInstance == <span style="color: #0000ff;">null</span><span style="color: #000000;">) {
+</span><span style="color: #008080;">18</span>                     uniqueInstance = <span style="color: #0000ff;">new</span><span style="color: #000000;"> SerSingleton();
+</span><span style="color: #008080;">19</span> <span style="color: #000000;">                }
+</span><span style="color: #008080;">20</span> <span style="color: #000000;">            }
+</span><span style="color: #008080;">21</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">22</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> uniqueInstance;
+</span><span style="color: #008080;">23</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">24</span> 
+<span style="color: #008080;">25</span>     
+<span style="color: #008080;">26</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> main(String[] args) <span style="color: #0000ff;">throws</span><span style="color: #000000;"> IOException, ClassNotFoundException {
+</span><span style="color: #008080;">27</span>         SerSingleton s =<span style="color: #000000;"> SerSingleton.getInstance();
+</span><span style="color: #008080;">28</span>         s.setContent("单例序列化"<span style="color: #000000;">);
+</span><span style="color: #008080;">29</span>         System.out.println("序列化前读取其中的内容："+<span style="color: #000000;">s.getContent());
+</span><span style="color: #008080;">30</span>         ObjectOutputStream oos = <span style="color: #0000ff;">new</span> ObjectOutputStream(<span style="color: #0000ff;">new</span> FileOutputStream("SerSingleton.obj"<span style="color: #000000;">));
+</span><span style="color: #008080;">31</span> <span style="color: #000000;">        oos.writeObject(s);
+</span><span style="color: #008080;">32</span> <span style="color: #000000;">        oos.flush();
+</span><span style="color: #008080;">33</span> <span style="color: #000000;">        oos.close();
+</span><span style="color: #008080;">34</span> 
+<span style="color: #008080;">35</span>         FileInputStream fis = <span style="color: #0000ff;">new</span> FileInputStream("SerSingleton.obj"<span style="color: #000000;">);
+</span><span style="color: #008080;">36</span>         ObjectInputStream ois = <span style="color: #0000ff;">new</span><span style="color: #000000;"> ObjectInputStream(fis);
+</span><span style="color: #008080;">37</span>         SerSingleton s1 =<span style="color: #000000;"> (SerSingleton)ois.readObject();
+</span><span style="color: #008080;">38</span> <span style="color: #000000;">        ois.close();
+</span><span style="color: #008080;">39</span>         System.out.println(s+"\n"+<span style="color: #000000;">s1);
+</span><span style="color: #008080;">40</span>         System.out.println("序列化后读取其中的内容："+<span style="color: #000000;">s1.getContent());
+</span><span style="color: #008080;">41</span>         System.out.println("序列化前后两个是否同一个："+(s==<span style="color: #000000;">s1));
+</span><span style="color: #008080;">42</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">43</span>     
+<span style="color: #008080;">44</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>先猜猜看输出结果：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #000000;">序列化前读取其中的内容：单例序列化
+com.lxp.pattern.singleton.SerSingleton@135fbaa4
+com.lxp.pattern.singleton.SerSingleton@58372a00
+序列化后读取其中的内容：单例序列化
+序列化前后两个是否同一个：</span><span style="color: #0000ff;">false</span></pre>
+</div>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color: #3366ff;">可以看出，序列化前后两个对象并不想等。</span>为什么会出现这种问题呢？这个讲起来，又可以写一篇博客了，简单来说“<span style="color: #3366ff;">任何一个readObject方法，不管是显式的还是默认的，它都会返回一个新建的实例，这个新建的实例不同于该类初始化时创建的实例</span>。<span style="color: #3366ff;">”当然，这个问题也是可以解决的，想详细了解的同学可以翻看《effective java》第77条：对于实例控制，枚举类型优于readResolve。</span></p>
+<h3><span style="color: #3366ff;">3.3 枚举类详解</span></h3>
+<h4><span style="color: #3366ff;">3.3.1 枚举单例定义</span></h4>
+<p>咱们先来看一下枚举类型单例：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span><span style="color: #000000;">  EnumSingleton {
+    INSTANCE;
+    </span><span style="color: #0000ff;">public</span><span style="color: #000000;"> EnumSingleton getInstance(){
+        </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> INSTANCE;
+    }
+}</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>怎么样，是不是觉得好简单，只有这么点代码，其实也没这么简单啦，编译后相当于：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;">1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">final</span> <span style="color: #0000ff;">class</span>  EnumSingleton <span style="color: #0000ff;">extends</span> Enum&lt; EnumSingleton&gt;<span style="color: #000000;"> {
+</span><span style="color: #008080;">2</span>         <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">final</span><span style="color: #000000;">  EnumSingleton  ENUMSINGLETON;
+</span><span style="color: #008080;">3</span>         <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span><span style="color: #000000;">  EnumSingleton[] values();
+</span><span style="color: #008080;">4</span>         <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span><span style="color: #000000;">  EnumSingleton valueOf(String s);
+</span><span style="color: #008080;">5</span>         <span style="color: #0000ff;">static</span><span style="color: #000000;"> {};
+</span><span style="color: #008080;">6</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p>咱们先来验证下会不会避免上述的两个问题，先看下枚举单例的优点，然后再来讲原理。</p>
+<h4><span style="color: #3366ff;">3.3.2 避免反射攻击</span></h4>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span><span style="color: #000000;">  EnumSingleton {
+</span><span style="color: #008080;"> 2</span> <span style="color: #000000;">    INSTANCE;
+</span><span style="color: #008080;"> 3</span>     <span style="color: #0000ff;">public</span><span style="color: #000000;"> EnumSingleton getInstance(){
+</span><span style="color: #008080;"> 4</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> INSTANCE;
+</span><span style="color: #008080;"> 5</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;"> 6</span> 
+<span style="color: #008080;"> 7</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> main(String[] args) <span style="color: #0000ff;">throws</span><span style="color: #000000;"> IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+</span><span style="color: #008080;"> 8</span>         EnumSingleton singleton1=<span style="color: #000000;">EnumSingleton.INSTANCE;
+</span><span style="color: #008080;"> 9</span>         EnumSingleton singleton2=<span style="color: #000000;">EnumSingleton.INSTANCE;
+</span><span style="color: #008080;">10</span>         System.out.println("正常情况下，实例化两个实例是否相同："+(singleton1==<span style="color: #000000;">singleton2));
+</span><span style="color: #008080;">11</span>         Constructor&lt;EnumSingleton&gt; constructor= <span style="color: #0000ff;">null</span><span style="color: #000000;">;
+</span><span style="color: #008080;">12</span>         constructor = EnumSingleton.<span style="color: #0000ff;">class</span><span style="color: #000000;">.getDeclaredConstructor();
+</span><span style="color: #008080;">13</span>         constructor.setAccessible(<span style="color: #0000ff;">true</span><span style="color: #000000;">);
+</span><span style="color: #008080;">14</span>         EnumSingleton singleton3= <span style="color: #0000ff;">null</span><span style="color: #000000;">;
+</span><span style="color: #008080;">15</span>         singleton3 =<span style="color: #000000;"> constructor.newInstance();
+</span><span style="color: #008080;">16</span>         System.out.println(singleton1+"\n"+singleton2+"\n"+<span style="color: #000000;">singleton3);
+</span><span style="color: #008080;">17</span>         System.out.println("通过反射攻击单例模式情况下，实例化两个实例是否相同："+(singleton1==<span style="color: #000000;">singleton3));
+</span><span style="color: #008080;">18</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">19</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>结果就报异常了：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> Exception in thread "main" java.lang.NoSuchMethodException: com.lxp.pattern.singleton.EnumSingleton.&lt;init&gt;<span style="color: #000000;">()
+</span><span style="color: #008080;"> 2</span>     at java.lang.Class.getConstructor0(Class.java:3082<span style="color: #000000;">)
+</span><span style="color: #008080;"> 3</span>     at java.lang.Class.getDeclaredConstructor(Class.java:2178<span style="color: #000000;">)
+</span><span style="color: #008080;"> 4</span>     at com.lxp.pattern.singleton.EnumSingleton.main(EnumSingleton.java:20<span style="color: #000000;">)
+</span><span style="color: #008080;"> 5</span> <span style="color: #000000;">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+</span><span style="color: #008080;"> 6</span>     at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62<span style="color: #000000;">)
+</span><span style="color: #008080;"> 7</span>     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43<span style="color: #000000;">)
+</span><span style="color: #008080;"> 8</span>     at java.lang.reflect.Method.invoke(Method.java:498<span style="color: #000000;">)
+</span><span style="color: #008080;"> 9</span>     at com.intellij.rt.execution.application.AppMain.main(AppMain.java:144<span style="color: #000000;">)
+</span><span style="color: #008080;">10</span> 正常情况下，实例化两个实例是否相同：<span style="color: #0000ff;">true</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>然后debug模式，可以发现是因为EnumSingleton.class.getDeclaredConstructors()获取所有构造器，会发现并没有我们所设置的无参构造器，只有一个参数为（String.class,int.class）构造器，然后看下Enum源码就明白，这两个参数是name和ordial两个属性：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">abstract</span> <span style="color: #0000ff;">class</span> Enum&lt;E <span style="color: #0000ff;">extends</span> Enum&lt;E&gt;&gt;
+<span style="color: #008080;"> 2</span>             <span style="color: #0000ff;">implements</span> Comparable&lt;E&gt;<span style="color: #000000;">, Serializable {
+</span><span style="color: #008080;"> 3</span>         <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">final</span><span style="color: #000000;"> String name;
+</span><span style="color: #008080;"> 4</span>         <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">final</span><span style="color: #000000;"> String name() {
+</span><span style="color: #008080;"> 5</span>             <span style="color: #0000ff;">return</span><span style="color: #000000;"> name;
+</span><span style="color: #008080;"> 6</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;"> 7</span>         <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">final</span> <span style="color: #0000ff;">int</span><span style="color: #000000;"> ordinal;
+</span><span style="color: #008080;"> 8</span>         <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">final</span> <span style="color: #0000ff;">int</span><span style="color: #000000;"> ordinal() {
+</span><span style="color: #008080;"> 9</span>             <span style="color: #0000ff;">return</span><span style="color: #000000;"> ordinal;
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">11</span>         <span style="color: #0000ff;">protected</span> Enum(String name, <span style="color: #0000ff;">int</span><span style="color: #000000;"> ordinal) {
+</span><span style="color: #008080;">12</span>             <span style="color: #0000ff;">this</span>.name =<span style="color: #000000;"> name;
+</span><span style="color: #008080;">13</span>             <span style="color: #0000ff;">this</span>.ordinal =<span style="color: #000000;"> ordinal;
+</span><span style="color: #008080;">14</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">15</span>         <span style="color: #008000;">//</span><span style="color: #008000;">余下省略</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;枚举Enum是个抽象类，其实一旦一个类声明为枚举，实际上就是继承了Enum，所以会有（String.class,int.class）的构造器。既然是可以获取到父类Enum的构造器，那你也许会说刚才我的反射是因为自身的类没有无参构造方法才导致的异常，并不能说单例枚举避免了反射攻击。好的，那我们就使用父类Enum的构造器，看看是什么情况:</p>
+<p>　　</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span><span style="color: #000000;">  EnumSingleton {
+</span><span style="color: #008080;"> 2</span> <span style="color: #000000;">    INSTANCE;
+</span><span style="color: #008080;"> 3</span>     <span style="color: #0000ff;">public</span><span style="color: #000000;"> EnumSingleton getInstance(){
+</span><span style="color: #008080;"> 4</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> INSTANCE;
+</span><span style="color: #008080;"> 5</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;"> 6</span> 
+<span style="color: #008080;"> 7</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> main(String[] args) <span style="color: #0000ff;">throws</span><span style="color: #000000;"> IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+</span><span style="color: #008080;"> 8</span>         EnumSingleton singleton1=<span style="color: #000000;">EnumSingleton.INSTANCE;
+</span><span style="color: #008080;"> 9</span>         EnumSingleton singleton2=<span style="color: #000000;">EnumSingleton.INSTANCE;
+</span><span style="color: #008080;">10</span>         System.out.println("正常情况下，实例化两个实例是否相同："+(singleton1==<span style="color: #000000;">singleton2));
+</span><span style="color: #008080;">11</span>         Constructor&lt;EnumSingleton&gt; constructor= <span style="color: #0000ff;">null</span><span style="color: #000000;">;
+</span><span style="color: #008080;">12</span> <span style="color: #008000;">//</span><span style="color: #008000;">        constructor = EnumSingleton.class.getDeclaredConstructor();</span>
+<span style="color: #008080;">13</span>         constructor = EnumSingleton.<span style="color: #0000ff;">class</span>.getDeclaredConstructor(String.<span style="color: #0000ff;">class</span>,<span style="color: #0000ff;">int</span>.<span style="color: #0000ff;">class</span>);<span style="color: #008000;">//</span><span style="color: #008000;">其父类的构造器</span>
+<span style="color: #008080;">14</span>         constructor.setAccessible(<span style="color: #0000ff;">true</span><span style="color: #000000;">);
+</span><span style="color: #008080;">15</span>         EnumSingleton singleton3= <span style="color: #0000ff;">null</span><span style="color: #000000;">;
+</span><span style="color: #008080;">16</span>         <span style="color: #008000;">//</span><span style="color: #008000;">singleton3 = constructor.newInstance();</span>
+<span style="color: #008080;">17</span>         singleton3 = constructor.newInstance("testInstance",66<span style="color: #000000;">);
+</span><span style="color: #008080;">18</span>         System.out.println(singleton1+"\n"+singleton2+"\n"+<span style="color: #000000;">singleton3);
+</span><span style="color: #008080;">19</span>         System.out.println("通过反射攻击单例模式情况下，实例化两个实例是否相同："+(singleton1==<span style="color: #000000;">singleton3));
+</span><span style="color: #008080;">20</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">21</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>然后咱们看运行结果：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>正常情况下，实例化两个实例是否相同：<span style="color: #0000ff;">true</span><span style="color: #000000;">
+Exception in thread </span>"main" java.lang.IllegalArgumentException: Cannot reflectively create <span style="color: #0000ff;">enum</span><span style="color: #000000;"> objects
+    at java.lang.reflect.Constructor.newInstance(Constructor.java:</span>417<span style="color: #000000;">)
+    at com.lxp.pattern.singleton.EnumSingleton.main(<span style="color: #0000ff;">EnumSingleton.java:</span></span><span style="color: #0000ff;">25</span><span style="color: #000000;">)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:</span>62<span style="color: #000000;">)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:</span>43<span style="color: #000000;">)
+    at java.lang.reflect.Method.invoke(Method.java:</span>498<span style="color: #000000;">)
+    at com.intellij.rt.execution.application.AppMain.main(AppMain.java:</span>144)</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;继续报异常。之前是因为没有无参构造器，这次拿到了父类的构造器了，只是在执行第17行(我没有复制import等包，所以行号少于我自己运行的代码)时候抛出异常，说是不能够反射，我们看下Constructor类的newInstance方法源码：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #000000;">@CallerSensitive
+</span><span style="color: #008080;"> 2</span>     <span style="color: #0000ff;">public</span><span style="color: #000000;"> T newInstance(Object ... initargs)
+</span><span style="color: #008080;"> 3</span>         <span style="color: #0000ff;">throws</span><span style="color: #000000;"> InstantiationException, IllegalAccessException,
+</span><span style="color: #008080;"> 4</span> <span style="color: #000000;">               IllegalArgumentException, InvocationTargetException
+</span><span style="color: #008080;"> 5</span> <span style="color: #000000;">    {
+</span><span style="color: #008080;"> 6</span>         <span style="color: #0000ff;">if</span> (!<span style="color: #000000;">override) {
+</span><span style="color: #008080;"> 7</span>             <span style="color: #0000ff;">if</span> (!<span style="color: #000000;">Reflection.quickCheckMemberAccess(clazz, modifiers)) {
+</span><span style="color: #008080;"> 8</span>                 Class&lt;?&gt; caller =<span style="color: #000000;"> Reflection.getCallerClass();
+</span><span style="color: #008080;"> 9</span>                 checkAccess(caller, clazz, <span style="color: #0000ff;">null</span><span style="color: #000000;">, modifiers);
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">            }
+</span><span style="color: #008080;">11</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">12</span>         <span style="color: #0000ff;">if</span> (<span style="background-color: #ffff00;">(clazz.getModifiers() &amp; Modifier.ENUM) != 0</span><span style="color: #000000;">)
+</span><span style="color: #008080;">13</span>             <span style="color: #0000ff;">throw</span> <span style="color: #0000ff;">new</span> IllegalArgumentException("Cannot reflectively create enum objects"<span style="color: #000000;">);
+</span><span style="color: #008080;">14</span>         ConstructorAccessor ca = constructorAccessor;   <span style="color: #008000;">//</span><span style="color: #008000;"> read volatile</span>
+<span style="color: #008080;">15</span>         <span style="color: #0000ff;">if</span> (ca == <span style="color: #0000ff;">null</span><span style="color: #000000;">) {
+</span><span style="color: #008080;">16</span>             ca =<span style="color: #000000;"> acquireConstructorAccessor();
+</span><span style="color: #008080;">17</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">18</span>         @SuppressWarnings("unchecked"<span style="color: #000000;">)
+</span><span style="color: #008080;">19</span>         T inst =<span style="color: #000000;"> (T) ca.newInstance(initargs);
+</span><span style="color: #008080;">20</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> inst;
+</span><span style="color: #008080;">21</span>     }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>请看黄颜色标注的第12行源码，说明<span style="color: #ff0000;">反射在通过newInstance创建对象时，会检查该类是否ENUM修饰，如果是则抛出异常，反射失败。</span></p>
+<h4><span style="color: #3366ff;"><strong>3.3.3 避免序列化问题</strong></span></h4>
+<p>&nbsp;我按照3.2中方式来写，作为对比，方面大家看的更清晰些：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span>  SerEnumSingleton <span style="color: #0000ff;">implements</span><span style="color: #000000;"> Serializable {
+</span><span style="color: #008080;"> 2</span> <span style="color: #000000;">    INSTANCE;
+</span><span style="color: #008080;"> 3</span>     <span style="color: #0000ff;">private</span><span style="color: #000000;">  String content;
+</span><span style="color: #008080;"> 4</span>     <span style="color: #0000ff;">public</span><span style="color: #000000;"> String getContent() {
+</span><span style="color: #008080;"> 5</span>         <span style="color: #0000ff;">return</span><span style="color: #000000;"> content;
+</span><span style="color: #008080;"> 6</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;"> 7</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span><span style="color: #000000;"> setContent(String content) {
+</span><span style="color: #008080;"> 8</span>         <span style="color: #0000ff;">this</span>.content =<span style="color: #000000;"> content;
+</span><span style="color: #008080;"> 9</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">10</span>     <span style="color: #0000ff;">private</span><span style="color: #000000;"> SerEnumSingleton() {
+</span><span style="color: #008080;">11</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">12</span> 
+<span style="color: #008080;">13</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> main(String[] args) <span style="color: #0000ff;">throws</span><span style="color: #000000;"> IOException, ClassNotFoundException {
+</span><span style="color: #008080;">14</span>         SerEnumSingleton s =<span style="color: #000000;"> SerEnumSingleton.INSTANCE;
+</span><span style="color: #008080;">15</span>         s.setContent("枚举单例序列化"<span style="color: #000000;">);
+</span><span style="color: #008080;">16</span>         System.out.println("枚举序列化前读取其中的内容："+<span style="color: #000000;">s.getContent());
+</span><span style="color: #008080;">17</span>         ObjectOutputStream oos = <span style="color: #0000ff;">new</span> ObjectOutputStream(<span style="color: #0000ff;">new</span> FileOutputStream("SerEnumSingleton.obj"<span style="color: #000000;">));
+</span><span style="color: #008080;">18</span> <span style="color: #000000;">        oos.writeObject(s);
+</span><span style="color: #008080;">19</span> <span style="color: #000000;">        oos.flush();
+</span><span style="color: #008080;">20</span> <span style="color: #000000;">        oos.close();
+</span><span style="color: #008080;">21</span> 
+<span style="color: #008080;">22</span>         FileInputStream fis = <span style="color: #0000ff;">new</span> FileInputStream("SerEnumSingleton.obj"<span style="color: #000000;">);
+</span><span style="color: #008080;">23</span>         ObjectInputStream ois = <span style="color: #0000ff;">new</span><span style="color: #000000;"> ObjectInputStream(fis);
+</span><span style="color: #008080;">24</span>         SerEnumSingleton s1 =<span style="color: #000000;"> (SerEnumSingleton)ois.readObject();
+</span><span style="color: #008080;">25</span> <span style="color: #000000;">        ois.close();
+</span><span style="color: #008080;">26</span>         System.out.println(s+"\n"+<span style="color: #000000;">s1);
+</span><span style="color: #008080;">27</span>         System.out.println("枚举序列化后读取其中的内容："+<span style="color: #000000;">s1.getContent());
+</span><span style="color: #008080;">28</span>         System.out.println("枚举序列化前后两个是否同一个："+(s==<span style="color: #000000;">s1));
+</span><span style="color: #008080;">29</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">30</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>运行结果如下：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> <span style="color: #000000;">枚举序列化前读取其中的内容：枚举单例序列化
+</span><span style="color: #008080;">2</span> <span style="color: #000000;">INSTANCE
+</span><span style="color: #008080;">3</span> <span style="color: #000000;">INSTANCE
+</span><span style="color: #008080;">4</span> <span style="color: #000000;">枚举序列化后读取其中的内容：枚举单例序列化
+</span><span style="color: #008080;">5</span> 枚举序列化前后两个是否同一个：<span style="color: #0000ff;">true</span></pre>
+</div>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #3366ff;">&nbsp;枚举类是JDK1.5才出现的，那之前的程序员面对反射攻击和序列化问题是怎么解决的呢？其实就是像Enum源码那样解决的，只是现在可以用enum可以使我们代码量变的极其简洁了。</span>至此，相信同学们应该能明白了为什么Joshua Bloch说的“单元素的枚举类型已经成为实现Singleton的最佳方法”了吧，也算解决了我自己的困惑。既然能解决这些问题，还能使代码量变的极其简洁，那我们就有理由选枚举单例模式了。对了，解决序列化问题，要先懂transient和readObject，鉴于我的主要目的不在于此，就不在此写这两个原理了。<span style="color: #3366ff;">推荐一个小姐姐程序媛写的transient博客，真是思路清晰，简单易懂，见参考2</span>。</p>
+<h2><span style="color: #3366ff;">参考：</span></h2>
+<p><span style="color: #3366ff;">1、</span>《Effective Java》（第2版）：p14-15，p271-274</p>
+<p><span style="color: #3366ff;">2、</span>Java transient关键字使用小记：https://www.cnblogs.com/lanxuezaipiao/p/3369962.html</p>
+<p>&nbsp;</p>
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+
+
+
+    <div id="blog_post_info">
+<div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(9097772,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+        <a id="green_channel_follow" onclick="follow(&#39;ab8d34e7-bae2-e511-9fc1-ac853d9f53cc&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/chiclee/" target="_blank"><img src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/20160305181515.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/chiclee/">李子沫</a><br>
+            <a href="https://home.cnblogs.com/u/chiclee/followees/">关注 - 7</a><br>
+            <a href="https://home.cnblogs.com/u/chiclee/followers/">粉丝 - 5</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;ab8d34e7-bae2-e511-9fc1-ac853d9f53cc&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(9097772,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">3</span>
+    </div>
+    <div class="buryit" onclick="votePost(9097772,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+    <div class="clear"></div>
+    <div id="post_next_prev">
+
+    <a href="https://www.cnblogs.com/chiclee/p/6475864.html" class="p_n_p_prefix">« </a> 上一篇：    <a href="https://www.cnblogs.com/chiclee/p/6475864.html" title="发布于 2017-02-27 19:11">最简单的设计模式--单例模式</a>
+    <br>
+    <a href="https://www.cnblogs.com/chiclee/p/9260930.html" class="p_n_p_prefix">» </a> 下一篇：    <a href="https://www.cnblogs.com/chiclee/p/9260930.html" title="发布于 2018-07-03 22:08">mysql架构和历史</a>
+
+</div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2018-05-27 23:05</span>&nbsp;<a href="https://www.cnblogs.com/chiclee/">李子沫</a> 阅读(<span id="post_view_count">10076</span>) 评论(<span id="post_comment_count">4</span>) <a href="https://i.cnblogs.com/EditPosts.aspx?postid=9097772" rel="nofollow"> 编辑</a> <a href="javascript:void(0)" onclick="AddToWz(9097772); return false;">收藏</a>
+</div>
+        </div>
+<script src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 270677, cb_blogApp = 'chiclee', cb_blogUserGuid = 'ab8d34e7-bae2-e511-9fc1-ac853d9f53cc';
+    var cb_entryId = 9097772, cb_entryCreatedDate = '2018-05-27 23:05', cb_postType = 1; 
+    loadViewCount(cb_entryId);
+</script><a name="!comments"></a>
+<div id="blog-comments-placeholder">
+
+<div id="comment_pager_top">
+    
+</div>
+
+
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>
+
+        <div class="feedbackItem">
+            <div class="feedbackListSubtitle">
+                <div class="feedbackManage">
+                    &nbsp;&nbsp;
+                    
+
+<span class="comment_actions">
+    
+    
+    
+    
+</span>
+
+
+                </div>
+                <!-- Title -->
+                
+<a href="https://www.cnblogs.com/chiclee/p/9097772.html#4181553" class="layer">#1楼</a>
+<a name="4181553" id="comment_anchor_4181553"></a>
+
+
+                <!-- PostDate -->
+                
+<span class="comment_date">2019-02-17 12:30</span>
+
+
+                <!--NameLink-->
+                
+
+            <a id="a_comment_author_4181553" href="https://home.cnblogs.com/u/1528031/" target="_blank">code_yeah</a>
+
+                <div class="feedbackCon">
+                    
+<div id="comment_body_4181553" class="blog_comment_body">
+    好文，学习了。
+</div>
+        <div class="comment_vote">
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(&#39;4181553&#39;, &#39;Digg&#39;, this);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(&#39;4181553&#39;, &#39;Bury&#39;, this);">
+                反对(0)
+            </a>
+        </div>
+        
+
+                </div>
+            </div>
+        </div>
+        <div class="feedbackItem">
+            <div class="feedbackListSubtitle">
+                <div class="feedbackManage">
+                    &nbsp;&nbsp;
+                    
+
+<span class="comment_actions">
+    
+    
+    
+    
+</span>
+
+
+                </div>
+                <!-- Title -->
+                
+<a href="https://www.cnblogs.com/chiclee/p/9097772.html#4182392" class="layer">#2楼</a>
+<a name="4182392" id="comment_anchor_4182392"></a>
+
+
+                <!-- PostDate -->
+                
+<span class="comment_date">2019-02-18 16:17</span>
+
+
+                <!--NameLink-->
+                
+
+            <a id="a_comment_author_4182392" href="https://www.cnblogs.com/zsukai/" target="_blank">张八仙</a>
+
+                <div class="feedbackCon">
+                    
+<div id="comment_body_4182392" class="blog_comment_body">
+    学习了
+</div>
+        <div class="comment_vote">
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(&#39;4182392&#39;, &#39;Digg&#39;, this);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(&#39;4182392&#39;, &#39;Bury&#39;, this);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_4182392_avatar" style="display:none">
+            https://pic.cnblogs.com/face/1403988/20180519132207.png
+        </span>
+
+                </div>
+            </div>
+        </div>
+        <div class="feedbackItem">
+            <div class="feedbackListSubtitle">
+                <div class="feedbackManage">
+                    &nbsp;&nbsp;
+                    
+
+<span class="comment_actions">
+    
+    
+    
+    
+</span>
+
+
+                </div>
+                <!-- Title -->
+                
+<a href="https://www.cnblogs.com/chiclee/p/9097772.html#4228264" class="layer">#3楼</a>
+<a name="4228264" id="comment_anchor_4228264"></a>
+
+
+                <!-- PostDate -->
+                
+<span class="comment_date">2019-04-11 11:44</span>
+
+
+                <!--NameLink-->
+                
+
+            <a id="a_comment_author_4228264" href="https://www.cnblogs.com/leojiao/" target="_blank">leojiao123</a>
+
+                <div class="feedbackCon">
+                    
+<div id="comment_body_4228264" class="blog_comment_body">
+    写的很详细，思路很清晰!给作者点赞
+</div>
+        <div class="comment_vote">
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(&#39;4228264&#39;, &#39;Digg&#39;, this);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(&#39;4228264&#39;, &#39;Bury&#39;, this);">
+                反对(0)
+            </a>
+        </div>
+        
+
+                </div>
+            </div>
+        </div>
+        <div class="feedbackItem">
+            <div class="feedbackListSubtitle">
+                <div class="feedbackManage">
+                    &nbsp;&nbsp;
+                    
+
+<span class="comment_actions">
+    
+    
+    
+    
+</span>
+
+
+                </div>
+                <!-- Title -->
+                
+<a href="https://www.cnblogs.com/chiclee/p/9097772.html#4273731" class="layer">#4楼</a>
+<a name="4273731" id="comment_anchor_4273731"></a>
+
+        <span id="comment-maxId" style="display:none">4273731</span>
+        <span id="comment-maxDate" style="display:none">6/5/2019 3:36:49 PM</span>
+
+                <!-- PostDate -->
+                
+<span class="comment_date">2019-06-05 15:36</span>
+
+
+                <!--NameLink-->
+                
+
+            <a id="a_comment_author_4273731" href="https://www.cnblogs.com/keatsCoder/" target="_blank">后青春期的Keats</a>
+
+                <div class="feedbackCon">
+                    
+<div id="comment_body_4273731" class="blog_comment_body">
+    谢谢作者的分享！
+</div>
+        <div class="comment_vote">
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(&#39;4273731&#39;, &#39;Digg&#39;, this);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(&#39;4273731&#39;, &#39;Bury&#39;, this);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_4273731_avatar" style="display:none">
+            https://pic.cnblogs.com/face/1654189/20190406213257.png
+        </span>
+
+                </div>
+            </div>
+        </div>
+
+
+<div id="comment_pager_bottom">
+    
+</div>
+</div>
+<script>
+    var commentManager = new blogCommentManager();
+    commentManager.renderComments(0);
+</script>
+
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/chiclee/p/9097772.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/chiclee/p/9097772.html#top">返回顶部</a></div>
+    <div id="comment_form_container"><div class="login_tips">
+    注册用户登录后才能发表评论，请 
+    <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a>
+     或 
+    <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，
+    <a href="https://www.cnblogs.com/">访问</a> 网站首页。
+</div></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万C++/C#源码: 大型实时仿真组态图形源码</a><br><a href="http://clickc.admaster.com.cn/c/a131575,b3595120,c1705,i0,m101,8a1,8b3,h" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-华为云学生&#39;)">【推荐】华为云套餐9元起！还返华为音箱</a><br><a href="https://www.aliyun90.com/" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-aliyun90&#39;)">【推荐】ALIYUN90%，大陆-港澳专线直连，创业者上云首选</a><br><a href="http://clickc.admaster.com.cn/c/a131574,b3595115,c1705,i0,m101,8a1,8b3,h" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-华为云微认证&#39;)">【推荐】零基础轻松玩转云上产品，获壕礼</a><br><a href="https://q.cnblogs.com/" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-博问&#39;)">【推荐】程序员问答平台，解决您开发中遇到的技术难题</a><br></div>
+    <div id="opt_under_post"></div>
+    <script async="async" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/gpt.js"></script>
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+    </script>
+    <script>
+        googletag.cmd.push(function () {
+            googletag.defineSlot("/1090369/C1", [300, 250], "div-gpt-ad-1546353474406-0").addService(googletag.pubads());
+            googletag.defineSlot("/1090369/C2", [468, 60], "div-gpt-ad-1539008685004-0").addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+    </script>
+    <div id="cnblogs_c1" class="c_ad_block">
+        <div id="div-gpt-ad-1546353474406-0" style="height:250px; width:300px;" data-google-query-id="CP21_vCP8eMCFY63lgod-n8FYQ"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none; display: inline-block; width: 300px; height: 250px;"><iframe frameborder="0" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/container.html" id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="" scrolling="no" marginwidth="0" marginheight="0" width="300" height="250" data-is-safeframe="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" data-google-container-id="1" style="border: 0px; vertical-align: bottom;" data-load-complete="true"></iframe></div></div>
+    </div>
+    <div id="under_post_news"><div class="recomm-block"><b>相关博文：</b><br>·  <a title="避免反射和序列化来破坏单例" href="https://www.cnblogs.com/keeya/p/9516501.html" target="_blank" onclick="clickRecomItmem(9516501)">避免反射和序列化来破坏单例</a><br>·  <a title="Java枚举enum以及应用：枚举实现单例模式" href="https://www.cnblogs.com/cielosun/p/6596475.html" target="_blank" onclick="clickRecomItmem(6596475)">Java枚举enum以及应用：枚举实现单例模式</a><br>·  <a title="枚举是如何实现的？（枚举的线程安全性及序列化问题）" href="https://www.cnblogs.com/More-World/p/9563394.html" target="_blank" onclick="clickRecomItmem(9563394)">枚举是如何实现的？（枚举的线程安全性及序列化问题）</a><br>·  <a title="《effective java》读书札记第三条用私有构造器或者枚举类型强化Singleton属性" href="https://www.cnblogs.com/zfyouxi/p/5076991.html" target="_blank" onclick="clickRecomItmem(5076991)">《effective java》读书札记第三条用私有构造器或者枚举类型强化Singleton属性</a><br>·  <a title="Java反射机制--是什么，为什么，怎么用。" href="https://www.cnblogs.com/yrstudy/p/6500982.html" target="_blank" onclick="clickRecomItmem(6500982)">Java反射机制--是什么，为什么，怎么用。</a><br></div></div>
+    <div id="cnblogs_c2" class="c_ad_block">
+        <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="CP61_vCP8eMCFY63lgod-n8FYQ">
+            
+        <div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none; display: inline-block; width: 320px; height: 50px;"><iframe frameborder="0" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/container(1).html" id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="" scrolling="no" marginwidth="0" marginheight="0" width="320" height="50" data-is-safeframe="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" data-google-container-id="2" style="border: 0px; vertical-align: bottom;" data-load-complete="true"></iframe></div></div>
+    </div>
+    <div id="under_post_kb">
+<div class="itnews c_ad_block">
+    <b>最新 IT 新闻</b>:
+    <br>
+ ·              <a href="https://news.cnblogs.com/n/629348/" target="_blank">云渐成大气候：公共云上的超级计算机，跻身TOP500中的第136位</a>
+            <br>
+ ·              <a href="https://news.cnblogs.com/n/629347/" target="_blank">支付宝安全获AI大赛世界第一 老外：比北美银行还安全</a>
+            <br>
+ ·              <a href="https://news.cnblogs.com/n/629346/" target="_blank">行业高管：印度推出5G还需12到18个月的时间</a>
+            <br>
+ ·              <a href="https://news.cnblogs.com/n/629345/" target="_blank">引力 + 超对称 = ？</a>
+            <br>
+ ·              <a href="https://news.cnblogs.com/n/629344/" target="_blank">干掉安卓虚拟机！华为方舟编译器深入解读</a>
+            <br>
+    » <a href="https://news.cnblogs.com/" title="IT 新闻" target="_blank">更多新闻...</a>
+</div></div>
+    <div id="HistoryToday" class="c_ad_block"></div>
+    <script type="text/javascript">
+        fixPostBody();
+        setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+        deliverAdT2();
+        deliverAdC1();
+        deliverAdC2();
+        loadNewsAndKb();
+        loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);        LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+        GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+        loadOptUnderPost();
+        GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                
+<div id="sidebar_news" class="newsItem">
+<h3 class="catListTitle">公告</h3>
+
+<div id="blog-news">
+    
+    <div id="profile_block">
+        昵称：
+        <a href="https://home.cnblogs.com/u/chiclee/">
+            李子沫
+        </a>
+        <br>
+        园龄：
+        <a href="https://home.cnblogs.com/u/chiclee/" title="入园时间：2016-03-05">
+            3年5个月
+        </a>
+        <br>
+        粉丝：
+        <a href="https://home.cnblogs.com/u/chiclee/followers/">
+            5
+        </a>
+        <br>
+        关注：
+        <a href="https://home.cnblogs.com/u/chiclee/followees/">
+            7
+        </a>
+        <div id="p_b_follow">
+<a href="javascript:void(0)" onclick="follow(&#39;ab8d34e7-bae2-e511-9fc1-ac853d9f53cc&#39;)">+加关注</a></div>
+        <script>getFollowStatus('ab8d34e7-bae2-e511-9fc1-ac853d9f53cc');</script>
+    </div>
+</div></div>
+
+                <div id="calendar"><div id="blog-calendar" style="">
+
+<table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar" border="0">
+    <tbody>
+        <tr>
+            <td colspan="7">
+                <table class="CalTitle" cellspacing="0" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="CalNextPrev">
+                                <a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/07/07&#39;); return false;">&lt;</a>
+                            </td>
+                            <td align="center">2019年8月</td>
+                            <td align="right" class="CalNextPrev">
+                                <a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/09/07&#39;); return false;">&gt;</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+                    <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+                    <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+                    <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+                    <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+                    <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+                    <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+                    <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+        </tr>
+            <tr>
+                            <td class="CalOtherMonthDay" align="center">28</td>
+                            <td class="CalOtherMonthDay" align="center">29</td>
+                            <td class="CalOtherMonthDay" align="center">30</td>
+                            <td class="CalOtherMonthDay" align="center">31</td>
+                        <td class="" align="center">
+                            1
+                        </td>
+                        <td class="" align="center">
+                            2
+                        </td>
+                    <td class="CalWeekendDay" align="center">
+                        3
+                    </td>
+            </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            4
+                        </td>
+                            <td class="" align="center">
+                                5
+                            </td>
+                            <td class="" align="center">
+                                6
+                            </td>
+                            <td class="CalTodayDay" align="center">
+                                7
+                            </td>
+                            <td class="" align="center">
+                                8
+                            </td>
+                            <td class="" align="center">
+                                9
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            10
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            11
+                        </td>
+                            <td class="" align="center">
+                                12
+                            </td>
+                            <td class="" align="center">
+                                13
+                            </td>
+                            <td class="" align="center">
+                                14
+                            </td>
+                            <td class="" align="center">
+                                15
+                            </td>
+                            <td class="" align="center">
+                                16
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            17
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            18
+                        </td>
+                            <td class="" align="center">
+                                19
+                            </td>
+                            <td class="" align="center">
+                                20
+                            </td>
+                            <td class="" align="center">
+                                21
+                            </td>
+                            <td class="" align="center">
+                                22
+                            </td>
+                            <td class="" align="center">
+                                23
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            24
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            25
+                        </td>
+                            <td class="" align="center">
+                                26
+                            </td>
+                            <td class="" align="center">
+                                27
+                            </td>
+                            <td class="" align="center">
+                                28
+                            </td>
+                            <td class="" align="center">
+                                29
+                            </td>
+                            <td class="" align="center">
+                                30
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            31
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalOtherMonthDay" align="center">
+                            1
+                        </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                2
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                3
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                4
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                5
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                6
+                            </td>
+                        <td class="CalOtherMonthDay" align="center">
+                            7
+                        </td>
+                </tr>
+    </tbody>
+</table></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn">
+
+<!-- 搜索 -->
+<div id="sidebar_search" class="sidebar-block">
+    <div id="sidebar_search" class="mySearch">
+        <h3 class="catListTitle">搜索</h3>
+        <div id="sidebar_search_box">
+            <div id="widget_my_zzk" class="div_my_zzk">
+                <input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk">
+            </div>
+            <div id="widget_my_google" class="div_my_zzk">
+                <input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 常用链接 -->
+<div id="sidebar_shortcut" class="sidebar-block">
+    
+<h3 class="catListTitle">
+常用链接
+</h3>
+<ul>
+        <li>
+
+<a href="https://www.cnblogs.com/chiclee/p/" title="我的博客的随笔列表">我的随笔</a>
+</li>
+        <li>
+
+<a href="https://www.cnblogs.com/chiclee/MyComments.html" title="我的发表过的评论列表">我的评论</a>
+</li>
+        <li>
+
+<a href="https://www.cnblogs.com/chiclee/OtherPosts.html" title="我评论过的随笔列表">我的参与</a>
+</li>
+        <li>
+
+<a href="https://www.cnblogs.com/chiclee/RecentComments.html" title="我的博客的评论列表">最新评论</a>
+</li>
+        <li>
+
+<a href="https://www.cnblogs.com/chiclee/tag/" title="我的博客的标签列表">我的标签</a>
+</li>
+</ul>
+
+<!-- TODO: 检查是否有使用这一部分的控件，如果没有则应该删除。 -->
+<div id="itemListLin_con" style="display:none">
+    <ul>
+
+    </ul>
+</div>
+
+</div>
+
+<!-- 最新随笔 -->
+
+
+
+<!-- 我的标签 -->
+<div id="sidebar_toptags" class="sidebar-block">
+    
+<div class="catListTag">
+    <h3 class="catListTitle">我的标签</h3>
+    <ul>
+        
+        <li>
+            <a href="https://www.cnblogs.com/chiclee/tag/mysql/">mysql</a>(1)
+        </li>
+
+    </ul>
+</div>
+
+</div>
+
+<!-- 积分与排名 -->
+
+
+<!-- 随笔分类、随笔档案、文章分类、新闻分类、相册、链接 -->
+<div id="sidebar_categories">
+    
+        <div class="catListPostCategory">
+            <h3 class="catListTitle">
+                
+
+随笔分类
+
+
+
+            </h3>
+            <ul>
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/category/795386.html" rel="">
+    JAVA基础(2)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+<a href="https://www.cnblogs.com/chiclee/category/795386.html/rss" style="display:none">(rss)</a>
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/category/847406.html" rel="">
+    Java虚拟机(1)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+<a href="https://www.cnblogs.com/chiclee/category/847406.html/rss" style="display:none">(rss)</a>
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/category/1246924.html" rel="">
+    mysql读书笔记(2)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+<a href="https://www.cnblogs.com/chiclee/category/1246924.html/rss" style="display:none">(rss)</a>
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/category/1246938.html" rel="">
+    Python学习(1)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+<a href="https://www.cnblogs.com/chiclee/category/1246938.html/rss" style="display:none">(rss)</a>
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/category/949713.html" rel="">
+    设计模式(2)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+<a href="https://www.cnblogs.com/chiclee/category/949713.html/rss" style="display:none">(rss)</a>
+
+                        </li>
+                        
+            </ul>
+        </div>
+        <div class="catListPostArchive">
+            <h3 class="catListTitle">
+                
+
+随笔档案
+
+
+
+            </h3>
+            <ul>
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/archive/2018/07.html" rel="">
+    2018年7月(3)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/archive/2018/05.html" rel="">
+    2018年5月(1)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/archive/2017/02.html" rel="">
+    2017年2月(2)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/archive/2016/06.html" rel="">
+    2016年6月(1)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+
+
+                        </li>
+                        
+                        <li>
+                            
+<a href="https://www.cnblogs.com/chiclee/archive/2016/03.html" rel="">
+    2016年3月(1)
+</a>
+
+                            
+<!-- TODO: Really RSS ? -->
+
+
+                        </li>
+                        
+            </ul>
+        </div>
+
+</div>
+
+<!-- 最新评论 -->
+<div id="sidebar_recentcomments" class="sidebar-block">
+    
+<div id="recent_comments_wrap">
+    <h3 class="catListTitle">最新评论</h3>
+    <div class="RecentCommentBlock">
+        <ul>
+                    <li class="recent_comment_title"><a href="https://www.cnblogs.com/chiclee/p/9097772.html#4273731">1. Re:为什么要用枚举实现单例模式（避免反射、序列化问题）</a></li>
+                    <li class="recent_comment_body">谢谢作者的分享！</li>
+                    <li class="recent_comment_author">--无忧_keats</li>
+                    <li class="recent_comment_title"><a href="https://www.cnblogs.com/chiclee/p/9097772.html#4228264">2. Re:为什么要用枚举实现单例模式（避免反射、序列化问题）</a></li>
+                    <li class="recent_comment_body">写的很详细，思路很清晰!给作者点赞</li>
+                    <li class="recent_comment_author">--leojiao123</li>
+                    <li class="recent_comment_title"><a href="https://www.cnblogs.com/chiclee/p/9097772.html#4182392">3. Re:为什么要用枚举实现单例模式（避免反射、序列化问题）</a></li>
+                    <li class="recent_comment_body">学习了</li>
+                    <li class="recent_comment_author">--张八仙</li>
+                    <li class="recent_comment_title"><a href="https://www.cnblogs.com/chiclee/p/9097772.html#4181553">4. Re:为什么要用枚举实现单例模式（避免反射、序列化问题）</a></li>
+                    <li class="recent_comment_body">好文，学习了。</li>
+                    <li class="recent_comment_author">--code_yeah</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+
+
+<!-- 阅读排行榜 -->
+<div id="sidebar_topviewedposts" class="sidebar-block">
+    
+<div id="topview_posts_wrap">
+    <h3 class="catListTitle">阅读排行榜</h3>
+    <div id="TopViewPostsBlock">
+        <ul style="word-break:break-all">
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/9097772.html">
+                            1. 为什么要用枚举实现单例模式（避免反射、序列化问题）(10074)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/6409938.html">
+                            2. 设计模式基础--Java接口和抽象类(536)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/6475864.html">
+                            3. 最简单的设计模式--单例模式(447)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/5630550.html">
+                            4. 深入理解java虚拟机读书笔记1--java内存区域(114)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/9260930.html">
+                            5. mysql架构和历史(58)
+                        </a>
+                    </li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- 评论排行榜 -->
+<div id="sidebar_topcommentedposts" class="sidebar-block">
+    
+<div id="topfeedback_posts_wrap">
+    <h3 class="catListTitle">评论排行榜</h3>
+    <div id="TopFeedbackPostsBlock">
+        <ul style="word-break:break-all">
+                    <li>
+                        <a href="https://www.cnblogs.com/chiclee/p/9097772.html">
+                            1. 为什么要用枚举实现单例模式（避免反射、序列化问题）(4)
+                        </a>
+                    </li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- 推荐排行榜 -->
+<div id="sidebar_topdiggedposts" class="sidebar-block">
+    
+<div id="topdigg_posts_wrap">
+    <div class="catListView">
+        <h3 class="catListTitle">推荐排行榜</h3>
+        <div id="TopDiggPostsBlock">
+            <ul style="word-break: break-all">
+                        <li>
+                            <a href="https://www.cnblogs.com/chiclee/p/9097772.html">
+                                1. 为什么要用枚举实现单例模式（避免反射、序列化问题）(3)
+                            </a>
+                        </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</div></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright © 
+2019 李子沫
+
+    </div>
+</div>
+
+    
+
+
+<iframe id="google_osd_static_frame_6412270368650" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./为什么要用枚举实现单例模式（避免反射、序列化问题） - 李子沫 - 博客园_files/saved_resource(1).html"></iframe></body></html>

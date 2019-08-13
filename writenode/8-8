@@ -1,0 +1,24 @@
+storm day09
+sblot-blot-blot,一直执行
+
+
+并行，
+分布式计算
+mesh，服务网格结构：
+serverless
+
+vm虚拟化资源耗损，变慢,vare虚拟可以到5%，但是收费，vbox到30%
+docker：库冲突，各自拥有不同环境变量，独立资源，相当于进程
+uname -a
+link
+
+
+连接两个docker
+ambassador
+
+dcoker原理，image
+两个docker共享一个ip,link,端口映射
+连接两个docker
+docker命令
+挂在docker磁盘
+自己制作docker镜像
