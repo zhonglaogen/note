@@ -1,0 +1,47 @@
+namespace,cgroup,c+
+openstack:
+etcd:AP,不能做分布式锁，没有一致性
+cp:zookeeper
+桥接：单独分开连接
+滚动增加，增加8个，先掉两个，在上两个
+
+解释编译
+1.。。。python3
+which env
+which python
+/user/bin/env python3
+也可以编译，没有jit，很慢
+pypy可以jit
+2.。。pip3 相当于maven抄的
+3.。。-dev 别的语言互调
+不重复造轮子
+--node。js改的
+bug多，在docker中运行好
+
+virtualenv：独立的包运行环境
+
+inteceptot
+
+python调的c
+
+__init__.py是包
+import 引得要写全路径
+要from
+pprint
+随意import
+.py
+hashMap
+dict:import后存这个对象的kv
+r  转义
+u
+b
+数组，slice
+元组
+集合
+dict
+if要空格四个
+while有else，brek会用
+for i in mylist
+for i int range(0,10,2)重几开始，到几，一次加多少
+
+
