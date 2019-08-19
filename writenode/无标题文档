@@ -1,0 +1,6 @@
+actuator监控
+ngrok反向代理
+服务降级
+hy监控集群dashboard
+全局配置
+hession2序列化协议,不能传emunSet,枚举增加属性,重启,序列化失败,先升级调用,在升级service

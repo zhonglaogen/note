@@ -1,0 +1,3 @@
+ * @PathVariable搜集url的参数
+ * @param是mybatis绑定参数的注解
+ * @requestParam是controller绑定参数的注解
