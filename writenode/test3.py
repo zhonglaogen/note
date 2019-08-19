@@ -16,6 +16,7 @@ def dis0(*a):
 dis0(1,2,34,5,67,"dsa")
 
 def dis1(**b):
+    #可以添加默认值
     return {"name":b.get("name","xxx"),"age":b.get("age","18")}
 ddd=dis1(name="zlx")
 print(ddd)
@@ -60,6 +61,7 @@ print(type(aset))
 
 # yield和return(函数)不能在一起,生成器,协程:空闲cpu时让其他人执行,cpu不闲着,异步,单线程,一个核心
 # next(fun) 断点 返回值是生成器给外面的值:yield 后面的东西,p.send() 参数是给断点传的值,第一次一定要next
+# in 就是next，rannge就是yeild
 
 print("++++++++++++++++++++++++++++++++++++++++")
 def myy():
@@ -79,8 +81,9 @@ yyy1.send("ok")
 
 # for循环,in就是生成器,迭代,yield arry[i],next(),相当于while
 # next(f)=f.send(null)\next没有下一个,就会报错,用try,cache
-# 三条管道,0输入,1输出,3错误,三条管道并行,所以错误会
+# 三条管道,0输入,1输出,3错误,三条管道并行,所以错误会随机位置产生
 
+# 值传递问题
 # type的type是type
 # id()看内存编号,不是内存地址,整数值传递,数组是新的,内容是一样的,和java一样内存不连续
 # 定长数组go,变长切片,普遍,
