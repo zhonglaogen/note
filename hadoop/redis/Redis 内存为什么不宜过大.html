@@ -1,0 +1,825 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0065)http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" charset="utf-8" async="" src="./Redis 内存为什么不宜过大_files/yuetu_yuansheng_filter_title.app.js"></script>
+    <script src="./Redis 内存为什么不宜过大_files/osd.js"></script><script type="text/javascript" async="" src="./Redis 内存为什么不宜过大_files/auto_dup"></script><script src="./Redis 内存为什么不宜过大_files/hm.js"></script><script type="text/javascript">
+        if (window.location.toString().indexOf("shtml?") > 0) {
+            self.location = window.location.toString().replace(window.location.search.toString(), ""); 
+        }
+        function doccheckart(json) {
+            if (json[0].result == "1") {
+                self.location = "http://www.360doc.com/noarticle.aspx";
+            }
+        }
+
+        function doccheckarts(json) {
+            if (json[0].result == "1") {
+                var artidlist = json[0].artid;
+                if (artidlist != "") {
+                    if (artidlist.indexOf(',') > -1) {
+                        artidlist = artidlist.split(',');
+                    } else {
+                        artidlist = [artidlist];
+                    }
+                    $.each(artidlist, function (index, value) {
+                        $('#artid_' + value).remove();
+                    });
+                }
+            }
+            console.log(json[0]);
+        }
+    </script>
+    <script src="./Redis 内存为什么不宜过大_files/jquery1.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        function getCookie(name) //获取cookie值
+        {
+            var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+            if(arr != null)
+                return unescape(arr[2]);
+            return null;
+        }
+        var patt1 = new RegExp("[0-9]*_[0-9]*");
+        var url = patt1.exec(location.href);
+        if (navigator.userAgent.toLowerCase().indexOf("micromessenger") > -1) {
+            window.location.href = "http://www.360doc26.net/wxarticlenew/" + url.toString().split("_")[1] + ".html";
+                        
+        }
+        else if (navigator.userAgent.indexOf("iPhone") > 0 || navigator.userAgent.indexOf("Android") > 0 || navigator.userAgent.indexOf("iPod") > 0) {  //手机端跳转
+
+            if (url != "") {
+                self.location = "http://www.360doc.cn/article/" + url + ".html";
+            }
+        }
+
+        if ( 780769134 !=  780769134) {
+            if(getCookie("360doc1")!=null)
+            {
+                $.ajax({
+                    url: "http://www.360doc.com/ajax/getuserid.ashx",
+                    async:false,
+                    cache: false,
+                    dataType: "json",
+                    success: function (result) {
+                
+                        if (10346540 != result.userid) { 
+                    
+                        self.location = "http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml";
+                    }
+                }
+            });
+        }
+        else
+        {
+            self.location = "http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml";
+            }
+        }
+        
+
+        if ( 0 !=  780769134&&"0"!=""&&"0"!="0"&&"0"==0) {
+            $.ajax({
+                url: "http://www.360doc.com/ajax/getuserid.ashx",
+                cache: false,
+                dataType: "json",
+                success: function (result) {
+                    if (10346540 != result.userid) { 
+                        self.location = "";
+                    }
+                }
+            });}
+    </script>
+    <meta content="360doc" name="classification"><link rel="alternate" media="only screen and (max-width: 640px)" href="http://www.360doc.cn/article/10346540_780769134.html"><meta content="Redis 内存为什么不宜过大" name="keywords"><meta content="Redis 内存为什么不宜过大" name="description"><meta name="mobile-agent" content="format=html5;url=http://www.360doc.cn/article/10346540_780769134.html"><meta content="具体为从该集群剩余从库中选出一个从库并将其升级为主库，该从库升级为主库后再将剩余从库挂载至其下成为其从库，最终恢复整个主从集群结构。在Redis集群中一旦从库换主，Redis的做法是将更换主库的从库清空然后从新主库完整同步一份数据再进行续传。4内存越大，触发持久化阻塞Redis主线程时间越长Redis是单线程的内存数据库，在Redis需要执行耗时的操作时，会fork一个新进程来做，比如bgsave，bgrewriteaof。" name="360docabstract"><meta content="www.360doc.com" name="author"><title>
+	Redis 内存为什么不宜过大
+</title>
+
+    <script src="./Redis 内存为什么不宜过大_files/showarticlefollow20160329.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./Redis 内存为什么不宜过大_files/jQuery.md5.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./Redis 内存为什么不宜过大_files/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+
+    
+    <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d86954201130d615136257dde062a503";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <link rel="stylesheet" type="text/css" href="./Redis 内存为什么不宜过大_files/wzhead-cleaned.css"><link rel="stylesheet" type="text/css" href="./Redis 内存为什么不宜过大_files/newArticle20160509.css"><style>#artContent img{max-width:656px;} #artContent h1{font-size:16px;font-weight: 400;}</style>
+    <script type="text/javascript" language="javascript">
+        window.onerror = ignoreError;
+        function ignoreError() {
+            return true;
+        }
+    </script>
+    <link href="./Redis 内存为什么不宜过大_files/newheader.css" rel="stylesheet" type="text/css"><link rel="stylesheet" type="text/css" href="./Redis 内存为什么不宜过大_files/report.css">
+    <script src="./Redis 内存为什么不宜过大_files/report.js" type="text/javascript" charset="utf-8"></script>
+<style type="text/css" id="QIHOO_FEED_CSS">#QIHOO__WEB__SO__1566373747062_246 info-div,#QIHOO__WEB__SO__1566373747062_246 newsfeed,#QIHOO__WEB__SO__1566373747062_246 newsfeed-header,#QIHOO__WEB__SO__1566373747062_246 newsfeed-main,#QIHOO__WEB__SO__1566373747062_246 newsfeed-menu{display:block}#QIHOO__WEB__SO__1566373747062_246 info-span{display:inline}#QIHOO__WEB__SO__1566373747062_246 .feed-toolbar{overflow:hidden}#QIHOO__WEB__SO__1566373747062_246 .feed-toolbar .toolbar__closeBtn{float:right;width:54px;height:18px;background:url('//p0.ssl.qhimg.com/d/inn/69518715/close.jpg');cursor:pointer}#QIHOO__WEB__SO__1566373747062_246 a{text-decoration:none}#QIHOO__WEB__SO__1566373747062_246 .feed__wrapper{overflow:hidden}#QIHOO__WEB__SO__1566373747062_246 .feed__wrapper .visited .feed__link .largeImage__title,#QIHOO__WEB__SO__1566373747062_246 .feed__wrapper .visited .feed__link .multiImage__title,#QIHOO__WEB__SO__1566373747062_246 .feed__wrapper .visited .feed__link .singleImageText__title,#QIHOO__WEB__SO__1566373747062_246 .feed__wrapper .visited .feed__link .singleImage__title{color:#9e9e9e}#QIHOO__WEB__SO__1566373747062_246 .feed__item{overflow:hidden}#QIHOO__WEB__SO__1566373747062_246 .feed__item .feed__link{display:block;overflow:hidden;cursor:pointer}#QIHOO__WEB__SO__1566373747062_246 .img{background-size:cover;position:relative;background-repeat:no-repeat}#QIHOO__WEB__SO__1566373747062_246 .img .adTag{background:#666;background:rgba(0,0,0,0.5);color:#fff;font-size:12px;position:absolute;top:0;right:0;border-right:1px solid #bbb}#QIHOO__WEB__SO__1566373747062_246 ::-webkit-scrollbar{width:8px;height:8px}#QIHOO__WEB__SO__1566373747062_246 ::-webkit-scrollbar-thumb{background:rgba(37,36,36,0.57);border-radius:10px}#QIHOO__WEB__SO__1566373747062_246 ::-webkit-scrollbar-track{background-color:#f5f5f5;border-radius:10px}#QIHOO__WEB__SO__1566373747062_246 .textual{position:relative;background-color:#fff;width:auto;height:auto;padding:4px 4px 4px 4px;height:auto}#QIHOO__WEB__SO__1566373747062_246 .textual .feed__link{position:relative;display:block;overflow:visible}#QIHOO__WEB__SO__1566373747062_246 .textual .feed__link:hover .textual__title{color:#0f659c}#QIHOO__WEB__SO__1566373747062_246 .textual .textual__body{position:relative}#QIHOO__WEB__SO__1566373747062_246 .textual .textual__body .adTag{background:#666;color:#fff;font-size:12px;position:absolute;top:0;right:0;border-right:none;height:20px;line-height:20px}#QIHOO__WEB__SO__1566373747062_246 .textual .textual__body .textual__title{display:block;height:20px;line-height:20px;padding:0px 25px 0px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#707070;font-size:14px;font-weight:bold;font-family:"Microsoft Yahei"}</style><link rel="preload" href="./Redis 内存为什么不宜过大_files/f(5).txt" as="script"><script type="text/javascript" src="./Redis 内存为什么不宜过大_files/f(5).txt"></script><link rel="preload" href="https://pagead2.googlesyndication.com/pagead/js/r20190815/r20190131/show_ads_impl.js" as="script"><style type="text/css">qihoobannerslider{display:block;} qihoobannerslider .img{background-size:cover;background-repeat:no-repeat;}</style><style type="text/css">.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK info-div{
+   display: block;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.gouwu-bottom{
+   width: 300px;
+   float: left;
+   margin-bottom: 18px;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content{
+   float: left;
+   margin-right: 13px;
+   *margin-right: 11px;
+   margin-bottom: 13px;
+   width: 135px;
+   height: 110px;
+   border: 1px solid #f6f6f6;
+   overflow: hidden;
+   position: relative;
+   cursor: pointer;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content .title{
+   position: absolute;
+   top: 10px;
+   left: 0;
+   width: 88%;
+   height: 22px;
+   line-height: 22px;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   font-size: 14px;
+   color: #000;
+   font-weight: 700;
+   padding: 0 5px;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content .img{
+   position: absolute;
+   right: 4px;
+   bottom: 4px;
+   height: 65px;
+   width: 65px;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content .brand{
+   position: absolute;
+   top: 80px;
+   left: 5px;
+   font-size: 13px;
+   color: white;
+   background-color: #d21a1a;
+   padding: 4px 3px;
+   border-radius: 6px;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content .price{
+   position: absolute;
+   top: 80px;
+   left: 5px;
+   font-size: 13px;
+   color: #c30;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content .subtitle{
+   position: absolute;
+   top: 40px;
+   left: 0;
+   font-size: 12px;
+   color: #666;
+   padding: 0 5px;
+   width:88%;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content  .img-title:hover {
+    color:red;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.bottom-content.hover {
+    background: #e7e7e7;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+
+.slide-column-pageup{
+   width: 26px;
+   height: 46px;
+   margin-top: -35px;
+   left: 0;
+   position: absolute;
+   top: 50%;
+   z-index: 5;
+   cursor: pointer;
+   display: none;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.slide-column-pageup .arrowLeft{
+   /* background-position: 0 0; */
+   width: 26px;
+   height: 46px;
+   left: 0;
+   top: 0;
+   position: absolute;
+   background-image: url(https://p2.ssl.qhimg.com/t01522ece2ff580414e.png);
+   background-repeat: no-repeat;
+   /* line-height: 200px; */
+   overflow: hidden;
+   z-index: 1;
+}.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.slide-column-pagedown .arrowRight{
+   /* background-position: -40px 0; */
+   width: 26px;
+   height: 46px;
+   left: 0;
+   top: 0;
+   position: absolute;
+   background-image: url(https://p5.ssl.qhimg.com/t019fff14884580db69.png);
+   background-repeat: no-repeat;
+   /* line-height: 200px; */
+   overflow: hidden;
+   z-index: 1;
+}
+/*.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK  .slide-column-pageup .bg,.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK  .slide-column-pagedown .bg{
+   width: 40px;
+   height: 40px;
+   opacity: .3;
+   left: 0;
+   top: 0;
+   position: absolute;
+   background-color: #000;
+   filter: alpha(opacity=30);
+} */.QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK 
+.slide-column-pagedown{
+   width: 26px;
+   height: 46px;
+   margin-top: -35px;
+   right: 0;
+   position: absolute;
+   top: 50%;
+   z-index: 5;
+   cursor: pointer;
+   display: none;
+}</style><script src="./Redis 内存为什么不宜过大_files/share.js"></script><script type="text/javascript" src="./Redis 内存为什么不宜过大_files/EssayforIE120425.js"></script><link href="about:blank" rel="styleSheet" type="text/css"></head>
+<body onmouseup="setDragEnd()" onclick="delAllDiv(event)" class=""><div id="BAIDU_DUP_fp_wrapper" style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;"><iframe id="BAIDU_DUP_fp_iframe" src="./Redis 内存为什么不宜过大_files/o.html" style="width: 0px; height: 0px; visibility: hidden; display: none;"></iframe></div>
+
+    <span id="LayerLogin"></span>
+
+
+    <div style="position: fixed; width: 100%; z-index: 1000;">
+        <div class="header" style="background-color: #ffffff;">
+            <div class="header_1">
+                <a href="http://www.360doc.com/index.html">
+                    <img src="./Redis 内存为什么不宜过大_files/nlogo.jpg" class="f_left"></a>
+                <div class="mylibrary">
+                    <a id="userInfoUrl" href="http://www.360doc.com/login.aspx?reurl=http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml" class="a1">
+                        <div class="h_user">
+                            <img id="divuserinfonew" src="./Redis 内存为什么不宜过大_files/dingtu.gif"><span></span>
+                        </div>
+                        我的图书馆
+                    </a>
+                    <ul class="hm_list hm_account" style="display: none;">
+                        <li>
+                            <a href="http://www.360doc.com/myindex.aspx">首页</a>
+                        </li>
+                        <li>
+                            <a href="http://www.360doc.com/myfiles.aspx?app=1&amp;type=3">馆藏</a>
+                        </li>
+                        <li>
+                            <a href="http://www.360doc.com/myreadroom.aspx">好文</a>
+                        </li>
+                        <li>
+                            <a href="http://www.360doc.com/mybook.aspx">好书</a>
+                        </li>
+                        <li>
+                            <a href="http://www.360doc.com/myfollow.aspx">动态</a>
+                        </li>
+                        <li>
+                            <a href="http://www.360doc.com/edit/writeartnew.aspx" target="_blank">写文章</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" onclick="displaylogin();">退出帐号</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="headmail f_left" style="display: none;">
+                    <p class="h_icon1" id="newMsg"></p>
+                    <span class="h_border"></span>
+                    <ul class="hm_list" id="msgtips">
+                        <li id="msgicon"><a href="http://www.360doc.com/mymsg.aspx?app=2">查看信箱</a></li>
+                        <li id="sysmsgicon"><a href="http://www.360doc.com/mymsg.aspx?app=9">系统消息</a></li>
+                        <li id="sysicon"><a href="http://www.360doc.com/mymsg.aspx?app=4">官方通知</a></li>
+                        <li class="hm_color2" style="background-color: #f4f4f4"><a href="http://www.360doc.com/mymsg.aspx?app=6">设置</a></li>
+                    </ul>
+                </div>
+                <div class="headtalker f_left" style="display: none;">
+                    <p class="h_icon1" id="newDialog"></p>
+                    <span class="h_border"></span>
+                    <ul class="hm_list">
+                        <li id="li1chat"><a href="javascript:void(0)" onclick="initchatnew()">开始对话</a></li>
+                        <li id="li2chat" style="display: none;"><a href="javascript:void(0)" style="color: #141414;">有<span>11</span>人和你对话，<span onclick="initchatnew()" style="color: #4578b4">查看</span>&nbsp;<span onclick="clearinfochat()" style="color: #4578b4">忽略</span></a></li>
+                        <li><a href="http://www.360doc.com/mycontacts.aspx?app=8">历史对话记录</a></li>
+                        <li class="hm_color2" style="background-color: #f4f4f4"><a href="http://www.360doc.com/mycontacts.aspx?app=7">通知设置</a></li>
+                    </ul>
+                </div>
+                <a href="http://www.360doc.com/advice.html" target="_blank" class="head_talk f_right">留言交流</a>
+                <div class="headsearch f_right">
+                    <div class="zcomdiv">
+                        <input type="text" class="headsearch_inp f_left" value="搜文章 找馆友">
+                        <span class="headsearch_btn f_right" id="searchlinkid"></span>
+                    </div>
+                    <div class="headsearch_select" style="display: none;">
+                        <p class="hs_title">请选择搜索范围</p>
+                        <a href="javascript:goSearch();" class="cur">含&nbsp;<span></span>&nbsp;的文章</a>
+                        <a href="javascript:goSearch();">昵称为&nbsp;<span></span>&nbsp;的馆友</a>
+                        <a href="javascript:goSearch();">兴趣为&nbsp;<span></span>&nbsp;的馆友</a>
+                        <a href="javascript:goSearch();">含&nbsp;<span></span>&nbsp;的书籍</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="arti_type_shadow" style="display: block;"></div>
+    </div>
+    <div style="height: 68px; _height: 0px; width: 100%;"></div>
+
+    <div class="clear360doc"></div>
+
+    <div class="doc360article_content" style="width: 1015px;">
+
+        <div style="height: 90px; padding-top: 13px;">
+            <script async="" src="./Redis 内存为什么不宜过大_files/f(6).txt"></script><ins class="adsbygoogle" style="display: inline-block; width: 970px; height: 90px" data-ad-client="ca-pub-6625678643128649" data-ad-slot="2709112222" data-adsbygoogle-status="done"><ins id="aswift_0_expand" style="display:inline-table;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:970px;background-color:transparent;"><ins id="aswift_0_anchor" style="display:block;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:970px;background-color:transparent;"><iframe width="970" height="90" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;border:0px;width:970px;height:90px;" src="./Redis 内存为什么不宜过大_files/saved_resource(2).html"></iframe></ins></ins></ins><script> (adsbygoogle = window.adsbygoogle || []).push({ }); </script>
+        </div>
+        <p class="clearboth"></p>
+        <div class="a_left" style="width: 685px;">
+
+            <div class="docsharelist" style="visibility: visible; margin-left: -33px;">
+                <p class="dp1">分享</p>
+                <div class="bdsharebuttonbox dp2 bdshare-button-style0-16" data-bd-bind="1566373747524">
+                    <!--dp2 -->
+                    <a class="a1" href="javascript:void(0);" onclick="shareWeixin();artStatistics(&#39;20-8-17&#39;);pushUserInterestRedis(4);">
+                        <!--微信-->
+                    </a>
+                    <a class="a2" href="javascript:void(0);" data-cmd="qzone" onclick="artStatistics(&#39;20-8-18&#39;);pushUserInterestRedis(4);" title="分享到QQ空间">
+                        <!--QQ空间-->
+                    </a>
+                    <a class="a3" href="javascript:void(0);" data-cmd="sqq" onclick="artStatistics(&#39;20-8-19&#39;);pushUserInterestRedis(4);" title="分享到QQ好友">
+                        <!--QQ-->
+                    </a>
+                    <a class="a4" href="javascript:void(0);" data-cmd="tsina" onclick="artStatistics(&#39;20-8-21&#39;);pushUserInterestRedis(4);" title="分享到新浪微博">
+                        <!--微博-->
+                    </a>
+                    <a class="a5" href="javascript:void(0);" onclick="showdivemail1();artStatistics(&#39;20-8-22&#39;);pushUserInterestRedis(4);" title="推荐给朋友">
+                        <!--？-->
+                    </a>
+
+                </div>
+                <p class="dp3" onclick="$(this).prev(&#39;div&#39;).css(&#39;height&#39;,&#39;auto&#39;).next(&#39;p&#39;).remove();artStatistics(&#39;20-8-20&#39;);"><a href="javascript:void(0);">更多</a></p>
+            </div>
+
+            <div id="bgchange" style="width: 659px;">
+                <div class="fontsize_bgcolor_controler">
+                    <div class="a_bgcolor">
+                        <img src="./Redis 内存为什么不宜过大_files/bgcolor.jpg">
+                        <div class="a_colorlist">
+                            <span class="a_color1" onclick="artStatistics(&#39;20-11-1&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                            <span class="a_color2" onclick="artStatistics(&#39;20-11-2&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                            <span class="a_color3" onclick="artStatistics(&#39;20-11-3&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                            <span class="a_color4" onclick="artStatistics(&#39;20-11-4&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                            <span class="a_color5" onclick="artStatistics(&#39;20-11-5&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                            <span class="a_color6 cur" onclick="artStatistics(&#39;20-11-6&#39;);">
+                                <img src="./Redis 内存为什么不宜过大_files/yes.gif"></span>
+                        </div>
+                    </div>
+                    <div class="a_fontsize">
+                        <img src="./Redis 内存为什么不宜过大_files/fontSize.jpg">
+                        <div class="fschange">
+                            <label>
+                                <input type="radio" name="font_Size" id="" value="18" onclick="artStatistics(&#39;20-10-1&#39;);">大
+                            </label>
+                            &nbsp;
+                            <label>
+                                <input type="radio" name="font_Size" id="" value="16" onclick="artStatistics(&#39;20-10-2&#39;);">中
+                            </label>
+                            &nbsp;
+                            <label>
+                                <input type="radio" name="font_Size" id="" value="14" onclick="artStatistics(&#39;20-10-3&#39;);">小
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <h2 id="titiletext">Redis 内存为什么不宜过大</h2>
+                <div class="article_data">
+                    
+                    <div class="article_data_left">
+                        2018-08-24
+                        <span class="a_username">&nbsp;<a href="http://www.360doc.com/userhome/10346540" id="savernickname" target="_blank" onclick="artStatistics(&#39;20-7-1&#39;);">xujin3</a>
+                        </span>
+                        
+                        
+
+
+                        <span id="articleinfo">
+                            <span id="docsource" class="a_from" style="display: none;">&nbsp;<a href="https://mp.weixin.qq.com/s/fpupqLp-wjR8fQvYSQhVLg" target="_blank" onclick="artStatistics(&#39;20-12&#39;);">来源</a></span><span id="360doc_Readnum">&nbsp;&nbsp;阅&nbsp;1468&nbsp;</span><span id="360docResaveCount" style="display: none;"><span onclick="ShowSaverUser();artStatistics(&#39;20-13&#39;);" id="360doc_saverNum" style="cursor: pointer;"></span>
+                                <span id="360doc_saverUser">
+                                    <div style="position: absolute; height: 305px; width: 144px; left: 0px; z-index: 2; display: none;" id="sameArtOuter">
+                                        <div onclick="event.cancelBubble=true;" style="overflow-y: auto; height: 300px; overflow-x: hidden; z-index: 100; right: 0px; margin-top: -10px;" id="sameArt">
+                                        </div>
+                                    </div>
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                    <div id="resavelayer1" class="bdsharebuttonbox article_data_right bdshare-button-style0-16" data-bd-bind="1566373747524"><div class="zcommond"><a class="p2" href="javascript:void(0);" onclick="SaveArt();artStatistics(&#39;20-3-1&#39;);">转藏到我的图书馆</a><div class="s2 f_right" onclick="setTimeout(function(){$(&#39;.article_data_right .sharelist_new&#39;).slideToggle(0);},10);" style="display: none;"><span onclick="artStatistics(&#39;20-8-2&#39;);"></span></div><a class="p1" href="javascript:void(0);" onclick="shareWeixin();artStatistics(&#39;20-8-5&#39;);pushUserInterestRedis(4);" style="display: none;">微信</a> <span class="s1" onclick="setTimeout(function(){$(&#39;.article_data_right .sharelist_new&#39;).slideToggle(0);},10);artStatistics(&#39;20-8-1&#39;);" onmouseover="this.style.color=&#39;#0f659c&#39;" onmouseout="this.style.color=&#39;&#39;" style="display: none;">分享：</span></div><div class="sharelist_new" id="fenxiangLayer" style="display: none;"> <a class="slbg1" href="javascript:void(0);" data-cmd="qzone" onclick="artStatistics(&#39;20-8-7&#39;);pushUserInterestRedis(4);">QQ空间</a> <a class="slbg2" href="javascript:void(0);" data-cmd="sqq" onclick="artStatistics(&#39;20-8-9&#39;);pushUserInterestRedis(4);">QQ好友</a> <a class="slbg3" href="javascript:void(0);" data-cmd="tsina" onclick="artStatistics(&#39;20-8-11&#39;);pushUserInterestRedis(4);">新浪微博</a><a class="slbg5" href="javascript:void(0);" onclick="showdivemail1();artStatistics(&#39;20-8-15&#39;);pushUserInterestRedis(4);">推荐给朋友</a> </div><div style="position: absolute;display:none;z-index:1;left:143px;" id="fuzhitishidiv"></div></div>
+                </div>
+                
+                <div id="articlecontent" class="article_container" onmousedown="newhighlight = true;" onmouseup="NewHighlight(event);">
+                    <div class="article_showall">
+                        <div>
+                            <a href="javascript:void(0);" onclick="$(&#39;body&#39;).removeClass(&#39;articleMaxH&#39;)" datatype="360doczkqw">展开全文</a>
+                        </div>
+                    </div>
+                    <table style="width: 656px;">
+                        <tbody>
+                            <tr>
+                                <td id="artContent" style="max-width: 656px">
+                                    <div style="width: 656px; margin: 0; padding: 0; height: 0;"></div>
+
+                                    <section powered-by="xiumi.us"><section><section><p>近两年我们 HULK 云平台承载的Redis日访问量从800+亿增加到了2100+亿，Redis实例数也增长到了5000+。</p><p><img data-ratio="0.75" data-s="300,640" data-type="png" data-w="800" _width="auto" src="./Redis 内存为什么不宜过大_files/142192504_1_20180824082321192"><br>在这几年的线上业务的使用中表明，Redis这个内存数据库，它的高性能、稳定性都是不用怀疑的。但在运维过程中，我们走过的路，踩过的坑也不少。今天来讨论一下，如果单实例内存过大，如果一旦出问题，那它可能会带给我们的就是灾难性（我想很多公司都遇到过）， 这里列举一下单实例内存过大可能会遇到的一些问题：<br></p></section></section></section><section powered-by="xiumi.us"><section><section><section><section>1</section></section><span><section>主库切换</section></span></section></section></section><section powered-by="xiumi.us"><section><section><p>先来看一下主库宕机容灾过程，如下图：</p><p><img data-ratio="0.4023972602739726" data-s="300,640" data-type="png" data-w="1168" _width="-30px" src="./Redis 内存为什么不宜过大_files/142192504_2_20180824082321348"><br>在主库宕机的时候，我们最常见的容灾策略为“切主”。具体为从该集群剩余从库中选出一个从库并将其升级为主库，该从库升级为主库后再将剩余从库挂载至其下成为其从库，最终恢复整个主从集群结构。以上是一个完整的容灾过程，而代价最大的过程为从库的重新挂载，而非主库的切换。&nbsp;<br></p></section></section></section><section powered-by="xiumi.us"><section><section><section>这是因为Redis无法像MySQL、MongoDB那样基于同步的点位在主库发生变化后从新的主库继续同步数据。 在Redis集群中一旦从库换主，Redis的做法是将更换主库的从库清空然后从新主库完整同步一份数据再进行续传。</section><section>从库重做流程是这样的：</section></section></section></section><section powered-by="xiumi.us"><section><section><section powered-by="xiumi.us"><section><section><section>1. 主库bgsave自身数据到磁盘</section><section>2. 主库发送rdb文件到从库</section><section>3. 从库开始加载</section><section>4. 加载完毕开始续传，同时开始提供服务</section></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><p>很明显，在这个过程中Redis的内存体积越大以上每一个步骤的时间都会被拉长，实际测试的数据如下（我们自认我们的机器性能比较好）：</p><p><img data-ratio="0.749034749034749" data-s="300,640" data-type="png" data-w="1554" _width="-30px" src="./Redis 内存为什么不宜过大_files/142192504_3_20180824082321551"><br></p></section></section></section><section powered-by="xiumi.us"><section><section><section>可以看到，当数据达到20G的时候，一个从库的恢复时间已经被拉长到了将近20分钟，如果有10个从库那么如果依次恢复则共需200分钟，而如果此时该从库承担着大量的读取请求你能够忍受这么长的恢复时间吗？</section></section></section></section><section powered-by="xiumi.us"><section><section><section>看到这里你肯定会问：为什么不能同时重做所有从库？这是因为所有从库如果同时向主库请求rdb文件那么主库的网卡则立即跑满从而进入一个无法正常提供服务的状态，此时主库又死了，简直是雪上加霜。</section></section></section></section><section powered-by="xiumi.us"><section><section><section>当然，我们可以批量恢复从库，例如两两一组，那么全部从库的恢复时间也仅仅从200分钟降低到了100分钟，这不是五十步笑百步吗？</section></section></section></section><section powered-by="xiumi.us"><section><section><section>另一个重要问题在于第四点中的标红位置，续传可以理解为一个简化的MongoDB的oplog，它是一个体积固定的内存空间，我们称之为“同步缓冲区”。</section></section></section></section><section powered-by="xiumi.us"><section><section><section>Redis主库的写入操作都会在该区域存放一份然后发送给从库，而如果在上文中1，2，3步耗时太久那么很可能这个同步缓冲区就被重写，此时从库无法找到对应的续传位置它会怎么办？答案是重做1，2，3步！但因为我们无法解决1，2，3步的耗时因此该从库会永远的进入恶性循环：不停的向主库请求完整数据，结果对主库的网卡造成严重影响。</section></section></section></section><section powered-by="xiumi.us"><section><section><section>当然，曾经也看到有公司放弃了Redis原生的主从同步机制，采用实时读取aof持久化文件来实现主从同步。这样做的好处就是主从关系的变动，Redis不需要重新从新主全量同步数据，而是增量的读取aof文件。但是，伴随而来的问题是，主库aof刷盘的频率为always时对性能有一定影响，而刷盘频率太慢，会造成主从同步延迟在秒级别。对于做了读写分离的业务，这种延迟也许是不能忍受的。</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section>2</section></section><span><section>从库扩容</section></span></section></section></section><section powered-by="xiumi.us"><section><section><section>很多时候会出现流量的突发性增长，通常在找到原因之前我们的应急做法就是扩容了。 一个20G的Redis扩容一个从库需要将近20分钟，在这个紧急的时刻20分钟业务能够容忍吗？可能还没扩好就死翘翘了。</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section>3</section></section><span><section>网络缓慢导致从库重做引发雪崩</section></span></section></section></section><section powered-by="xiumi.us"><section><section><section>该场景的最大问题是主库与从库的同步中断，而此时很可能从库仍然在接受写入请求，那么一旦中断时间过长同步缓冲区就很可能被复写。此时从库上一次的同步位置已丢失，在网络恢复后虽然主库没有发生变化但由于从库的同步位置丢失了从库必须进行重做，也就是问题一中的1，2，3，4步。如果此时主库内存体积过大那么从库重做速度就会很慢，而发送到从库的读请求就会受到严重影响，同时由于传输的rdb文件的体积过大，主库的网卡在相当长的一段时间内都会受到严重影响。</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section>4</section></section><span><section>内存越大，<span>触发持久化阻塞Redis主线程时间越长</span></section></span></section></section></section><section powered-by="xiumi.us"><section><section><section>Redis是单线程的内存数据库，在Redis需要执行耗时的操作时，会fork一个新进程来做，比如bgsave，bgrewriteaof。 Fork新进程时，虽然可共享的数据内容不需要复制，但会复制之前进程空间的内存页表，这个复制是主线程来做的，会阻塞所有的读写操作，并且随着内存使用量越大耗时越长。例如：内存20G的Redis，bgsave复制内存页表耗时约为750ms，Redis主线程也会因为它阻塞750ms。</section></section></section></section><section powered-by="xiumi.us"><section><section><section><strong><span>解决方法：</span></strong></section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>1</span></section></section><section><section><section><span>设置过期时间</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><section>对具有时效性的key设置过期时间，通过Redis自身的过期key清理策略来降低过期key对于内存的占用</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>2</span></section></section><section><section><section><span>有规划的合理使用</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><section>尽量减少key名称的复杂度，减少内存开销；选择合理的数据结构解决实际问题，既可以提高效率又可以节省内存</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>3</span></section></section><section><section><section><span>及时清理无用数据</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><section>例如一个Redis承载了3个业务的数据，一段时间后有2个业务下线了，那就把这两个业务的相关数据清理了呗</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>4</span></section></section><section><section><section><span>对数据压缩存储</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><section>例如一些长文本形式的数据，压缩能够大幅度降低内存占用</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>5</span></section></section><section><section><section><span>关注内存增长和大容量key的内存分析</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><section>不管是DBA还是开发人员，你用Redis，你就必须关注内存，否则，你其实就是不称职的，这里可以分析Redis实例中哪些key比较大从而帮助业务快速定位异常key（非预期增长的key，往往是问题之源）</section></section></section></section><section powered-by="xiumi.us"><section><section><section><section><span>6</span></section></section><section><section><section><span>使用Pika</span></section></section></section></section></section></section><section powered-by="xiumi.us"><section><section><p>最后，有同学可能会说了，我数据量就那么大怎么办。我们的终极大杀器Pika就不得不登台了。</p><p><br></p><section>那Pika是什么？这里我们简单的介绍一下。</section><p>Pika 是DBA和基础架构组联合开发的大容量、高性能、多线程、持久化的类Redis存储系统。Pika中的数据使用磁盘而非内存，多线程的结构设计，保证了在使用磁盘的同时还拥有强劲的性能。它支持多数据结构，完全支持Redis协议。用户无需换驱动，无需改代码，支持从Redis实时同步数据的无缝迁移。如果把业务迁移到新开源的Pika上面，这样就不用太关注内存了，Redis内存太大引发的问题，那也都不是问题了。感兴趣的同学快来试试吧！</p></section></section></section>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!--阅读全文（测试用，现在可能不用了）-->
+                    <div id="viewerPlaceHolder" style="width: 717px; height: 700px; display: none; margin: 0 auto;">
+                    </div>
+                </div>
+                <table>
+                    <!--防止文章内容有不完整标签-->
+                    <tbody>
+                        <tr>
+                            <td>
+                                <ul></ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div></div>
+                <span></span>
+                <a></a>
+                <p style="margin: 0; padding: 0;"></p>
+                <p class="clearboth"></p>
+
+                <div class="yc_user zcomdiv new_yc_user" id="oranuserinfo" style="display: none;">
+                </div>
+
+                <div id="divreward" style="display: none; width: 659px;">
+                    <div class="arti_reward new_arti_reward">
+                        <a id="btnreward" href="javascript:void(0);" class="a1" onclick="rewardlist.showRewardAlert();">赞赏</a>
+                        <div id="rewarduserslist" class="arti_rlist">
+                            <a href="javascript:void(0);" class="ara1">
+                                <img src="./Redis 内存为什么不宜过大_files/wx.jpg" title="游客"></a>
+                            <a href="javascript:void(0);" class="ara1">
+                                <img src="./Redis 内存为什么不宜过大_files/wx.jpg" title="游客"></a>
+                            <a href="javascript:void(0);" class="ara1">
+                                <img src="./Redis 内存为什么不宜过大_files/wx.jpg" title="游客"></a>
+                            <a href="javascript:void(0);" class="ara1">
+                                <img src="./Redis 内存为什么不宜过大_files/wx.jpg" title="游客"></a>
+                            <span id="spantotalrewardcount" class="ara1_morelist stopbubble">
+                                <div class="d1"><span id="totalormore" style="color: black;">共</span><span id="totalrewardcount">11</span>人赞赏</div>
+                                <div id="morerewarduserslist" class="d2" style="display: none;"></div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="divtort"><div style="color:#999;text-align:left;line-height:22px;background:#f7f7f7;padding: 10px 20px;margin-bottom: -7px;margin-top:10px;">本站是提供个人知识管理的网络存储空间，所有内容均由用户发布，不代表本站观点。如发现有害或侵权内容，请<span style="color:#155d9a;cursor:pointer;white-space: nowrap;" onclick="reportLayer.isLogin();artStatistics(&#39;20-18&#39;);">点击这里</span> 或 拨打24小时举报电话：4000070609 与我们联系。</div></div>
+                <div id="divresaveunder" class="bdsharebuttonbox bottombtn bdshare-button-style0-16" style="margin-top: 23px;" data-bd-bind="1566373747524">
+                    <div class="zcommond" style="overflow: visible;">
+                        <a href="javascript:void(0);" class="btn_collect" onclick="SaveArt();artStatistics(&#39;20-3-2&#39;);">转藏到我的图书馆</a>
+                        <a id="flowimg3" href="javascript:void(0);" class="btn_good" onclick="Showflowerlayer(&#39;sendedLayer1&#39;);">献花（<span id="articleflowernum">0</span>）
+                            <span id="flowernumadd" style="display: none;">+1</span>
+                        </a>
+                        <span class="span1 f_left" onclick="setTimeout(function(){$(&#39;.bottombtn .sharelist_new&#39;).slideToggle(0);},10);artStatistics(&#39;20-8-3&#39;);pushUserInterestRedis(4)" onmouseover="this.style.color=&#39;#0f659c&#39;" onmouseout="this.style.color=&#39;&#39;">分享：</span>
+                        <a class="sharewx f_left" href="javascript:void(0);" onclick="shareWeixin();artStatistics(&#39;20-8-6&#39;);pushUserInterestRedis(4)">微信</a>
+                        <div class="s2 f_left" onclick="setTimeout(function(){$(&#39;.bottombtn .sharelist_new&#39;).slideToggle(0);},10);artStatistics(&#39;20-8-4&#39;);"><span></span></div>
+                    </div>
+                    <div class="sharelist_new" id="fenxiangLayer2" style="display: none;">
+                        <a class="slbg1" href="javascript:void(0);" data-cmd="qzone" onclick="artStatistics(&#39;20-8-8&#39;);">QQ空间</a>
+                        <a class="slbg2" href="javascript:void(0);" data-cmd="sqq" onclick="artStatistics(&#39;20-8-10&#39;);">QQ好友</a>
+                        <a class="slbg3" href="javascript:void(0);" data-cmd="tsina" onclick="artStatistics(&#39;20-8-12&#39;);">新浪微博</a>
+                        <a class="slbg5" href="javascript:void(0);" onclick="showdivemail1();artStatistics(&#39;20-8-16&#39;);">推荐给朋友</a>
+                    </div>
+                </div>
+                <div class="bottom_controler">
+                    <p class="bottom_cleft">
+                        来自：
+                       
+                        <span class="a_username" style="width: auto;">
+                            <a href="http://www.360doc.com/userhome/10346540" id="savernickname2" target="_blank" onclick="artStatistics(&#39;20-7-2&#39;);">xujin3</a>
+                        </span>
+                        &gt; 
+                        <span id="cname" class="a_from"><a href="http://www.360doc.com/userhome.aspx?userid=10346540&amp;cid=21" target="_blank" onclick="artStatistics(&quot;20-6&quot;);">《redis》</a></span>
+                    </p>
+                    <div class="bottom_cright">
+                        
+                        <a href="javascript:void(0);" class="a2" onclick="reportLayer.isLogin();artStatistics(&#39;20-18&#39;);">举报</a>
+                    </div>
+                </div>
+                <div class="prev_next">
+                    <p class="p1" style="display: block;"><span style="color: #E6352B;">推<span style="visibility: hidden;">一</span>荐</span>：<a href="http://www.360doc.com/pages/Wallet/bonus.html" target="_blank">发原创得奖金，“原创奖励计划”来了！</a>&nbsp;&nbsp;<span style="color: #707070">|</span>&nbsp;&nbsp;<a href="http://www.360doc.com/pages/activity/activity23.html" target="_blank">人生百味，有奖征文邀你共品！</a></p>
+                </div>
+                <div class="prev_next">
+                    <p id="lastart" class="p1" style="display: block;"> 上一篇：<a onclick="artStatistics(&quot;20-9-5&quot;);" href="http://www.360doc.com/content/18/0824/08/10346540_780769075.shtml" target="_blank">分布式缓存的25个优秀实践与线上案例</a></p>
+                    <p id="nextart" class="p2" style="display: block;"> 下一篇：<a onclick="artStatistics(&quot;20-9-6&quot;);" href="http://www.360doc.com/content/18/0824/08/10346540_780769325.shtml" target="_blank">阿里高可用三大法宝揭秘</a></p>
+                </div>
+                <div class="prev_next" style="margin-left: -13px; line-height: normal;">
+                    <script src="./Redis 内存为什么不宜过大_files/feed_ts.js"></script>
+                    <script>
+                        NEWS_FEED({
+                            w: 500,
+                            showid: '6aUB2C',
+                            inject: 'textual',
+                            useCapture: true,
+                            usePolling: true,
+                            displayType: 'singleImage',
+                            noCSS:false,
+                            userConf: {
+                                titleFontSize: 14,
+                                titleFontColor: "#707070",
+                                titleHover: "#0f659c",
+                                titleFontFamily: "Microsoft Yahei"
+                            }
+                        });
+
+                    </script><newsfeed id="QIHOO__WEB__SO__1566373747062_246" style="display: block; position: relative; margin: 0px; padding: 0px; overflow: hidden; border: none; text-align: left; width: 500px;"><newsfeed-header class="feed-tab"></newsfeed-header><newsfeed-main style="overflow: hidden; position: relative; font-size: 50px;"><info-div class="feed__wrapper" data-impressnum="0.6526151426995705"><info-div></info-div><info-div class="feed__item textual clk" data-pv="http://s3.nzbdw.com/s?type=1&amp;r=20&amp;tid=MTI3MzEyNjg3MzcxNDAxMDcwODAwMTk&amp;finfo=DAABCAABAAAAIggAAgAAAIEEAAM/MOL9xkHnXwAIAAIAAAADCgADFBABEqUPTA0IAAQAAACDBgAGLbcGAAoAAAYADD9cCAAOAAAAQgoADwAAAAAAEWUjAA&amp;mv_ref=www.360doc.com&amp;enup=CAABPbXstggAArbstT0A&amp;mvid=MTI3MzEyNjg3MzcxNDAxMDcwODAwMTk&amp;bid=138ab79ce8fc69de&amp;ugi=FYjJGRXGi0tMFQIVygQVqgwVxAwAFYzdvKkPFoAIFcgBFoCLtOz5psgFHBat6OjGu+beuwYVAAAA&amp;uai=FfCcngIlAhUEFti99srQ/vuPKBXyCCXFor2HCSUAFRoUABwWyNvirrObjOZzFQAAAA&amp;ubi=FdibWhW8iOcCFabSxxgV/tDBWxUEFRwWrOnytBcW2L2LstrEgJAoNAIWsICQgAglBhWU15iLDhW+BRUAJAQW47y4/O+zvbBIAA&amp;ds=1&amp;price=AAAAAF1c93MAAAAAAALbkm1+k4qcdKY+C5gR1w==,http://max-l.mediav.com/rtb?type=2&amp;ver=1&amp;v=CGQSEDEzOGFiNzljZThmYzY5ZGUYuI6PASDE5AwoAWIXMTI3MzEyNjg3MzcxNDAxMDcwODAwMTmIAQA&amp;k=AFzE6wAAAAA=&amp;w=AAAAAF1c93MAAAAAAALb0BICrjp7yciJNEt1sA&amp;i=frz828pfT93F&amp;exp=BQBECgBEAQJEAwJEEABDIwBD&amp;z=1"><info-div class="textual__body"><a class="feed__link" data-href="http://s3.nzbdw.com/s?type=2&amp;r=20&amp;mv_ref=www.360doc.com&amp;enup=CAABPbXstggAArbstT0A&amp;mvid=MTI3MzEyNjg3MzcxNDAxMDcwODAwMTk&amp;bid=138ab79ce8fc69de&amp;price=AAAAAF1c93MAAAAAAALbkm1+k4qcdKY+C5gR1w==&amp;finfo=DAABCAABAAAAIggAAgAAAIEEAAM/MOL9xkHnXwAIAAIAAAADCgADFBABEqUPTA0IAAQAAACDBgAGLbcGAAoAAAYADD9cCAAOAAAAQgoADwAAAAAAEWUjAA&amp;ugi=FYjJGRXGi0tMFQIVygQVqgwVxAwAFYzdvKkPFoAIFcgBFoCLtOz5psgFHBat6OjGu+beuwYVAAAA&amp;uai=FfCcngIlAhUEFti99srQ/vuPKBXyCCXFor2HCSUAFRoUABwWyNvirrObjOZzFQAAAA&amp;ubi=FdibWhW8iOcCFabSxxgV/tDBWxUEFRwWrOnytBcW2L2LstrEgJAoNAIWsICQgAglBhWU15iLDhW+BRUAJAQW47y4/O+zvbBIAA&amp;clickid=0&amp;cpx=__OFFSET_X__&amp;cpy=__OFFSET_Y__&amp;cs=__EVENT_TIME_START__&amp;ce=__EVENT_TIME_END__&amp;csign2=jp7vtxdd7V1=&amp;url=http%3A%2F%2F852.qbm1.cn" href="http://s3.nzbdw.com/s?type=2&amp;r=20&amp;mv_ref=www.360doc.com&amp;enup=CAABPbXstggAArbstT0A&amp;mvid=MTI3MzEyNjg3MzcxNDAxMDcwODAwMTk&amp;bid=138ab79ce8fc69de&amp;price=AAAAAF1c93MAAAAAAALbkm1+k4qcdKY+C5gR1w==&amp;finfo=DAABCAABAAAAIggAAgAAAIEEAAM/MOL9xkHnXwAIAAIAAAADCgADFBABEqUPTA0IAAQAAACDBgAGLbcGAAoAAAYADD9cCAAOAAAAQgoADwAAAAAAEWUjAA&amp;ugi=FYjJGRXGi0tMFQIVygQVqgwVxAwAFYzdvKkPFoAIFcgBFoCLtOz5psgFHBat6OjGu+beuwYVAAAA&amp;uai=FfCcngIlAhUEFti99srQ/vuPKBXyCCXFor2HCSUAFRoUABwWyNvirrObjOZzFQAAAA&amp;ubi=FdibWhW8iOcCFabSxxgV/tDBWxUEFRwWrOnytBcW2L2LstrEgJAoNAIWsICQgAglBhWU15iLDhW+BRUAJAQW47y4/O+zvbBIAA&amp;clickid=0&amp;cpx=__OFFSET_X__&amp;cpy=__OFFSET_Y__&amp;cs=__EVENT_TIME_START__&amp;ce=__EVENT_TIME_END__&amp;csign2=jp7vtxdd7V1=&amp;url=http%3A%2F%2F852.qbm1.cn" data-clk="http://max-l.mediav.com/rtb?type=3&amp;ver=1&amp;v=CGQSEDEzOGFiNzljZThmYzY5ZGUYuI6PASDE5AwoAWIXMTI3MzEyNjg3MzcxNDAxMDcwODAwMTlwAA&amp;k=QiIr/AAAAAA=&amp;i=frz828pfT93F&amp;exp=BQBECgBEAQJEAwJEEABDIwBD&amp;x=__OFFSET_X__&amp;y=__OFFSET_Y__&amp;st=__EVENT_TIME_START__&amp;et=__EVENT_TIME_END__&amp;adw=__ADSPACE_W__&amp;adh=__ADSPACE_H__&amp;tc=&amp;turl=" target="_blank"><info-div class="textual__title">这个没有双腿的女孩日赚1000美元，她赚钱的方式让人想不到</info-div><info-span class="adTag">广告</info-span></a></info-div></info-div></info-div></newsfeed-main></newsfeed>
+
+                </div>
+            </div>
+
+            <p class="clearboth"></p>
+
+            <div style="width: 676px; float: left;">
+                <a href="javascript:void(0)" id="topref" style="height: 0px;"></a>
+                <div class="str_border" style="border: none; position: relative; z-index: 2;">
+                    <strong>猜你喜欢</strong>
+                </div>
+                <ul class="youlike" style="margin-top: -18px; position: relative; z-index: 1;">
+                    <div style="width: 676px; height: 280px; border: 0;" id="divyoulikead"><iframe id="youlikead" style="width: 676px; height: 280px; border: 0;" frameborder="0" scrolling="no" src="./Redis 内存为什么不宜过大_files/adbaiduyoulike.html"></iframe></div>
+
+                </ul>
+
+
+                <script type="text/javascript">
+					
+                </script>
+                <div class="clearboth"></div>
+                <div class="new_plbox zcomdiv">
+                    <p class="p1 f_left"><span id="refNumSpan">0</span>条评论</p>
+                    <div class="new_huifubt f_left">
+                        <textarea name="SendRefTB" id="SendRefTB" value="写评论...">写评论...</textarea>
+                        <p>
+                            
+                            <a id="ImgSendPL" href="javascript:void(0);" onclick="SubmitReflection();">发表</a>
+                        </p>
+                    </div>
+                </div>
+                <p style="margin: 0; text-align: right;padding: 7px 19px 0 0;color: #999;">请遵守用户&nbsp;<a href="http://www.360doc.com/agreement.html" target="_blank">评论公约</a></p>
+                <ul class="replylist" id="reflectionListUL">
+                </ul>
+                <div class="reply_pager" id="pageBarDIV">
+                </div>
+                <a href="javascript:void(0)" class="reply_more" onclick="setSpread()" style="display: none;">查看更多评论
+                    <img src="./Redis 内存为什么不宜过大_files/reply_btn.gif"></a>
+
+
+                <div class="str_border" style="border: none; margin-top: 20px;">
+                    <strong>类似文章</strong>
+                    <a href="http://www.360doc.com/relevant/780769134_more.shtml" target="_blank" class="a_more f_right" onclick="artStatistics(&quot;20-9-8&quot;);">更多</a>
+                </div>
+                <ul class="ul-similar">
+                    <li id="artid_772912216">                                               <div style="width:100%;margin:0;" class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/18/0724/17/50300461_772912216.shtml">redis持久化和常见故障</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/18/0724/17/50300461_772912216.shtml"># Persistenceloading:0rdb_changes_since_last_save:116200rdb_bgsave_in_progress:1rdb_last_save_time:1448944451rdb_last_bgsave_status:okrdb_last_bgsave_time_sec:85rdb_current_bgsave_time_se...</a></p>                        </div>                    </li><li id="artid_279515636">                                               <div style="width:100%;margin:0;" class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/13/0419/17/12050954_279515636.shtml">Redis数据存储解决方案</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/13/0419/17/12050954_279515636.shtml">//make之后会在 src目录下产生redis-server redis-cli redis-benchmark redis-check-dump.将其拷贝到/usr/local/redis/bin目录下，将配置文件redis.conf拷贝到/usr/local/redis/etc目录。描述：主库挂...</a></p>                        </div>                    </li><li id="artid_369467536">                                               <div style="width:100%;margin:0;" class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/14/0416/15/1457948_369467536.shtml">Redis数据库在新浪微博中的应用</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/14/0416/15/1457948_369467536.shtml">Redis数据库在新浪微博中的应用。新浪Redis使用历程。Redis应用场景。2.twmemproxy应用不必关心连接失败, 由代理负责重连把Hash算法放到代理商代理后边的升级, 前端不关心, 解决了HA的问题无状态, 多台...</a></p>                        </div>                    </li><li><script type="text/javascript">                            (function() {                                var s = "_" + Math.random().toString(36).slice(2);                                document.write('<div style="" id="' + s + '"></div>');                                (window.slotbydup = window.slotbydup || []).push({                                    id: "u3687933",                                    container:  s                                });                            })();                        </script><div style="" id="_byvppwxfgr"><iframe id="iframeu3687933_0" name="iframeu3687933_0" src="./Redis 内存为什么不宜过大_files/scem.html" width="676" height="100" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0;vertical-align:bottom;margin:0;width:676px;height:100px" allowtransparency="true"></iframe></div>                        <!-- 多条广告如下脚本只需引入一次 -->                        <script type="text/javascript" src="./Redis 内存为什么不宜过大_files/c.js" async="async" defer="defer"></script></li><li id="artid_546867685">                        <span class="similar-pic f_left"><a href="http://www.360doc.com/content/16/0331/18/22743342_546867685.shtml" target="_blank" onclick="artStatistics(&quot;20-9-7&quot;);"><img src="./Redis 内存为什么不宜过大_files/546867685_1.jpg"></a></span>                        <div class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/16/0331/18/22743342_546867685.shtml">Redis持久化 | winwill2012博客</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/16/0331/18/22743342_546867685.shtml">Redis默认会将快照文件存储在Redis当前进程的工作目录的dump.rdb文件中，可以通过配置文件中的dir和dbfilename两个参数分别指定快照文件...</a></p>                        </div>                    </li><li id="artid_706453678">                        <span class="similar-pic f_left"><a href="http://www.360doc.com/content/17/1123/14/16915_706453678.shtml" target="_blank" onclick="artStatistics(&quot;20-9-7&quot;);"><img src="./Redis 内存为什么不宜过大_files/706453678_1.jpg"></a></span>                        <div class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/17/1123/14/16915_706453678.shtml">使用快照和AOF将Redis数据持久化到硬盘中</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/17/1123/14/16915_706453678.shtml">使用快照和AOF将Redis数据持久化到硬盘中前言。随着数据量的增大，AOF的文件可能会很大，这样在每次进行数据恢复的时候就会进行很长的时...</a></p>                        </div>                    </li><li id="artid_678605686">                                               <div style="width:100%;margin:0;" class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/17/0812/11/46248428_678605686.shtml">观点｜“互联网Redis应用场景探讨”摘录</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/17/0812/11/46248428_678605686.shtml">观点｜“互联网Redis应用场景探讨”摘录。以下内容来自社区交流“互联网Redis应用场景探讨”，供您参考。目前市面上有关于redis的书，另外可以考虑先把redis.io上的documents都读一遍，记得是全部看一...</a></p>                        </div>                    </li><li><script type="text/javascript">                            (function() {                                var s = "_" + Math.random().toString(36).slice(2);                                document.write('<div style="" id="' + s + '"></div>');                                (window.slotbydup = window.slotbydup || []).push({                                    id: "u3687933",                                    container:  s                                });                            })();                        </script><div style="" id="_qmthuymlrmb"><iframe id="iframeu3687933_1" name="iframeu3687933_1" src="./Redis 内存为什么不宜过大_files/scem(1).html" width="676" height="100" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0;vertical-align:bottom;margin:0;width:676px;height:100px" allowtransparency="true"></iframe></div>                       </li><li id="artid_777468013">                        <span class="similar-pic f_left"><a href="http://www.360doc.com/content/18/0811/16/99071_777468013.shtml" target="_blank" onclick="artStatistics(&quot;20-9-7&quot;);"><img src="./Redis 内存为什么不宜过大_files/777468013_1.jpg"></a></span>                        <div class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/18/0811/16/99071_777468013.shtml">Redis入门（三）：Redis 持久化</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/18/0811/16/99071_777468013.shtml">一般不建议配置自动生成RDB文件save 900 1 #900秒内改变1条数据，自动生成RDB文件save 300 10 #300秒内改变10条数据，自动生成RDB文件sa...</a></p>                        </div>                    </li><li id="artid_648996267">                        <span class="similar-pic f_left"><a href="http://www.360doc.com/content/17/0427/08/40708896_648996267.shtml" target="_blank" onclick="artStatistics(&quot;20-9-7&quot;);"><img src="./Redis 内存为什么不宜过大_files/648996267_1.jpg"></a></span>                        <div class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/17/0427/08/40708896_648996267.shtml">高性能kv存储之Redis、Redis Cluster、Pika：如何应对4000亿的日访问量？</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/17/0427/08/40708896_648996267.shtml">高性能kv存储之Redis、Redis Cluster、Pika：如何应对4000亿的日访问量？⑦高性价比：相对于Redis使用昂贵的内存成本，Pika使用磁盘存储...</a></p>                        </div>                    </li><li id="artid_563808424">                        <span class="similar-pic f_left"><a href="http://www.360doc.com/content/16/0531/14/13247663_563808424.shtml" target="_blank" onclick="artStatistics(&quot;20-9-7&quot;);"><img src="./Redis 内存为什么不宜过大_files/563808424_1.jpg"></a></span>                        <div class="similar-info  f_left">                            <p class="similar-title"><a target="_blank" onclick="artStatistics(&#39;20-9-7&#39;);" href="http://www.360doc.com/content/16/0531/14/13247663_563808424.shtml">首发丨360开源的类Redis存储系统:Pika</a></p>                            <p class="similar-text"><a onclick="artStatistics(&#39;20-9-7&#39;);" target="_blank" href="http://www.360doc.com/content/16/0531/14/13247663_563808424.shtml">Pika 是 360 DBA 和基础架构组联合开发的类 Redis 存储系统，完全支持 Redis 协议，用户不需要修改任何代码，就可以将服务迁移至 Pika。...</a></p>                        </div>                    </li><li><script type="text/javascript">                            (function() {                                var s = "_" + Math.random().toString(36).slice(2);                                document.write('<div style="" id="' + s + '"></div>');                                (window.slotbydup = window.slotbydup || []).push({                                    id: "u3687933",                                    container:  s                                });                            })();                        </script><div style="" id="_3fikso5xgao"><iframe id="iframeu3687933_2" name="iframeu3687933_2" src="./Redis 内存为什么不宜过大_files/scem(2).html" width="676" height="100" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0;vertical-align:bottom;margin:0;width:676px;height:100px" allowtransparency="true"></iframe></div>                       </li>
+                </ul>
+            </div>
+        </div>
+        <div class="a_right">
+
+
+
+            <div class="user_info">
+                <div class="user_photo_new f_left">
+                    <a href="http://www.360doc.com/userhome/10346540" id="userphotourl" target="_blank" onclick="artStatistics(&#39;20-7-4&#39;);">
+                        <img src="./Redis 内存为什么不宜过大_files/001.gif" id="userphoto" width="58" height="58">
+                    </a>
+                </div>
+                <div class="user_data f_right">
+                    <div class="user_data_name">
+                        <a href="http://www.360doc.com/userhome/10346540" id="nickname" target="_blank" onclick="artStatistics(&#39;20-7-3&#39;);">xujin3</a>
+                    </div>
+                    <p id="userdegree"><img src="./Redis 内存为什么不宜过大_files/userstar1.gif"><img src="./Redis 内存为什么不宜过大_files/userstar2.gif"><img src="./Redis 内存为什么不宜过大_files/userstar3.gif"><img src="./Redis 内存为什么不宜过大_files/userstar3.gif"><img src="./Redis 内存为什么不宜过大_files/userstar3.gif"></p>
+                    <div class="user_data_num">
+                        <a class="user_data_gz" href="javascript:void(0);" id="spanfollowstatusnew">关注</a>
+
+
+                        <a class="user_data_dh" href="javascript:void(0);" onclick="docTalk();artStatistics(&#39;20-15&#39;);">对话</a>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="his_her"><ul class="his_her_type"><li class="f_left curone"><a href="http://www.360doc.com/userhome/10346540" style="color:#000;" target="_blank" onclick="artStatistics(&#39;20-9-10&#39;);">TA的最新馆藏<span class="s1">&nbsp;&nbsp;(共<span id="artnum">631</span>篇)</span></a></li></ul><div class="his_her_div" style="height:190px;"><ul class="his_her_list"><li><div><span></span><a href="http://www.360doc.com/content/19/0513/14/10346540_835404652.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">互联网架构：屡试不爽的架构三马车</a></div><div><span></span><a href="http://www.360doc.com/content/19/0513/14/10346540_835396458.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">包银消费CTO汤向军：消费金融大数据风控架构与实践</a></div><div><span></span><a href="http://www.360doc.com/content/19/0513/14/10346540_835395860.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">RocketMQ 在多 IDC 场景以及多隔离区场景下的实践</a></div><div><span></span><a href="http://www.360doc.com/content/19/0513/13/10346540_835390500.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">微服务配置中心完全解读</a></div><div><span></span><a href="http://www.360doc.com/content/19/0513/13/10346540_835389552.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">阿里毕玄：我在系统设计上犯过的 14 个错</a></div><div><span></span><a href="http://www.360doc.com/content/19/0513/13/10346540_835387371.shtml" target="_blank" onclick="artStatistics(&#39;20-9-11&#39;);">大神讲解微服务治理的技术演进和架构实践</a></div></li></ul></div></div>
+
+
+<div class="clear360doc" style="padding-top: 10px; height: 260px;">
+    <div id="divifartad1"><iframe id="ifartad1" height="250" width="300px" frameborder="0" scrolling="no" sandbox="allow-forms allow-scripts allow-same-origin allow-popups" src="./Redis 内存为什么不宜过大_files/artadali1_300.html"></iframe></div>
+    <div style="height: 10px;">
+    </div>
+</div>
+
+<div class="his_her" id="recommendArt" style="margin-top: 5px;">
+    <div class="str_border" style="margin: 0;">
+        <span style="font-size: 14px; float: left;">喜欢该文的人也喜欢</span>
+        <a style="float: right;" class="a_more" onclick="artStatistics(&#39;20-9-4&#39;);" href="http://www.360doc.com/readroom.html" target="_blank">更多</a>
+    </div>
+    <div class="his_her_div" style="height: 264px;">
+        <ul class="his_her_list">
+            <li id="recommendArtLists"><div><span></span><a href="http://www.360doc.com/content/19/0314/10/28706555_821544572.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">卤肉师傅用一辈子的卤牛肉方法，牢记这“3点”，牛肉不散超入味</a></div><div><span></span><a href="http://www.360doc.com/content/19/0727/05/38219376_851343983.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">美国卫星传回一照片，54国专家彻夜难眠：人类要警惕了！</a></div><div><span></span><a href="http://www.360doc.com/content/19/0224/09/42478595_817287425.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">鬼谷子：人越是混得不好，越要记住2条天规，帮你走出困</a></div><div><span></span><a href="http://www.360doc.com/content/19/0510/06/61154840_834841780.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">受益终生的4个自学网站，每天坚持学习一小时，三年薪水翻了又翻</a></div><div><span></span><a href="http://www.360doc.com/content/19/0425/01/2631522_831360581.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">【香港】大煞星与小鬼头</a></div><div><span></span><a href="http://www.360doc.com/content/19/0220/10/44168323_816412301.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">教育最大的悲哀：付出全部，却养出不懂感恩的孩子</a></div><div><span></span><a href="http://www.360doc.com/content/19/0620/11/36170812_843707806.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">他花费11年，提前6秒预警了这次宜宾地震</a></div><div><span></span><a href="http://www.360doc.com/content/19/0425/08/225123_831458589.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">酱烧饼5元一个，这样秘制馅料，3两面能做6个，酱香味美特划算</a></div><div><span></span><a href="http://www.360doc.com/content/19/0518/02/48503472_836509010.shtml" target="_blank" onclick="artStatistics(&#39;20-9-1&#39;);">穴位也是中药：太难找的穴位保健手册，最全人体穴位解秘！</a></div></li>
+        </ul>
+    </div>
+</div>
+
+
+
+<div class="clear360doc" style="padding-top: 10px;" id="divifartad2"><iframe id="ifartad2" height="250" width="300px" frameborder="0" scrolling="no" sandbox="allow-forms allow-scripts allow-same-origin allow-popups" src="./Redis 内存为什么不宜过大_files/ad_360doc.html"></iframe></div>
+<br>
+
+
+<div id="divifartrightsogou">
+    <script type="text/javascript" language="javascript" charset="utf-8" src="./Redis 内存为什么不宜过大_files/mvf_pm_slider.js"></script>
+<script>
+BANNER_SLIDER({"w":300,"showid":"FJC107","rshowid":"FJC107","inject":"inlay","layout":"multiColumnScene","h":180});
+</script><qihoobannerslider class="qihoobannerslider QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK" id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK" style="width: 300px; height: 180px; font-size: 12px; display: block; margin: 0px; padding: 0px; overflow: hidden; position: relative; text-align: left;">    <info-div id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK-info" style="overflow:hidden;position:relative;height:180px;">        <info-div id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK-loading" style="padding-top: 0px; height: 180px; text-align: center; font-size: 14px; color: rgb(102, 102, 102); position: relative; display: none;">            <info-div style="background-image: url(https://p1.ssl.qhimg.com/t019436f9a61e4203fe.gif);background-repeat: no-repeat;width:173px;height:32px;position:absolute;top: 50%;left:50%;margin-top: -16px;margin-left:-86px;text-align: right; line-height: 32px;">正在为您努力加载...</info-div>        </info-div>        <info-div style="width:100%;height:180px;margin:0 auto;overflow: hidden;" id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK-info-content"><info-div id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK-wrapper" style="width: 600px; margin-left: -300px;"><info-div class="gouwu-bottom"><info-div class="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK bottom-content  clk" style="margin-top: 27px" data-href="http://redirect.simba.taobao.com/rd?c=un&amp;w=unionsem&amp;k=74175f13c74157df&amp;p=mm_26632360_8858797_131896099&amp;b=qihoo_{keywordid}&amp;f=https://uland.taobao.com/sem/tbsearch?keyword=%E4%B8%AA%E6%80%A7%E8%A1%97%E5%A4%B4%E6%98%A5%E5%AD%A3%E6%88%B7%E5%A4%96%E9%95%BF%E6%AC%BE%E5%AD%97%E6%AF%8D%E9%A3%8E%E8%A1%A3%E5%98%BB%E5%93%88%E6%BD%AE%E7%89%8C%E7%94%B7%E5%A5%B3BF%E6%83%85%E4%BE%A3%E6%AC%BE%E5%A4%96%E5%A5%97%E8%83%96%E5%AD%90&amp;">
+    <info-div class="title">个性街头春季户外长款字母风衣嘻哈潮牌男女BF情侣款外套胖子</info-div>
+    <info-div class="img" style="background-image:url(https://p1.ssl.qhimgs3.com/dr/300_300_/t01f14d6805d6ba7e86.jpg);filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=&#39;https://p1.ssl.qhimgs3.com/dr/300_300_/t01f14d6805d6ba7e86.jpg&#39;, sizingMethod=&#39;scale&#39;);"></info-div>
+    <info-div class="brand" style="display:none">228.00</info-div>
+    <info-div class="price" style="display:block">¥228.00</info-div>
+    <info-div class="subtitle">个性街头</info-div>
+</info-div>
+<info-div class="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK bottom-content  clk" style="margin-top: 27px" data-href="http://redirect.simba.taobao.com/rd?c=un&amp;w=unionsem&amp;k=74175f13c74157df&amp;p=mm_26632360_8858797_131896099&amp;b=qihoo_{keywordid}&amp;f=https://uland.taobao.com/sem/tbsearch?keyword=%E6%98%9F%E7%A9%BA%E6%B5%AE%E5%85%89%E7%9C%BC%E5%BD%B1%E6%97%A5%E8%90%BD18%E8%89%B2%E4%B8%8D%E7%A7%91%E5%AD%A6%E5%AE%B6%E7%9C%BC%E5%BD%B1%E7%9B%98ins%E5%B9%B3%E4%BB%B7%E7%9C%BC%E5%BD%B1%E6%87%92%E4%BA%BA%E5%8C%96%E5%A6%86%E7%A5%9E%E5%99%A8&amp;">
+    <info-div class="title">星空浮光眼影日落18色不科学家眼影盘ins平价眼影懒人化妆神器</info-div>
+    <info-div class="img" style="background-image:url(https://p1.ssl.qhimgs3.com/dr/300_300_/t01ea1fb1a74b4c068f.jpg);filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=&#39;https://p1.ssl.qhimgs3.com/dr/300_300_/t01ea1fb1a74b4c068f.jpg&#39;, sizingMethod=&#39;scale&#39;);"></info-div>
+    <info-div class="brand" style="display:none">29.90</info-div>
+    <info-div class="price" style="display:block">¥29.90</info-div>
+    <info-div class="subtitle">星空浮光</info-div>
+</info-div>
+</info-div><info-div class="gouwu-bottom"><info-div class="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK bottom-content  clk" style="margin-top: 27px" data-href="http://redirect.simba.taobao.com/rd?c=un&amp;w=unionsem&amp;k=74175f13c74157df&amp;p=mm_26632360_8858797_131896099&amp;b=qihoo_{keywordid}&amp;f=https://uland.taobao.com/sem/tbsearch?keyword=%E6%B0%94%E8%B4%A8%E9%85%92%E5%BA%97%E4%BC%9A%E6%89%80%E5%B7%A5%E4%BD%9C%E6%9C%8D%E6%B0%B4%E4%BC%9A%E5%B7%A5%E8%A1%A3SPA%E6%A1%91%E6%8B%BF%E6%8A%80%E5%B8%88%E6%9C%8D%E8%B6%B3%E6%B5%B4%E5%B7%A5%E6%9C%8D%E6%B5%B4%E8%B6%B3%E6%8A%80%E5%B8%88%E5%B7%A5%E8%A3%85&amp;">
+    <info-div class="title">气质酒店会所工作服水会工衣SPA桑拿技师服足浴工服浴足技师工装</info-div>
+    <info-div class="img" style="background-image:url(https://p1.ssl.qhimgs3.com/dr/300_300_/t018ad61b9e5ddbf62c.jpg);filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=&#39;https://p1.ssl.qhimgs3.com/dr/300_300_/t018ad61b9e5ddbf62c.jpg&#39;, sizingMethod=&#39;scale&#39;);"></info-div>
+    <info-div class="brand" style="display:none">68.00</info-div>
+    <info-div class="price" style="display:block">¥68.00</info-div>
+    <info-div class="subtitle">气质酒店</info-div>
+</info-div>
+<info-div class="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NK bottom-content  clk" style="margin-top: 27px" data-href="http://redirect.simba.taobao.com/rd?c=un&amp;w=unionsem&amp;k=74175f13c74157df&amp;p=mm_26632360_8858797_131896099&amp;b=qihoo_{keywordid}&amp;f=https://uland.taobao.com/sem/tbsearch?keyword=%E5%BA%B7%E4%BD%B3%E7%94%B5%E8%A7%86%E6%9C%BA%E6%8C%82%E6%9E%B632%E5%AF%B839%E5%AF%B840%E5%AF%B842%E5%AF%B850%E5%AF%B855%E5%AF%B8%E9%80%9A%E7%94%A8%E5%BA%B7%E4%BD%B3%E5%8E%9F%E8%A3%85%E6%8C%82%E6%9E%B6&amp;refpid=mm_26632360_8858797_131896099">
+    <info-div class="title">康佳电视机挂架32寸39寸40寸42寸50寸55寸通用康佳原装挂架</info-div>
+    <info-div class="img" style="background-image:url(https://p1.ssl.qhimgs3.com/dr/300_300_/t01fe564b8c9cb588ce.jpg);filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=&#39;https://p1.ssl.qhimgs3.com/dr/300_300_/t01fe564b8c9cb588ce.jpg&#39;, sizingMethod=&#39;scale&#39;);"></info-div>
+    <info-div class="brand" style="display:none">14.90</info-div>
+    <info-div class="price" style="display:block">¥14.90</info-div>
+    <info-div class="subtitle">康佳电视</info-div>
+</info-div>
+</info-div></info-div> <info-div id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NKsliderLeft" class="slide-column-pageup"><info-div class="arrowLeft"></info-div><info-div class="bg"></info-div></info-div><info-div id="QIHOO__WEB__SO__BANNER_SLIDER1566373747264ME5NKsliderRight" class="slide-column-pagedown"><info-div class="arrowRight"></info-div><info-div class="bg"></info-div></info-div></info-div>    </info-div>    <info-div style="position: absolute;display: block;height: 12px;width: 22px;bottom:2px;right:10px;background: url(https://p0.ssl.qhimg.com/t01c5fc7f8612d6b610.png) no-repeat top left;"></info-div></qihoobannerslider>
+</div>
+
+<div class="clear360doc" id="divad5" style="padding-top: 11px; zoom: 1; width: 300px; top: 80px; left: 751.786px;">
+    <div id="divad4" style="display: none;">
+        <div id="divifartad"><iframe id="ifartad" height="250px" width="300px" frameborder="0" scrolling="no" src="./Redis 内存为什么不宜过大_files/ad4_300.html"></iframe></div>
+        <div class="ggwz">
+            <a href="javascript:void(0);" onclick="closead(2);">关闭</a>
+        </div>
+        <div style="height: 13px;">
+        </div>
+    </div>
+    <div style="clear: both; display: none;" id="divad6">
+        <div id="adfloatbaidu"><iframe id="ifartadfloadbaidu" height="250px" width="250px" frameborder="0" scrolling="no" src="./Redis 内存为什么不宜过大_files/ad5.html" style="width: 250px; margin: 0px auto;"></iframe></div>
+        <div class="ggwz" style="left: 25px;">
+            <a href="javascript:void(0);" onclick="closead(3);">关闭</a>
+        </div>
+        <div style="height: 13px;">
+        </div>
+    </div>
+    <div style="height: 75px;">
+    </div>
+</div>
+
+        </div>
+    </div>
+    
+    <p class="clearboth"></p>
+    <input type="hidden" id="artid" value="780769134">
+    <input type="hidden" id="docarttitle" value="Redis+%e5%86%85%e5%ad%98%e4%b8%ba%e4%bb%80%e4%b9%88%e4%b8%8d%e5%ae%9c%e8%bf%87%e5%a4%a7">
+    <input type="hidden" id="firstartid" value="780769134">
+    <input type="hidden" id="firstuid" value="10346540">
+    <input type="hidden" id="myuid" value="-1">
+    <input type="hidden" id="firstarturl" value="http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml">
+    <input type="hidden" id="oranfirstarturl" value="">
+    <input type="hidden" id="subclassid" value="0">
+    <input type="hidden" id="recommendart1" value="-1">
+    <input type="hidden" id="recommendart2" value="-1">
+    <input type="hidden" id="isowner" value="False">
+
+    <input type="hidden" id="isowner2" value="0">
+    <input type="hidden" id="original" value="0">
+    <input type="hidden" id="showrewardlist" value="0">
+    <input type="hidden" id="saveruserid" value="10346540">
+    <input type="hidden" id="sourceurl" value="https://mp.weixin.qq.com/s/fpupqLp-wjR8fQvYSQhVLg">
+    <input type="hidden" id="deschidden" value="">
+    <input type="hidden" id="firstkeywords" value="redis,内存,pika">
+    <input type="hidden" id="firsttagwords" value="">
+    <input type="hidden" id="firstsubclassid" value="0">
+    <input type="hidden" id="hidisneweditor" value="0">
+    <input type="hidden" id="hidreadroomclassid" value="0">
+    <input type="hidden" id="articleTime" value="2018-08-24T08:23:10">
+    <input name="acinfo" type="hidden" id="acinfo">
+    <input type="hidden" id="artreadroomid" value="0">
+    <script src="./Redis 内存为什么不宜过大_files/sha1.js" type="text/javascript"></script>
+    <script src="./Redis 内存为什么不宜过大_files/addStatistics.js" type="text/javascript"></script>
+    <script src="./Redis 内存为什么不宜过大_files/showarticle.js" type="text/javascript" charset="utf-8"></script>
+    <script>GerLookingUserInfo(1,10346540,1,0,'','',10,0);OutputSource('https://mp.weixin.qq.com/s/fpupqLp-wjR8fQvYSQhVLg','技术琐话');OutputLastNextArt('%e5%88%86%e5%b8%83%e5%bc%8f%e7%bc%93%e5%ad%98%e7%9a%8425%e4%b8%aa%e4%bc%98%e7%a7%80%e5%ae%9e%e8%b7%b5%e4%b8%8e%e7%ba%bf%e4%b8%8a%e6%a1%88%e4%be%8b','http://www.360doc.com/content/18/0824/08/10346540_780769075.shtml',0);OutputLastNextArt('%e9%98%bf%e9%87%8c%e9%ab%98%e5%8f%af%e7%94%a8%e4%b8%89%e5%a4%a7%e6%b3%95%e5%ae%9d%e6%8f%ad%e7%a7%98','http://www.360doc.com/content/18/0824/08/10346540_780769325.shtml',1);</script>
+    <script type="text/javascript" src="./Redis 内存为什么不宜过大_files/newheader.js"></script>
+    <script src="./Redis 内存为什么不宜过大_files/getstatusv2.ashx" type="text/javascript" charset="utf-8" async="async"></script>
+    <script src="./Redis 内存为什么不宜过大_files/getartstatus.ashx" type="text/javascript" charset="utf-8" async="async"></script>
+    
+    <script type="text/javascript">
+        var baiduImagePlus = {
+            noLogo: true,
+            unionId: 'u2617463',
+            maxMiniAdCount: 0,
+            formList: [{ formId: 10 }]
+        };
+    </script>
+    <script type="text/javascript" src="./Redis 内存为什么不宜过大_files/i.js"></script>
+    
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://ziyuan.baidu.com/contexts/cambrian.jsonld",
+        "@id": "http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml",
+        "title": "Redis 内存为什么不宜过大",
+        "pubDate": "2018-08-24T08:23:10"
+    }
+    </script>
+    
+
+
+<ins class="adsbygoogle adsbygoogle-noablate" data-adsbygoogle-status="done" style="display: none !important;"><ins id="aswift_1_expand" style="display:inline-table;border:none;height:0px;margin:0;padding:0;position:relative;visibility:visible;width:0px;background-color:transparent;"><ins id="aswift_1_anchor" style="display:block;border:none;height:0px;margin:0;padding:0;position:relative;visibility:visible;width:0px;background-color:transparent;"><iframe frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_1" name="aswift_1" style="left:0;position:absolute;top:0;border:0px;width:0px;height:0px;" src="./Redis 内存为什么不宜过大_files/saved_resource(3).html"></iframe></ins></ins></ins><iframe id="google_osd_static_frame_9581034689871" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./Redis 内存为什么不宜过大_files/saved_resource(4).html"></iframe><div baidu_imageplus_sensitive_judge="true" style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; z-index: 999; top: 405.714px; left: 51px; width: 640px; display: block;"><style type="text/css" media="screen">.baiduimageplus-yuetu-box{position:fixed;width:100%;height:100%;top:0;left:0;bottom:0;right:0;font-family:'Microsoft YaHei';line-height:normal;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:none;z-index:2147483647}.yuetu-float-layer-arrow{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;position:absolute;height:70px;width:40px;top:0;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_png8.png);background-repeat:no-repeat;background-position:-2px -124px;z-index:888}.yuetu-float-layer-arrow:hover{background-position:-44px -124px;cursor:pointer}
+.yuetu-float-layer-arrow:active{background-position:-86px -124px;cursor:pointer}.yuetu-float-layer-salon{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;position:fixed;top:0;left:0;bottom:0;right:0;filter:progid:dximagetransform.microsoft.gradient(startColorstr='#661F1F1F',endColorstr='#661F1F1F');background-color:rgba(31,31,31,0.4);font-family:Microsoft YaHei;z-index:2147483647;line-height:normal;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon div{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}
+.yuetu-float-layer-salon a,.yuetu-float-layer-salon img,.yuetu-float-layer-salon span{float:none;margin:0;padding:0;border:0;overflow:visible;position:static;display:inline;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}.yuetu-float-layer-salon .yfls-container{position:fixed;height:600px;width:1080px;top:0;left:0;background-color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-hr{width:100%;height:1px;position:absolute;background-color:#e0e0e0;z-index:3;display:none}.yuetu-float-layer-salon .yfls-container .yfls-hr-header{top:43px;left:0}.yuetu-float-layer-salon .yfls-container .yfls-hr-footer{left:0;bottom:40px}.yuetu-float-layer-salon .yfls-container .yfls-bodyer{position:absolute;top:0;left:0;background-color:white;z-index:2}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title{position:absolute;top:15px;left:15px;height:20px;width:960px;font-size:16px;color:#434343;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-num-idx{color:#e30a20;font-weight:bolder}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-title-text strong{font-weight:normal}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer{position:absolute;top:50px;left:0;border-right:1px solid #e0e0e0;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn{position:absolute;height:100px;width:50px;top:225px;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-116px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn:hover{background-position:-174px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn{position:absolute;height:100px;width:50px;top:225px;right:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-56px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn:hover{background-position:2px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-bodyer-img-hide{display:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer>img:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper{position:absolute;z-index:1;left:60px;overflow:hidden}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-iframe{position:relative;left:0}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-img,.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-realIframe{float:left}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_right_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer{font-size:11px;color:#c9c9c9;position:absolute;width:80%;width:inherit;bottom:15px;text-align:right}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url{margin-right:5%}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url a{text-decoration:none;color:#c9c9c9!important;color:inherit}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer{background-color:white;z-index:1;position:absolute}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-fast-click-shell{position:absolute;z-index:1;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title{position:absolute;top:15px;left:50px;height:30px;font-size:14px;border-bottom:8px #f64c4c solid}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title .yfls-tail-title-hot-recommend{font-size:20px;font-weight:bold;color:#515151}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re{position:absolute;top:0;right:52px;width:145px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:-155px -200px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re:hover{background-position:0 -200px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer{position:absolute;top:55px;left:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item{position:absolute;height:256px;width:200px;background-color:#FFF;border:2px solid #e5e5e5;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item img{height:200px;width:200px;border:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-flash-a{position:absolute;height:200px;width:200px;top:0;left:0;opacity:0;filter:alpha(opacity=0);background:#FFF;overflow:hidden}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:4px;text-align:center}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a{text-decoration:none;color:#000;font-size:16px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:2px;text-align:center}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a{text-decoration:none;color:#868686;font-size:12px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a:hover{text-decoration:underline}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer{position:absolute;left:0;bottom:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title{height:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title>div{position:absolute;left:50px;top:0;font-size:18px;color:#515151;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace{background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:0 -60px;background-repeat:no-repeat;width:110px;height:25px;position:absolute;top:0;right:35px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace:hover{cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad{position:absolute;left:0;bottom:0;height:135px;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:35px;right:35px;top:0;height:135px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:135px;width:148px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:144px;height:104px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover .yfls-tail-ad-item-img-hover{text-decoration:none;display:block;position:absolute;top:2px;left:2px;width:144px;height:104px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover{display:none;position:absolute;top:2px;left:2px;width:144px;height:104px;background-color:rgba(246,76,76,0.85);filter:progid:dximagetransform.microsoft.gradient(startColorstr='#D9F64C4C',endColorstr='#D9F64C4C');cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover>div{position:absolute;top:35px;left:19px;height:30px;width:102px;border:2px solid #fff;font-weight:bold;line-height:30px;text-align:center;color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:12px;color:#333;margin-top:4px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-logo{position:absolute;right:0;bottom:0;margin:0 2px 2px 0;height:14px;width:13px;background:url(http://ecmb.bdimg.com/public03/yuetu_logo.png) no-repeat left top;background-position:0 -20px;z-index:3}.yuetu-float-layer-salon .yfls-container .yfls-logo:hover{background-position:0 -35px}.yuetu-float-layer-salon .yfls-container .imageplus-ad-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 0;width:34px;height:16px;position:absolute;left:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .imageplus-paw-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 -17px;width:16px;height:16px;position:absolute;right:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .yfls-close-btn{position:absolute;top:0;right:0;height:50px;width:50px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:0 0}
+.yuetu-float-layer-salon .yfls-container .yfls-close-btn:hover{background-position:-60px 0;cursor:pointer}.yuetu-float-layer-salon-hide{height:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer-yuansheng{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv{position:absolute;top:0;right:162px;width:50px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:0 -44px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv:hover{background-position:0 -97px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng{position:absolute;left:0;bottom:0;top:53px;right:0}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-native-replace{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad{position:absolute;left:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:0;right:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:180px;width:210px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:206px;height:146px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:18px;color:#333;padding:2px;border:2px solid #e5e5e5;border-top:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img,.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-info{border-color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img{border-bottom:2px solid #e5e5e5}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv{position:absolute;top:0;right:0;height:50px;width:160px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:-51px -44px}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv:hover{background-position:-51px -97px;cursor:pointer}</style><div id="f21ac82b21eeb7322631b6aa94e17f4517r5tom" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="yuetu-float-layer yuetu-float-layer-arrow" style="height: 70px; width: 40px; top: 205px; left: 598px; position: absolute;" id="w-slo5ne"></div><div class="baiduimageplus-yuetu-box" id="w-frg2h5-baiduimageplus-yuetu-box" style="height: 481px; width: 1089px;">
+<div id="w-frg2h5-widget-isolated-host" style="width:100%;height:100%;overflow:hidden;box-sizing:content-box;position:static;display:block;padding:0;margin:0;border:none;"></div>
+</div></div></div><div baidu_imageplus_sensitive_judge="true" style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; z-index: 999; top: 1100.71px; left: 51px; width: 640px; display: block;"><style type="text/css" media="screen">.baiduimageplus-yuetu-box{position:fixed;width:100%;height:100%;top:0;left:0;bottom:0;right:0;font-family:'Microsoft YaHei';line-height:normal;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:none;z-index:2147483647}.yuetu-float-layer-arrow{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;position:absolute;height:70px;width:40px;top:0;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_png8.png);background-repeat:no-repeat;background-position:-2px -124px;z-index:888}.yuetu-float-layer-arrow:hover{background-position:-44px -124px;cursor:pointer}
+.yuetu-float-layer-arrow:active{background-position:-86px -124px;cursor:pointer}.yuetu-float-layer-salon{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;position:fixed;top:0;left:0;bottom:0;right:0;filter:progid:dximagetransform.microsoft.gradient(startColorstr='#661F1F1F',endColorstr='#661F1F1F');background-color:rgba(31,31,31,0.4);font-family:Microsoft YaHei;z-index:2147483647;line-height:normal;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon div{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}
+.yuetu-float-layer-salon a,.yuetu-float-layer-salon img,.yuetu-float-layer-salon span{float:none;margin:0;padding:0;border:0;overflow:visible;position:static;display:inline;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}.yuetu-float-layer-salon .yfls-container{position:fixed;height:600px;width:1080px;top:0;left:0;background-color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-hr{width:100%;height:1px;position:absolute;background-color:#e0e0e0;z-index:3;display:none}.yuetu-float-layer-salon .yfls-container .yfls-hr-header{top:43px;left:0}.yuetu-float-layer-salon .yfls-container .yfls-hr-footer{left:0;bottom:40px}.yuetu-float-layer-salon .yfls-container .yfls-bodyer{position:absolute;top:0;left:0;background-color:white;z-index:2}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title{position:absolute;top:15px;left:15px;height:20px;width:960px;font-size:16px;color:#434343;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-num-idx{color:#e30a20;font-weight:bolder}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-title-text strong{font-weight:normal}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer{position:absolute;top:50px;left:0;border-right:1px solid #e0e0e0;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn{position:absolute;height:100px;width:50px;top:225px;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-116px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn:hover{background-position:-174px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn{position:absolute;height:100px;width:50px;top:225px;right:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-56px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn:hover{background-position:2px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-bodyer-img-hide{display:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer>img:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper{position:absolute;z-index:1;left:60px;overflow:hidden}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-iframe{position:relative;left:0}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-img,.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-realIframe{float:left}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_right_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer{font-size:11px;color:#c9c9c9;position:absolute;width:80%;width:inherit;bottom:15px;text-align:right}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url{margin-right:5%}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url a{text-decoration:none;color:#c9c9c9!important;color:inherit}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer{background-color:white;z-index:1;position:absolute}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-fast-click-shell{position:absolute;z-index:1;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title{position:absolute;top:15px;left:50px;height:30px;font-size:14px;border-bottom:8px #f64c4c solid}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title .yfls-tail-title-hot-recommend{font-size:20px;font-weight:bold;color:#515151}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re{position:absolute;top:0;right:52px;width:145px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:-155px -200px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re:hover{background-position:0 -200px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer{position:absolute;top:55px;left:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item{position:absolute;height:256px;width:200px;background-color:#FFF;border:2px solid #e5e5e5;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item img{height:200px;width:200px;border:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-flash-a{position:absolute;height:200px;width:200px;top:0;left:0;opacity:0;filter:alpha(opacity=0);background:#FFF;overflow:hidden}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:4px;text-align:center}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a{text-decoration:none;color:#000;font-size:16px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:2px;text-align:center}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a{text-decoration:none;color:#868686;font-size:12px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a:hover{text-decoration:underline}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer{position:absolute;left:0;bottom:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title{height:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title>div{position:absolute;left:50px;top:0;font-size:18px;color:#515151;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace{background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:0 -60px;background-repeat:no-repeat;width:110px;height:25px;position:absolute;top:0;right:35px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace:hover{cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad{position:absolute;left:0;bottom:0;height:135px;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:35px;right:35px;top:0;height:135px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:135px;width:148px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:144px;height:104px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover .yfls-tail-ad-item-img-hover{text-decoration:none;display:block;position:absolute;top:2px;left:2px;width:144px;height:104px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover{display:none;position:absolute;top:2px;left:2px;width:144px;height:104px;background-color:rgba(246,76,76,0.85);filter:progid:dximagetransform.microsoft.gradient(startColorstr='#D9F64C4C',endColorstr='#D9F64C4C');cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover>div{position:absolute;top:35px;left:19px;height:30px;width:102px;border:2px solid #fff;font-weight:bold;line-height:30px;text-align:center;color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:12px;color:#333;margin-top:4px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-logo{position:absolute;right:0;bottom:0;margin:0 2px 2px 0;height:14px;width:13px;background:url(http://ecmb.bdimg.com/public03/yuetu_logo.png) no-repeat left top;background-position:0 -20px;z-index:3}.yuetu-float-layer-salon .yfls-container .yfls-logo:hover{background-position:0 -35px}.yuetu-float-layer-salon .yfls-container .imageplus-ad-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 0;width:34px;height:16px;position:absolute;left:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .imageplus-paw-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 -17px;width:16px;height:16px;position:absolute;right:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .yfls-close-btn{position:absolute;top:0;right:0;height:50px;width:50px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:0 0}
+.yuetu-float-layer-salon .yfls-container .yfls-close-btn:hover{background-position:-60px 0;cursor:pointer}.yuetu-float-layer-salon-hide{height:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer-yuansheng{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv{position:absolute;top:0;right:162px;width:50px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:0 -44px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv:hover{background-position:0 -97px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng{position:absolute;left:0;bottom:0;top:53px;right:0}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-native-replace{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad{position:absolute;left:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:0;right:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:180px;width:210px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:206px;height:146px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:18px;color:#333;padding:2px;border:2px solid #e5e5e5;border-top:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img,.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-info{border-color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img{border-bottom:2px solid #e5e5e5}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv{position:absolute;top:0;right:0;height:50px;width:160px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:-51px -44px}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv:hover{background-position:-51px -97px;cursor:pointer}</style><div id="f21ac82b21eeb7322631b6aa94e17f452ynq2qo" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="yuetu-float-layer yuetu-float-layer-arrow" style="height: 70px; width: 40px; top: 94px; left: 598px; position: absolute;" id="w-1eyv6u"></div><div class="baiduimageplus-yuetu-box" id="w-1linc2-baiduimageplus-yuetu-box" style="height: 481px; width: 1089px;">
+<div id="w-1linc2-widget-isolated-host" style="width:100%;height:100%;overflow:hidden;box-sizing:content-box;position:static;display:block;padding:0;margin:0;border:none;"></div>
+</div></div></div><div id="goTop2" style="left: 1071.79px;"><div id="goTop"><a href="http://www.360doc.com/content/18/0824/08/10346540_780769134.shtml#" id="go_top" onclick="artStatistics(&#39;20-20&#39;);"></a></div><div id="goTop1"><a href="javascript:void(0);" id="go_top1"></a></div><div></div></div><div baidu_imageplus_sensitive_judge="true" style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; z-index: 999; top: 1743.71px; left: 51px; width: 640px; display: block;"><style type="text/css" media="screen">.baiduimageplus-yuetu-box{position:fixed;width:100%;height:100%;top:0;left:0;bottom:0;right:0;font-family:'Microsoft YaHei';line-height:normal;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:none;z-index:2147483647}.yuetu-float-layer-arrow{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;position:absolute;height:70px;width:40px;top:0;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_png8.png);background-repeat:no-repeat;background-position:-2px -124px;z-index:888}.yuetu-float-layer-arrow:hover{background-position:-44px -124px;cursor:pointer}
+.yuetu-float-layer-arrow:active{background-position:-86px -124px;cursor:pointer}.yuetu-float-layer-salon{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;position:fixed;top:0;left:0;bottom:0;right:0;filter:progid:dximagetransform.microsoft.gradient(startColorstr='#661F1F1F',endColorstr='#661F1F1F');background-color:rgba(31,31,31,0.4);font-family:Microsoft YaHei;z-index:2147483647;line-height:normal;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon div{float:none;margin:0;padding:0;border:0;overflow:hidden;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}
+.yuetu-float-layer-salon a,.yuetu-float-layer-salon img,.yuetu-float-layer-salon span{float:none;margin:0;padding:0;border:0;overflow:visible;position:static;display:inline;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;font-family:Microsoft YaHei;line-height:normal}.yuetu-float-layer-salon .yfls-container{position:fixed;height:600px;width:1080px;top:0;left:0;background-color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-hr{width:100%;height:1px;position:absolute;background-color:#e0e0e0;z-index:3;display:none}.yuetu-float-layer-salon .yfls-container .yfls-hr-header{top:43px;left:0}.yuetu-float-layer-salon .yfls-container .yfls-hr-footer{left:0;bottom:40px}.yuetu-float-layer-salon .yfls-container .yfls-bodyer{position:absolute;top:0;left:0;background-color:white;z-index:2}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title{position:absolute;top:15px;left:15px;height:20px;width:960px;font-size:16px;color:#434343;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-num-idx{color:#e30a20;font-weight:bolder}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-title .yfls-img-title-text strong{font-weight:normal}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer{position:absolute;top:50px;left:0;border-right:1px solid #e0e0e0;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn{position:absolute;height:100px;width:50px;top:225px;left:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-116px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-btn:hover{background-position:-174px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn{position:absolute;height:100px;width:50px;top:225px;right:0;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);_background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:-56px -90px;background-repeat:no-repeat;-moz-user-select:none;-webkit-user-select:none;user-select:none}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-btn:hover{background-position:2px -90px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-bodyer-img-hide{display:none}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer>img:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper{position:absolute;z-index:1;left:60px;overflow:hidden}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-iframe{position:relative;left:0}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-img,.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-img-wrapper .yfls-img-item-realIframe{float:left}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgup-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_left_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow{position:absolute;z-index:3;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-bodyer .yfls-pgdn-arrow:hover{cursor:url(http://ecmb.bdimg.com/public03/yuetu_right_cur_0715.cur),auto}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer{font-size:11px;color:#c9c9c9;position:absolute;width:80%;width:inherit;bottom:15px;text-align:right}.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url{margin-right:5%}
+.yuetu-float-layer-salon .yfls-container .yfls-bodyer .yfls-img-footer .yfls-img-footer-url a{text-decoration:none;color:#c9c9c9!important;color:inherit}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer{background-color:white;z-index:1;position:absolute}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-fast-click-shell{position:absolute;z-index:1;background-color:#000;filter:alpha(opacity=0);background-color:rgba(0,0,0,0)}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title{position:absolute;top:15px;left:50px;height:30px;font-size:14px;border-bottom:8px #f64c4c solid}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title .yfls-tail-title-hot-recommend{font-size:20px;font-weight:bold;color:#515151}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re{position:absolute;top:0;right:52px;width:145px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:-155px -200px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re:hover{background-position:0 -200px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer{position:absolute;top:55px;left:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item{position:absolute;height:256px;width:200px;background-color:#FFF;border:2px solid #e5e5e5;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item img{height:200px;width:200px;border:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-flash-a{position:absolute;height:200px;width:200px;top:0;left:0;opacity:0;filter:alpha(opacity=0);background:#FFF;overflow:hidden}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:4px;text-align:center}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a{text-decoration:none;color:#000;font-size:16px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-title .yfls-ad-item-title-a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;margin-top:2px;text-align:center}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a{text-decoration:none;color:#868686;font-size:12px;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer .yfls-ad-item .yfls-ad-item-url .yfls-ad-item-url-a:hover{text-decoration:underline}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer{position:absolute;left:0;bottom:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title{height:35px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-title>div{position:absolute;left:50px;top:0;font-size:18px;color:#515151;font-weight:bold}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace{background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-position:0 -60px;background-repeat:no-repeat;width:110px;height:25px;position:absolute;top:0;right:35px}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-native-replace:hover{cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad{position:absolute;left:0;bottom:0;height:135px;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:35px;right:35px;top:0;height:135px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:135px;width:148px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:144px;height:104px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover{border:2px solid #f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img:hover .yfls-tail-ad-item-img-hover{text-decoration:none;display:block;position:absolute;top:2px;left:2px;width:144px;height:104px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover{display:none;position:absolute;top:2px;left:2px;width:144px;height:104px;background-color:rgba(246,76,76,0.85);filter:progid:dximagetransform.microsoft.gradient(startColorstr='#D9F64C4C',endColorstr='#D9F64C4C');cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img .yfls-tail-ad-item-img-hover>div{position:absolute;top:35px;left:19px;height:30px;width:102px;border:2px solid #fff;font-weight:bold;line-height:30px;text-align:center;color:#fff}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:12px;color:#333;margin-top:4px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-logo{position:absolute;right:0;bottom:0;margin:0 2px 2px 0;height:14px;width:13px;background:url(http://ecmb.bdimg.com/public03/yuetu_logo.png) no-repeat left top;background-position:0 -20px;z-index:3}.yuetu-float-layer-salon .yfls-container .yfls-logo:hover{background-position:0 -35px}.yuetu-float-layer-salon .yfls-container .imageplus-ad-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 0;width:34px;height:16px;position:absolute;left:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .imageplus-paw-logo{background:url(http://ecma.bdimg.com/public03/imageplus/logo.png) no-repeat;background-position:0 -17px;width:16px;height:16px;position:absolute;right:0;bottom:0;z-index:1}.yuetu-float-layer-salon .yfls-container .yfls-close-btn{position:absolute;top:0;right:0;height:50px;width:50px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_btn_full_0715.png);background-repeat:no-repeat;background-position:0 0}
+.yuetu-float-layer-salon .yfls-container .yfls-close-btn:hover{background-position:-60px 0;cursor:pointer}.yuetu-float-layer-salon-hide{height:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-gx-bodyer-yuansheng{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv{position:absolute;top:0;right:162px;width:50px;height:50px;z-index:2;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:0 -44px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-title-re-pv:hover{background-position:0 -97px;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng{position:absolute;left:0;bottom:0;top:53px;right:0}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-native-replace{display:none}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad{position:absolute;left:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container{position:absolute;left:0;right:0;top:0;overflow:visible}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item{position:absolute;height:180px;width:210px}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-img{width:206px;height:146px;border:2px solid #e5e5e5;cursor:pointer}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info{text-align:center;font-size:18px;color:#333;padding:2px;border:2px solid #e5e5e5;border-top:0}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a{color:#333;text-decoration:none;cursor:pointer}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item .yfls-tail-ad-item-info a:hover{color:#f64c4c}.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img,.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-info{border-color:#f64c4c}
+.yuetu-float-layer-salon .yfls-container .yfls-tail-bodyer .yfls-tail-native-bodyer-yuansheng .yfls-tail-ad .yfls-tail-ad-container .yfls-tail-ad-item:hover .yfls-tail-ad-item-img{border-bottom:2px solid #e5e5e5}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv{position:absolute;top:0;right:0;height:50px;width:160px;z-index:3;background-image:url(http://ecmb.bdimg.com/public03/yuetu_close_btn_pv_1015.png);background-repeat:no-repeat;background-position:-51px -44px}.yuetu-float-layer-salon .yfls-container .yfls-close-btn-pv:hover{background-position:-51px -97px;cursor:pointer}</style><div id="f21ac82b21eeb7322631b6aa94e17f453gi6uk8" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="yuetu-float-layer yuetu-float-layer-arrow" style="height: 70px; width: 40px; top: 204px; left: 598px; position: absolute;" id="w-a2t2zf"></div><div class="baiduimageplus-yuetu-box" id="w-h371cb-baiduimageplus-yuetu-box" style="height: 481px; width: 1089px;">
+<div id="w-h371cb-widget-isolated-host" style="width:100%;height:100%;overflow:hidden;box-sizing:content-box;position:static;display:block;padding:0;margin:0;border:none;"></div>
+</div></div></div></body><iframe id="google_shimpl" style="display: none;" src="./Redis 内存为什么不宜过大_files/saved_resource(5).html"></iframe><iframe id="google_esf" name="google_esf" src="./Redis 内存为什么不宜过大_files/zrt_lookup.html" data-ad-client="ca-pub-6625678643128649" style="display: none;"></iframe></html>

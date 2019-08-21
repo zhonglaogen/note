@@ -57,7 +57,7 @@
                         do {
                             next = e.next;
                             //将旧链表串起来
-                            //&操作符oldcap有规律，每次加上odlcap的元素取模，都是在对应doldcap位置进行修改，
+                            //&操作符oldcap有规律，每次加上odlcap的元素取模，都是在新cap对应doldcap位置进行修改，
                             //取模会得到两种结果，一种是包含oldcap位的，保留在旧链表，一种不包含的保存在新链表，交替执行
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
@@ -80,7 +80,7 @@
                             loTail.next = null;
                             newTab[j] = loHead;
                         }
-                        //将新链表插入newtable，插入的位置是旧位置+oldcap（因为扩容都是二倍的扩容）
+                        //将新链表插入newtable，插入的位置是旧位置+oldcap（因为扩容都是二倍的扩容,交叉更改位置）
                         if (hiTail != null) {
                             hiTail.next = null;
                             newTab[j + oldCap] = hiHead;

@@ -1,0 +1,4 @@
+jdk1.7和1.8hashmap
+:1.7 数组+链表         resize：hash值 & length-1     扰 动处理：五次异或，四次移位 头插入法
+：1.8 数组+链表+树（8） resize：两条链表插入新旧位置   扰动处理：一次异或，一次移位  尾插入法
+final：string，integer，不可变稳定
