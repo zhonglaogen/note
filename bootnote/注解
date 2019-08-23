@@ -1,3 +1,87 @@
  * @PathVariable搜集url的参数
  * @param是mybatis绑定参数的注解
  * @requestParam是controller绑定参数的注解
+
+@PropertySource:加载指定的配置文件;@PropertySource(value = {"classpath:person.properties"})
+@ConfigurationProperties(prefix = "person")
+只有这个组件是容器中的组件,才能容器提供的@ConfigurationProperties功能;
+  @ConfigurationProperties(prefix = "person")默认从全局配置文件中获取值;
+
+
+
+@ImportResource:导入Spring的配置文件,让配置文件里面的内容生效;
+Spring Boot里面没有Spring的配置文件,我们自己编写的配置文件,也不能自动识别;
+想让Spring的配置文件生效,加载进来;@ImportResource标注在一个配置类上
+  1
+@ImportResource(locations = {"classpath:beans.xml"})
+导入Spring的配置文件让其生效
+
+
+SpringBoot推荐给容器中添加组件的方式;推荐使用全注解的方式
+1、配置类@Configuration------>Spring配置文件
+2、使用@Bean给容器中添加组件
+ @Configuration:指明当前类是一个配置类;就是来替代之前的Spring配置文件
+@EnableConfigurationProperties(HttpEncodingProperties.class)  //启动指定类的
+ConfigurationProperties功能;将配置文件中对应的值和HttpEncodingProperties绑定起来;并把
+HttpEncodingProperties加入到ioc容器中
+
+@Autowrite， @Resource(name="userDao")
+@Import：在应用中，有时没有把某个类注入到IOC容器中，但在运用的时候需要获取该类对应的bean，此时就需要用到@Import注解
+@ExceptionHandler(UserNotExistException.class)
+@ControllerAdvice：使用@ControllerAdvice注解，全局捕获异常类，只要作用在@RequestMapping上，所有的异常都会被捕获
+@Qualifier：指定具体实现类名称
+@Primary：实现类不同先选择哪个注入
+@ModelAttribute
+1.@ModelAttribute不能和@RequestMapping同时修饰一个方法
+2.@ModelAttribute修饰的方法先与任何请求处理方法被执行
+3.@ModelAttribute修饰的方法的返回值会自动加入Model里
+4.@ModelAttribute数据会被SpringMVC自动加入Model中便于视图层使用
+5.@ModelAttribute不仅可用于方法还可以用于方法参数（参数为对象可以，参数为字符串且应用它会导致参数失效）
+
+ @SessionAttributes即将值放到session作用域中，写在class上面。
+
+@requestParam主要用于在SpringMVC后台控制层获取参数，类似一种是request.getParameter("name")，它有三个常用参数：defaultValue = "0", required = false, value = "isApp"；defaultValue 表示设置默认值，required 铜过boolean设置是否是必须要传入的参数，value 值表示接受的传入的参数类型。
+
+
+
+
+
+
+
+
+@ConfigurationProperties:
+– 与@Bean结合为属性赋值
+– 与@PropertySource(只能用于properties文件)结合读取指定文件
+
+@ImportResource读取外部配置文件
+@SpringBootApplication主程序类需要标注
+
+@EnableWebMvc全面接管SpringMVC
+@Conditional扩展注解 作用(判断是否满足当前指定条件)
+@ConditionalOnJava 系统的java版本是否符合要求
+@ConditionalOnBean 容器中存在指定Bean;
+@ConditionalOnMissingBean 容器中不存在指定Bean;
+@ConditionalOnExpression 满足SpEL表达式指定
+@ConditionalOnClass 系统中有指定的类
+@ConditionalOnMissingClass 系统中没有指定的类
+@ConditionalOnSingleCandidate 容器中只有一个指定的Bean,或者这个Bean是首选Bean
+@ConditionalOnProperty 系统中指定的属性是否有指定的值
+@ConditionalOnResource 类路径下是否存在指定资源文件
+@ConditionalOnWebApplication 当前是web环境
+@ConditionalOnNotWebApplication 当前不是web环境
+@ConditionalOnJndi JNDI存在指定项
+
+debug=true
+  @ResponseBody
+@RequestMapping("/hello")
+@SpringBootConfiguration:Spring Boot的配置类;
+标注在某个类上,表示这是一个Spring Boot的配置类;
+
+@Configuration:配置类上来标注这个注解;
+配置类 ----- 配置文件;配置类也是容器中的一个组件;@Component
+
+@EnableAutoConfiguration:开启自动配置功能;
+以前我们需要配置的东西,Spring Boot帮我们自动配置;@EnableAutoConfiguration告诉SpringBoot开启自
+动配置功能;这样自动配置才能生效;
+
+@AutoConfigurationPackage:自动配置包：拿到main的包结构

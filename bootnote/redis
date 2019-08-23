@@ -1,1 +1,2 @@
-redis的配置是按照顺序加载，用先扫描到的缓存
+redis的配置是按照顺序加载，用先扫描到的缓存,默认是jvm的concurrenthashmap
+

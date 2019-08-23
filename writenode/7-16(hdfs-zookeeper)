@@ -53,7 +53,7 @@ namenode主 jun namenode从 共享磁盘 +zookeeper（控制namenode生死）（
 
 log规范：k：主机名，文件，函数，线程，时间，v：toString
 
-zookeeper（3.4.6）：奇数个，抄chubby分布式锁，算法：zab（一次投票）类似paxos（两次投票），ruft
+zookeeper（3.4.6）：奇数个，抄chubby分布式锁，算法：zab（一次投票）类似paxos（两次投票），raft
 选主fair（监听节点）和unfair（序号）
 统一配置服务器
 分布式锁（选举）

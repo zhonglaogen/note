@@ -2,3 +2,10 @@
 docker启动报错，要把setlinux改为false
 
 把数据库连接池配置写在properties，写在yml里报错
+
+容器=Cgroup+Namespace+rootfs+容器引擎（用户态工具）。 
+其中各项功能分别为： 
+Cgroup：资源控制； 
+Namespace：访问隔离； 
+rootfs：文件系统隔离； 
+容器引擎：生命周期控制； 
