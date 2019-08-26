@@ -1,0 +1,50 @@
+request.getSession(true)：若存在会话则返回该会话，否则新建一个会话。
+
+request.getSession(false)：若存在会话则返回该会话，否则返回NULL
+
+redis codec
+lettuce
+list.stream.filter(lamba).collect(Colletction.)
+list.addall
+list.stream..map.flatmap.collect
+java spi 拿到接口的所有实现类mysql
+
+spi（灵活动态切换协议，算法）
+double：spi ioc aop
+ServiceLoader:java spi
+
+double:EXTENSION_LOADERS存所有的接口
+	||
+	V
+（获取并缓存对应接口）通过getExtensionLoader方法判断是否是接口，是否有spi注解，EXTENSION_LOADERS（currentHashMap）放进去
+	||
+	V
+loaddir if ioc aop（包装）  寻找key的，没有扫描注解，逗号分隔
+====》获取class的map
+
+ioc
+aop
+遍历set包装
+
+
+ctril+e 查看最近浏览记录、
+
+vue node。js
+element：UI框架（vue）
+防止数量过大的查询
+改js语法版本
+form，text有监听器，一直变化{{}}
+全局 var
+局部 let  规定
+数据都绑定在data数组
+v-if=display  true or false  
+v-for="items in list"
+v-moudle
+watch(){}监听
+mounted(){}初始加载
+compinent组件机制，分隔模块，相当于小vue体系
+this.emit提交给总组件数据
+
+localstorage（浏览器本地存的东西（某一个时间的状态））
+jwt（）token
+

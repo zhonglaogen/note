@@ -1,5 +1,5 @@
 # class的句子顺序执行，不用调用，def的句子调用才会执行
-# _slots_ 可以加一个dict，通过dict给对象加属性，相当于get和set，dict是只读的，不能写
+# _slots_ 可以加一个dict，通过dict给对象加属性，相当于get和set，dict是只读的，不能写。。.slots让dict不可写
 # type可以造类（object）
 # exception
 # model

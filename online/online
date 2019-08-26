@@ -1,0 +1,11 @@
+根据生日分表（5）
+分表信息存在hashmap，
+信息查一次后存入redis，设置过期时间
+信息载入邮件提示消息中间键，解耦和，异步提示
+通过手机验证码，或邮件核实身份才能载入信息（时间完全是系统生成）
+经历信息：monggodb
+
+创建数据库（utf-8）：
+CREATE DATABASE IF NOT EXISTS online DEFAULT CHARSET utf8;
+创建管理员表：admin
+

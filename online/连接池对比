@@ -1,0 +1,42 @@
+   1：性能方面 hikariCP>druid>tomcat-jdbc>dbcp>c3p0 。hikariCP的高性能得益于最大限度的避免锁竞争。
+
+   2：druid功能最为全面，sql拦截等功能，统计数据较为全面，具有良好的扩展性。
+
+   3：综合性能，扩展性等方面，可考虑使用druid或者hikariCP连接池。
+
+   4：可开启prepareStatement缓存，对性能会有大概20%的提升。
+
+功能对比
+功能	dbcp	druid	c3p0	tomcat-jdbc	HikariCP
+是否支持PSCache	是	是	是	否	否
+监控	jmx	jmx/log/http	jmx,log	jmx	jmx
+扩展性	弱	好	弱	弱	弱
+sql拦截及解析	无	支持	无	无	无
+代码	简单	中等	复杂	简单	简单
+更新时间	2015.8.6	2015.10.10	 2015.12.09	 	2015.12.3
+特点	依赖于common-pool	阿里开源，功能全面	历史久远，代码逻辑复杂，且不易维护	 	优化力度大，功能简单，起源于boneCP
+连接池管理	LinkedBlockingDeque	数组	 	FairBlockingQueue	threadlocal+CopyOnWriteArrayList
+ 由于boneCP被hikariCP替代，并且已经不再更新，boneCP没有进行调研。
+proxool网上有评测说在并发较高的情况下会出错，proxool便没有进行调研。
+ druid的功能比较全面，且扩展性较好，比较方便对jdbc接口进行监控跟踪等。
+c3p0历史悠久，代码及其复杂，不利于维护。并且存在deadlock的潜在风险。
+性能测试
+环境配置：
+
+CPU	Intel(R) Xeon(R) CPU E5-2430 v2 @ 2.50GHz，24core
+msyql version	5.5.46
+tomcat-jdbc version	8.0.28
+HikariCP version	2.4.3
+c3p0 Version	0.9.5-pre8
+dbcpVersion	2.0.1
+druidVersion	1.0.5
+ 
+
+1：获取关闭连接性能测试
+
+       测试说明：
+
+初始连接和最小连接均为5，最大连接为20。在borrow和return均不心跳检测
+其中打开关闭次数为: 100w次
+测试用例和mysql在同一台机器上面，尽量避免io的影响
+使用mock和连接mysql在不同线程并发下的响应时间

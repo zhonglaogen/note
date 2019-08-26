@@ -1,0 +1,15 @@
+嵌入式 sisc寻址快	risc（长度固定，解析快）
+			arm：32位
+thumb：16位指令集
+thumb2:32和16自适应
+
+sram			dram
+直接给内存电		先给电容再给内存
+eprom
+可擦除，覆盖			epprom电可擦，烧写，慢  flash随机写，寿命低	sdd
+哈弗：控制，数据
+冯诺依曼：一条线
+
+～solt原理
+
+grpc传输的是protobuf
