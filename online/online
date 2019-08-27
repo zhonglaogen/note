@@ -7,5 +7,16 @@
 
 创建数据库（utf-8）：
 CREATE DATABASE IF NOT EXISTS online DEFAULT CHARSET utf8;
+id属性设置为自增的int类型，增加数据不用查重操作，增加效率，索引是int，增加查找速度，缺点：不适合大数据量的记录（超出记录），分布式易重复
 创建管理员表：admin
+创建公司申请人表：companyuser
+创建公司表：company
+创建用户表：user1，user2，user3
+varchar和char不超过255：字符型列长度小于255时，无论采用CHAR还是VARCHAR来存储，或者把VARCHAR列长度定义为255，都不会导致实际表空间增大。
+创建用户经历表：experience_user1,experience_user2,experience_user3
+
+更换连接池druid：虽然性能不如HikariCP，但监控功能很好，有http方式监控
+security:user 密码随机生成
+redis Springsession 的依赖 用redis存储依赖
+
 

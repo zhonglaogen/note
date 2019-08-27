@@ -1,0 +1,3 @@
+Ambiguous mapping. Cannot map 'loginController' method :@RequestMapping(value=XXX) 可能是同一个Controller或者 是不同的Controller。 XXX重名导致。
+
+There is no PasswordEncoder mapped for the id "null":springsecurity改进，在传入密码时会自动设置{id}为编码方式将密码加密，
