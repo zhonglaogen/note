@@ -2,3 +2,11 @@
 docker启动报错，要把setlinux改为false
 
 把数据库连接池配置写在properties，写在yml里报错
+
+
+容器 = cgroup + namespace + rootfs + 容器引擎
+
+Cgroup： 资源控制
+namespace： 访问隔离
+rootfs：文件系统隔离。镜像的本质就是一个rootfs文件
+容器引擎：生命周期控制

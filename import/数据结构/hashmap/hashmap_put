@@ -1,0 +1,54 @@
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+        Node<K,V>[] tab; Node<K,V> p; int n, i;
+        //判断是否为空，初始化
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        //判断hash的位置是否为空，p等于hash位置的node
+        if ((p = tab[i = (n - 1) & hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        //hash位置不为空
+        else {
+            Node<K,V> e; K k;
+            //判断hash位置的key是否相等，相等让e等于p
+            if (p.hash == hash &&
+                    ((k = p.key) == key || (key != null && key.equals(k))))
+                e = p;
+            //判断节点是否为树
+            else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            //判断节点key不等，也不是树
+            else {
+                //遍历直到大于等于7
+                for (int binCount = 0; ; ++binCount) {
+                    //判断p的下一个节点是否为空，让e=p的next
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        //大于7转换为树结构
+                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    //e的hash等于hash并且key也相等退出循环
+                    if (e.hash == hash &&
+                            ((k = e.key) == key || (key != null && key.equals(k))))
+                        break;
+                    //下一个
+                    p = e;
+                }
+            }
+            //将此位置的value更新
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size > threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }

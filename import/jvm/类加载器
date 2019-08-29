@@ -1,0 +1,54 @@
+启动类加载器(Bootstrap ClassLoader):
+
+这个类加载器负责将<JAVA_HOME>\lib目录下的类库加载到虚拟机内存中,用来加载java的核心库,此类加载器并不继承于java.lang.ClassLoader,不能被java程序直接调用,代码是使用C++编写的.是虚拟机自身的一部分.
+
+扩展类加载器(Extendsion ClassLoader):
+　　　　这个类加载器负责加载<JAVA_HOME>\lib\ext目录下的类库,用来加载java的扩展库,开发者可以直接使用这个类加载器.
+
+应用程序类加载器(Application ClassLoader):
+
+这个类加载器负责加载用户类路径(CLASSPATH)下的类库,一般我们编写的java类都是由这个类加载器加载,这个类加载器是CLassLoader中的getSystemClassLoader()方法的返回值,所以也称为系统类加载器.一般情况下这就是系统默认的类加载器.
+除此之外,我们还可以加入自己定义的类加载器,以满足特殊的需求,需要继承java.lang.ClassLoader类.
+
+
+类加载器的双亲委派模型:
+**
+　　「双亲委托模式」指的就是某个特定的类加载器在接到加载类的请求时，首先将加载任务委托给父类加载器，如果父类加载器可以完成类加载任务，就成功返回；**只有父类加载器无法完成此加载任务时，自己才去加载。
+　　 双亲委托模型的工作过程：如果一个类加载器收到了一个类加载请求，它首先不会自己去尝试加载这个类，而是把这个请求委托给父类加载器去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到顶层的启动类加载器中，只有当父类加载器反馈自己无法完成加载请求(它的搜索范围之中没有找到这个类)时，子加载器才会尝试着自己去加载。
+
+Class.forname()与ClassLoader.loadClass():
+　　Class.forname():是一个静态方法,最常用的是Class.forname(String className);根据传入的类的全限定名返回一个Class对象.该方法在将Class文件加载到内存的同时,会执行类的初始化.
+
+如: Class.forName(“com.wang.HelloWorld”);
+
+ClassLoader.loadClass():这是一个实例方法,需要一个ClassLoader对象来调用该方法,该方法将Class文件加载到内存时,并不会执行类的初始化,直到这个类第一次使用时才进行初始化.该方法因为需要得到一个ClassLoader对象,所以可以根据需要指定使用哪个类加载器.
+
+如:ClassLoader cl=…;cl.loadClass(“com.wang.HelloWorld”);
+
+（1）优点
+
+避免类库重复加载
+安全，将核心类库与用户类库隔离，用户不能通过加载器替换核心类库，如String类。
+（2）弊端
+
+委托永远是子加载器去请求父加载器，是单向的，即上层的类加载器无法访问下层的类加载器所加载的类：
+举个例子，假设「BootStrap」中提供了一个接口，及一个创建其实例的工厂方法，但是该接口的实现类在「System」中，那么就会出现工厂方法无法创建在「System」加载的类的实例的问题。拥有这样问题的组件有很多，比如JDBC、Xml parser等。
+
+3、如何解决弊端——使用「SPI」
+「SPI」 全称为 (Service Provider Interface) ，是JDK内置的一种服务提供发现机制。 目前有不少框架用它来做服务的扩展发现， 简单来说，它就是一种动态替换发现的机制。
+API和SPI的区别
+API 直接被应用开发人员使用，SPI 被框架扩展人员使用
+API Application Programming Interface
+
+大多数情况下，都是实现方来制定接口并完成对接口的不同实现，调用方仅仅依赖却无权选择不同实现。
+
+SPI Service Provider Interface
+
+而如果是调用方来制定接口，实现方来针对接口来实现不同的实现。调用方来选择自己需要的实现方。
+
+3、JDBC举例
+下面以JDBC为例，介绍「SPI」机制。
+
+在JDBC4.0之前，我们开发有连接数据库的时候，通常会用Class.forName(“com.mysql.jdbc.Driver”)这句先加载数据库相关的驱动，然后再进行获取连接等的操作。而JDBC4.0之后不需要用Class.forName(“com.mysql.jdbc.Driver”)来加载驱动，直接获取连接就可以了，现在这种方式就是使用了Java的「SPI」扩展机制来实现。
+jdbc的获取连接的两种方式
+
