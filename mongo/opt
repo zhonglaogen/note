@@ -1,0 +1,64 @@
+db.col.remove({'title':'MongoDB 教程'})
+删除符合条件所有数据
+
+如果你只想删除第一条找到的记录可以设置 justOne 为 1，如下所示：
+
+>db.COLLECTION_NAME.remove(DELETION_CRITERIA,1)
+如果你想删除所有数据，可以使用以下方式（类似常规 SQL 的 truncate 命令）：
+
+>db.col.remove({})
+>db.col.find()
+>
+
+
+MongoDB 查询数据的语法格式如下：
+
+db.collection.find(query, projection)
+query ：可选，使用查询操作符指定查询条件
+projection ：可选，使用投影操作符指定返回的键。查询时返回文档中所有键值， 只需省略该参数即可（默认省略）。
+如果你需要以易读的方式来读取数据，可以使用 pretty() 方法，语法格式如下：
+
+MongoDB中条件操作符有：
+
+(>) 大于 - $gt
+(<) 小于 - $lt
+(>=) 大于等于 - $gte	{<key>:{$gte:<value>}}
+(<= ) 小于等于 - $lte
+
+and用都好分开，or用$or[key:v]
+
+$type操作符是基于BSON类型来检索集合中匹配的数据类型，并返回结果。
+
+limit.skip做分页
+
+在 MongoDB 中使用 sort() 方法对数据进行排序，sort() 方法可以通过参数指定排序的字段，并使用 1 和 -1 来指定排序的方式，其中 1 为升序排列，而 -1 是用于降序排列。
+
+语法
+sort()方法基本语法如下所示：
+
+>db.COLLECTION_NAME.find().sort({KEY:1})
+
+MongoDB使用 createIndex() 方法来创建索引。
+createIndex()方法基本语法格式如下所示：
+
+>db.collection.createIndex(keys, options)
+语法中 Key 值为你要创建的索引字段，1 为指定按升序创建索引，如果你想按降序来创建索引指定为 -1 即可。
+
+createIndex() 方法中你也可以设置使用多个字段创建索引（关系型数据库中称作复合索引）。
+
+>db.col.createIndex({"title":1,"description":-1})
+>
+在后台创建索引：
+
+db.values.createIndex({open: 1, close: 1}, {background: true})
+通过在创建索引时加 background:true 的选项，让创建工作在后台执行
+
+aggregate() 方法
+MongoDB中聚合的方法使用aggregate()。
+
+语法
+aggregate() 方法的基本语法格式如下所示：
+
+>db.COLLECTION_NAME.aggregate(AGGREGATE_OPERATION)
+
+

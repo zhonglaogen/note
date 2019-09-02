@@ -1,0 +1,14 @@
+set（key，1，30，NX）设置锁，和过期时间
+释放锁，防止误删，将thread的id传入value，删除前判断是否是当前id，再删除
+但是，这样做又隐含了一个新的问题，判断和释放锁是两个独立操作，不是原子性。
+
+我们都是追求极致的程序员，所以这一块要用Lua脚本来实现：
+String luaScript = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+redisClient.eval(luaScript , Collections.singletonList(key), Collections.singletonList(threadId));
+这样一来，验证和删除过程就是原子操作了。
+3. 出现并发的可能性，我们可以让获得锁的线程开启一个守护线程，用来给快要过期的锁“续航”。
+线程A还没执行完，这时候守护线程会执行expire指令，为这把锁“续命”20秒。守护线程从第29秒开始执行，每20秒执行一次
+
+当线程A执行完任务，会显式关掉守护线程。
+
+另一种情况，如果节点1 忽然断电，由于线程A和守护线程在同一个进程，守护线程也会停下。这把锁到了超时的时候，没人给它续命，也就自动释放了。

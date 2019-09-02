@@ -1,0 +1,26 @@
+mysql查询交集、并集、差集
+2018年11月30日 14:11:38 mixiong90 阅读数 277
+版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
+本文链接：https://blog.csdn.net/mixiong90/article/details/82781834
+查询同一张表就把table写成一样
+
+查询交集，由于mysql不支持intersect，可以使用以下方案：
+
+SELECT * FROM  
+	(SELECT * FROM table WHERE val = 10 ) AS t1 
+INNER JOIN 
+	(SELECT * FROM table WHERE val = 11) AS t2
+WHERE t1.id = t2.id
+查询并集（UNION ALL 或 UNION）
+
+SELECT * FROM table WHERE val = 10
+UNION ALL
+SELECT * FROM table WHERE val = 11
+查询差集
+
+/**
+*t1和t2都可以是select查询语句也可以是具体的表
+**/
+ 
+SELECT * FROM table as t1
+LEFT JOIN table as t2 ON t1.v = t2.v WHERE t2.v is NULL

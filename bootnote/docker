@@ -25,3 +25,5 @@ docker cp /opt/test.js testtomcat:/usr/local/tomcat/webapps/test/js
 
 
  4.需要注意的是，不管容器有没有启动，拷贝命令都会生效。
+
+docker exec -it 775c7c9ee1e1 /bin/bash

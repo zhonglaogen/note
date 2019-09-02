@@ -7,7 +7,7 @@ hadoop->
 	`2secondnode(最新fsimage和缩小logs)
 	`3datenode
 每块64mb
-复制份数3（同机架，不同的机架）
+复制份数3（同机架，不同的机架）1
 cap理论：一致性（数据）可用性（速度）分区容错（分布）
 
 

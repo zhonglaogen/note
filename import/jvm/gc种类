@@ -3,3 +3,52 @@ Old GC：只收集old gen的GC。只有CMS的concurrent collection是这个模�
 Mixed GC：收集整个young gen以及部分old gen的GC。只有G1有这个模式
 Full GC：收集整个堆，包括young gen、old gen、perm gen（如果存在的话）等所有部分的模式。
 
+Minor GC ，Full GC 触发条件
+Minor GC触发条件：当Eden区满时，触发Minor GC。
+
+1 : eden 、 servicorFrom 复制到 ServicorTo,年龄+1
+首先,把 Eden 和 ServivorFrom 区域中存活的对象复制到 ServicorTo 区域(如果有对象的年
+龄以及达到了老年的标准,则赋值到老年代区),同时把这些对象的年龄+1(如果 ServicorTo 不
+够位置了就放到老年区);
+2 :清空 eden 、 servicorFrom
+然后,清空 Eden 和 ServicorFrom 中的对象;
+3 : ServicorTo 和 ServicorFrom 互换
+最后,ServicorTo 和 ServicorFrom 互换,原 ServicorTo 成为下一次 GC 时的 ServicorFrom
+区。
+
+Full GC触发条件：
+1. 调用System.gc时，系统建议执行Full GC，但是不必然执行
+2. 老年代空间不足
+3. 方法区空间不足
+4. 通过Minor GC后进入老年代的平均大小大于老年代的可用内存
+5. 由Eden区、From Space区向To Space区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小
+
+Minor GC：从年轻代回收内存
+触发条件
+1、Eden区域满
+
+2、新创建的对象大小 > Eden所剩空间
+
+Full GC：清理整个堆空间，包括年轻代和老年代
+触发条件
+1、每次晋升到老年代的对象平均大小>老年代剩余空间
+
+2、MinorGC后存活的对象超过了老年代剩余空间
+
+3、永久代空间不足
+
+避免Perm Gen占满造成Full GC现象，可采用的方法为增大Perm Gen空间或转为使用CMS GC
+
+4、System.gc()
+
+通过-XX:+ DisableExplicitGC来禁止RMI调用System.gc
+
+5、CMS GC异常
+
+promotion failed:MinorGC时，survivor空间放不下，对象只能放入老年代，而老年代也放不下造成
+
+concurrent mode failure:GC时，同时有对象要放入老年代，而老年代空间不足造成
+
+6、堆内存分配很大的对象
+
+
