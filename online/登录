@@ -2,3 +2,6 @@
 比对密码，密码正确用uuid生成token，cookie中存“token”：uuid，redis中存 类名+token+UUid ，value是对象的json格式
 
 redis:（通过cookie的token：uuid）类名+token+uuid：user的json，（登录根据phone查找用户）类名+“id”+phone：user的json
+存放验证码
+存放key为身份证号的用户信息
+存放访问权限

@@ -1,0 +1,104 @@
+DELET：
+
+Delete 语句执行删除的过程是每次从表中删除一行，并且同时将该行的删除操作作为事务记录在日志中保存以便进行回滚操作。
+Delete 操作不会减少表或索引所占用的空间。
+Delete语句为DML（data mainpulation Language)，这个操作会被放到 rollback segment中，事务提交后才生效。如果有相应的 tigger，执行的时候将被触发。
+Delete是DML，执行delete操作时，每次从表中删除一行，并且同时将该行的的删除操作记录在redo和undo表空间中以便进行回滚（rollback）和重做操作，但要注意表空间要足够大，需要手动提交（commit）操作才能生效，可以通过rollback撤消操作。
+Delete语句不影响表所占用的extent，高水线(high watermark)保持原位置不变。
+Truncate只能对TABLE；Delete可以是table和view。
+TRUNCATE：
+
+Truncate 则一次性地从表中删除所有地数据并不把单独地删除操作记录记入日志保存，删除行是不能恢复地，并且删除的过程不会激活与表有关的删除触发器。执行速度快。
+当表被Truncate后，这个表和索引所占用的空间会恢复到初始大小。
+Truncate与不带where的Delete ：只删除数据，而不删除表的结构（定义）。
+Truncate table 表名 速度快，而且效率高，因为： Truncate table 在功能上与不带 WHERE 子句的 Delelte 语句相同：二者均删除表中的全部行。但 Truncate TABLE 比 Delete 速度快，且使用的系统和事务日志资源少。Delete语句每次删除一行，并在事务日志中为所删除的每行记录一项。Truncate TABLE 通过释放存储表数据所用的数据页来删除数据，并且只在事务日志中记录页的释放。
+Truncate是DDL，会隐式提交，所以，不能回滚，不会触发触发器。
+Truncate会删除表中所有记录，并且将重新设置高水线和所有的索引，缺省情况下将空间释放到minextents个extent，除非使用reuse storage，。不会记录日志，所以执行速度很快，但不能通过rollback撤消操作（如果一不小心把一个表truncate掉，也是可以恢复的，只是不能通过rollback来恢复）。
+对于外键（foreignkey ）约束引用的表，不能使用Truncate table，而应使用不带 where 子句的 Delete 语句。
+Truncatetable不能用于参与了索引视图的表。
+不能清空父表
+DROP：
+
+Drop是DDL，会隐式提交，所以，不能回滚，不会触发触发器。
+Drop语句将表所占用的空间全部释放掉。
+Drop语句删除表结构及所有数据，并将表所占用的空间全部释放。
+Drop语句将删除表的结构所依赖的约束，触发器，索引，依赖于该表的存储过程/函数将保留,但是变为invalid状态。
+语法对比：
+
+-- DROP 
+DROP TABLE <表名>;
+DROP TABLE Shohin;
+
+-- DELETE (DELETE删除对象并不是表或者列，而的记录（行），INSERT和UPDATE也是以记录为基本单位)
+DELETE FROM <表名>;
+DELETE FROM Shohin;
+
+-- TRUNCATE
+TRUNCATE TABLE <表名>;
+TRUNCATE TABLE Customer;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+综合比较：
+
+要删除表用Drop；若想保留表而将表中数据删除，如果于事务无关，用truncate即可实现。如果和事务有关，或是想触发trigger，还是用delete。
+在没有备份情况下，谨慎使用Drop 与 Truncate。要删除部分数据行采用Delete且注意结合where来约束影响范围。回滚段要足够大。
+Truncate TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 Delete。如果要删除表定义及其数据，请使用 Drop TABLE 语句。
+TruncateE只能对TABLE，Delete可以是TABLE和VIEW，Truncate和Delete只删除数据，Drop则删除整个表（结构和数据）。
+总结：
+
+1、在速度上，一般来说，drop> truncate > delete。 
+2、在使用drop和truncate时一定要注意，虽然可以恢复，但为了减少麻烦，还是要慎重。 
+3、如果想删除部分数据用delete，注意带上where子句，回滚段要足够大；
+
+如果想删除表，当然用drop； 
+如果想保留表而将所有数据删除，如果和事务无关，用truncate即可； 
+如果和事务有关，或者想触发trigger，还是用delete； 
+如果是整理表内部的碎片，可以用truncate跟上reuse stroage，再重新导入/插入数据。
+
+参考文章： 
+https://blog.csdn.net/ws0513/article/details/49980547 
+https://blog.csdn.net/u013815649/article/details/50384812 
+https://blog.csdn.net/mycms5/article/details/52503712
+
+一些名词解释：
+
+1.redo log、undo log
+
+重做日志文件（redo logfile）又被称为事务日志文件（transaction logfile）。
+
+Undo日志是记录某数据被修改前的值，可以用来事务失败时进行rollback；Redo日志记录某数据块被修改后的值，可以用来恢复未写入data file的已成功事务更新的数据。
+
+数据库存放数据的文件，称为data file，数据库的内容在内存里是有缓存的，称为db buffer，日志文件在内存里也是有缓存的，称为log buffer，磁盘上的日志文件称为log file。
+
+举例说明： 
+redo 是记录日志用的。 
+undo是记录数据的备份用的。 
+简单举个例子说明（实际过程比这要复杂的多）： 
+1、当你发出一条update语句后，oracle先将更改前后信息写进redo（当满足一定条件后由日志写进程写入日志文件） 
+2、然后将更新前得数据镜像copy到undo中。 
+3、用户rollback后，oracle 将undo中的数据覆盖回去 
+用户commit后，oracle可以根据redo 的信息进行数据恢复。（当然也可以利用undo进行flashback）
+
+参考文章： 
+https://zhidao.baidu.com/question/288053406.html 
+https://blog.csdn.net/kobejayandy/article/details/50885693 
+https://blog.csdn.net/ppp_10001/article/details/4688596
+
+2.MySQL中的锁（表锁、行锁）
+
+锁是计算机协调多个进程或纯线程并发访问某一资源的机制。在数据库中，除传统的计算资源（CPU、RAM、I/O）的争用以外，数据也是一种供许多用户共享的资源。如何保证数据并发访问的一致性、有效性是所在有数据库必须解决的一个问题，锁冲突也是影响数据库并发访问性能的一个重要因素。从这个角度来说，锁对数据库而言显得尤其重要，也更加复杂。
+
+参考文章： 
+https://www.cnblogs.com/chenqionghe/p/4845693.html
+
+3.Truncate 中的reuse storage
+
