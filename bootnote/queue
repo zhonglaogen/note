@@ -26,3 +26,9 @@ queue
 
 一条tcp多条通道
 消费者
+
+direct	1v1
+fanout广播
+topic
+* (星号) 代表任意 一个单词
+# (井号) 0个或者多个单词
