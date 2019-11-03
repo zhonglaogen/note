@@ -52,6 +52,14 @@ HttpEncodingProperties加入到ioc容器中
 @ConfigurationProperties:
 – 与@Bean结合为属性赋值
 – 与@PropertySource(只能用于properties文件)结合读取指定文件
+^^^我们还可以把@ConfigurationProperties还可以直接定义在@bean的注解上，这是bean实体类就不用@Component和@ConfigurationProperties了
+
+    //...
+
+    @Bean
+    @ConfigurationProperties(prefix = "connection")
+    public ConnectionSettings connectionSettings(){
+        return new ConnectionSettings();
 
 @ImportResource读取外部配置文件
 @SpringBootApplication主程序类需要标注
