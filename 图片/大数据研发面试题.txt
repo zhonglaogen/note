@@ -1,0 +1,99 @@
+某知名互联网企业 最终面
+
+* 画出公司的大数据架构图？
+
+	IDC - Netflow解析 - Flume - （ElasticSearch可视化）+ （Kafka + Spark Streaming、MLlib）
+
+
+* 列举大数据框架中 保证一致性的方式，各自的区别，及其选型
+
+	Hadoop用 Zookeeper(Zab, paxos + 事务顺序)，ElasticSearch用 一致性hash，Cassandra用 Gossip闲话算法 【ES 应该是 Hash路由算法】
+
+	Hadoop 偏向于离线的海量数据处理，利用 Zookeeper来保证数据副本的一致性，是最适的
+	ElasticSearch 希望能在服务宕机的时候，也能提供查询的功能，并且希望能达到 较高的数据存储的 负载均衡的能力
+	而 Cassandra 更看重 中心化、容错的特性，在 CAP定理的情况下，能够接受 最终一致性
+	还有，Redis 使用 Raft，没有场景上的区别，更多的是，协议上的简化、Term 概念的强化、Log只会从 Leader到Follower单向同步，带来了太多实现上的快捷
+
+
+* Hash一致性原理？
+
+	//画图
+
+
+* CAP 和 ACID中一致性的区别？
+
+	前者是针对数据副本一致性的维护，后者则是针对数据库中的事务进行维护
+
+
+* Zookeeper中一致性算法是什么，和 Pasox又有什么异同？
+
+	ZAB在 paxos的基础之上，利用 zxid又保证了事件发生的顺序
+
+
+* Spark中shuffle存在的意义，如何应对频繁磁盘io的瓶颈？
+
+	如果有 1w条记录的数据集 和 100条记录的数据集作 join，若经过shuffle之后，1w条记录中前 100条记录会被分配到同一个 partition分区中，可以大量减少数据操作次数；
+	通过 buffer - pre-sort 先存入缓存，当 buffer满了或者达到某一个比率 将会merge - spill溢出写入磁盘，将会减少大量的磁盘io
+
+
+* 画出 Spark中 spark-submit作业提交内部流程？
+
+	//画图
+
+
+* 如何自己实现一个 RPC系统
+
+	socket + proxy + reflect
+
+
+* ElasticSearch有哪些方式做分页，如何抉择？
+
+	From + Size
+	Scroll
+	ES 5.0 k-d tree解决了 深度分页的问题
+
+
+* 对 HBase有哪些了解？
+
+	HMaster + HRegionServer + HRegion
+	底层存储用的 LSM-Tree				【HBase架构利用 BigTable思想，和 Cassandra一样底层使用的 LSM-Tree，顺序写入、读写分离、牺牲了读效率，来换取写入的高效率】
+
+
+* HBase的二级索引有哪些实现？
+
+	利用MapReduce构建
+	索引表
+	索引区 + 主数据区
+	Solr
+
+
+* 谈谈线程和进程的理解？
+
+	线程是轻量级进程，是调度CPU资源的最基本单位
+
+
+* 如果机器CPU满了，应该如何排查？
+
+	利用 jstack、dump能方式进行分析，主要看是否 频繁发生 full gc
+
+
+* 谈谈GC的原理？
+
+	当 heap空间不足发生GC，jvm首先会判断是否对象不可达，将利用垃圾回收算法进行标记，常见如 标记-清除、复制算法、标记-整理、分代收集，之后 hotspot将会发起最终的 gc
+
+
+* 举一些实际项目中遇到的问题，及其如何解决的？
+
+	ElasticSearch脏数据
+	Hadoop MergeSort 和 TimSort的传递性问题
+	Elasticsearch UTC时区
+	Spark、Storm数据倾斜
+
+
+
+建议：
+	缺少了些系统性的宏观架构，需要扫盲式地学习
+
+
+
+
