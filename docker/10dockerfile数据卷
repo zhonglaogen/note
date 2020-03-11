@@ -1,0 +1,14 @@
+# volume test
+FROM centos
+VOLUME["/datavolumeContainer1","/dataVllumeContainer2"]
+CMD echo "finshed,=-----success1"
+CMD /bin/bash
+
+
+将上述脚本保存为docekerFile
+构建镜像
+docker build -f /mydaocker/dockerFile -t zzyy/centos .
+容器建了两个数据卷，主机会有默认的路径
+docker inspect xxx 可以看到默认的路径
+
+如果挂载目录报错 加上 --privileged=true

@@ -1,0 +1,2 @@
+java -jar aaa.jar  里面有mf文件标注main的位置
+java -cp xx.jar 包名.主类名 

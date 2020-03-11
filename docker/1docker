@@ -1,3 +1,4 @@
+解决了环境配置不一样，无法部署
 启动mylsq容器时，要把端口映射为3306
 docker启动报错，要把setlinux改为false
 
@@ -10,3 +11,4 @@ Cgroup： 资源控制
 namespace： 访问隔离
 rootfs：文件系统隔离。镜像的本质就是一个rootfs文件
 容器引擎：生命周期控制
+

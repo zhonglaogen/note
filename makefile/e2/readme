@@ -1,0 +1,16 @@
+不用： gcc test.c sayhello.c -o test
+
+这样会同时编译这两个.c文件，用makefile每次先编译第二个.c文件，在编译第一个
+
+.h 和 .c 文件必须同名
+
+make clean 清除生成的东西
+
+可以设置变量
+CC=gcc
+
+使用$(CC)
+
+同时编译两个主文件
+最上面定义这个
+all:main1 main2

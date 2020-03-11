@@ -1,0 +1,12 @@
+UnionsFS联合文件系统： union文件系统是一种分层，轻量级并且高性能的文件系统，它支持对问件系统的修改作为
+一次提交来一层层的叠加，同事可以将不同的目录挂载到同一个虚拟文件系统下。
+union文件系统是的docker镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像，可以制作各种具体的应用镜像）
+特性：一次同时加载多个文件系统，但是从外面看起来，只能看到一个文件系统，联合记载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录
+
+docker镜像实际上是由一层一层的文件系统组成，这种层级的文件系统叫做unionFS
+bootfs（boot file system） 主要包含bootloader和 kernel，bootloader主要是引导加载kernel，linux启动是会加载bootfs文件系统，
+在docker镜像的最底层是bootfs。这一层与我们典型的linux系统一样，包含boot加载器和内核。当boot加载王城后整个内核就在内存中，此时内存的使用全已经由bootfs转交给内核，此时系统也会卸载bootfs
+
+rootfs在bootfs上。包含的就是典型的linux系统中的/dev,/proc,/bin,/etc等标准目录和文件。rootfs就是各种不同的操作系统的发行版，入ubuntu，centos
+
+内核公用，硬件不加载，只有这两个

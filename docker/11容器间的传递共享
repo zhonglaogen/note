@@ -1,0 +1,4 @@
+docekr -it --name dc01 zzyy/centos
+docekr -it --name dc02 --volumes-from dc01 zzyy/centos
+两个容器间传递数据，多个容器传递
+删除1数据也都在

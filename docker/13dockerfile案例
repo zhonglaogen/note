@@ -1,0 +1,52 @@
+base镜像（scratch）
+
+初始的centos默认路径是/
+不支持vim
+不支持ifconfig
+
+============
+FROM centos
+MAINTAINER zzyy<zzyy167.@126.com>
+
+ENV MYPATH /user/local
+WORKDIR $MYPATH
+
+RUN yum -y install vim
+run yum -y install net-tools
+
+EXPOSE 80
+
+CMD echo $MYPATH
+CMD echo "success -----------------ok"
+CMD /bin/bash
+
+=============
+docker  build -f /mydocker/Dockerfile2 -t mycentos:1.3
+
+docker images mycentos
+
+dockerrun -it mycentos:1.3
+
+列出镜像的变更
+docker history xxx
+
+curl可以用来执行下载发送各种http请求，指定http头部
+如果系统没有可以安装
+curl是将下载的文件输出到stdout -i看报文头
+==================
+FROM centos 
+RUN yum install -y curl
+CMD ["run","-s",""http://ip.cn"]
+==================
+build
+docker run -it xxx -i
+换成ENTRYPOINT
+
+ONBUILD RUN echo “的撒大撒多撒” 继承此镜像执行这个
+
+
+
+cmd xxxx/xx.sh && tail -F xxxx/ss.log 启动并输出日志
+
+-d是后台运行
+无法追加

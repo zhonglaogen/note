@@ -1,0 +1,5 @@
+docker commit -a aayy -m "new image" xxxx 新名字：版本号
+上传到阿里云
+进入阿里云，创建命名空间 仓库名称 本地仓库
+然后按照上面的三行命令登录提交，登录。tag。push
+

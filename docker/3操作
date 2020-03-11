@@ -1,0 +1,22 @@
+docker images -a(循环引用)
+docker rmi -f xxx 删除镜像
+docker search xxx
+docker pull xxx
+docker run -it xxx --name yyy 交互式的，进入bash
+ docker run -d为后台运行，守护式运行，启动后又退出了，因为没有前台进程
+docker logs -f -t --tail xxx t是时间，f是跟随最新日志打印，tail数字显示最后的多少条
+exit（退出容器），Ctrl + p + q容器不退出
+docker kill xxx 强制停止容器
+docker ps -l最近启动的容器
+docker ps -n 2 最近启动的两个容器
+docker rm -f xxx删除容器
+docker rm -f $(docker ps -a -q)删除所有容器q为显示id 
+docker top xxx 查看容器进程
+docker insepect 容器id 查看容器内的细节
+docker exec -it 容器id bashshell 可以在外面就干活输入命令
+重新进入docker attach 容器id 只能进去干活
+区别：attach 直接进入容器启动命令的终端，不会启用新的进程
+exec在容器打开新的终端，并且可以启动新的进程
+宿主机执行docker cp id：路径  宿主即路径
+
+
