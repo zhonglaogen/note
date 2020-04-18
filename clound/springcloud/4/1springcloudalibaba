@@ -1,0 +1,4 @@
+替代netflix的存在，加入springcloud
+替代netflix的eureka，consul，zookeeper，springcloudconfig，bus
+
+nacns = eureka + config + bus

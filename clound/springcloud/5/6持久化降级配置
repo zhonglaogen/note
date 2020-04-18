@@ -1,0 +1,3 @@
+yml 配置规则：  8401
+在nacos新建配置，配置名要和springapplication name 相同  json的格式
+

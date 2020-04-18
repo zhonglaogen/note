@@ -1,0 +1,16 @@
+CREATE database testdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+
+只需要一个@GloableTranson
+下载seata服务端
+修改配置文件file.conf
+主要修改：自定义事物组名称 + 事物日志存储模式为db + 数据库连接信息
+改两个模块： 1 service， 2store
+
+找到service的 my_test_tx_group = "default"  的v改为自己组的名称
+store改存储模式：把file改为db
+和数据库的配置
+创建数据库seata
+执行配置文件（官网）
+改registory的配置文件注册中心由file改为nacos，端口改为8848
+
+创建对应的操作表的日志表undo表（粘贴）

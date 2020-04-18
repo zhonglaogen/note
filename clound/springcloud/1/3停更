@@ -1,0 +1,5 @@
+1停更不停用 1被动修复bug 2不在接受合并请求 3不在发布新版本
+
+以前：服务注册发信 eureka，服务负载调用ribbon feign 服务熔断降级 hystrix，服务网关zuul 服务分布配置 springcloudconfig 服务开发 springboot
+
+现在 

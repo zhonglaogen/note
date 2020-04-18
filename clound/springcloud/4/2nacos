@@ -1,0 +1,4 @@
+安装nacos，访问localhost:8848/nacos
+用户密码nacos，nacos
+bash -f ./startup.sh -m standalone
+删除报错信息中的’/data/nacos/data/derby-data’目录，重新启动。

@@ -1,0 +1,11 @@
+Twitter的分布式自增Id算法snowFlake
+
+
+github里面有，hutool工具包封装了这个
+
+
+1秒能产生26万个
+
+解决时钟不一致：
+百度开源分布式唯一ID生成器UidGeneretor
+Leaf美团点评分布式Id生成系统

@@ -1,0 +1,22 @@
+configserver通过github统一管理配置文件
+统一配置管理，创建一个server的moudle，client注册这个server
+
+
+github创建库，添加文件，配置号配置文件就可以访问了，文件要符合规则
+访问地址
+http://localhost:3344/master/config-dev.yml
+
+client端要配置bootstrap配置文件
+applcaiotn是用户级
+bootstrap是系统级别的，优先级高，所以优先加载，之后如果用户配置的就会被覆盖
+
+github更改配置文件后，server端可以看到，但是client看到的还是旧内容
+
+引入actuator
+修改yml暴露端口
+增加@RefreshScope业务类Controller修改
+
+post请求,刷新一下客户端
+curl -X POST "http://localhost:3355/actuator/refresh"
+
+但如果批量或范围的通知就需要用到消息总线

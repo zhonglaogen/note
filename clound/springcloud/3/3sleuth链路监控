@@ -1,0 +1,13 @@
+springcloud sleuth（监控）提供的完整的服务跟踪的解决方案，在分布式系统中提供追踪解决方案并且兼容支持zipkin（展现）
+
+首先要下载zipkin（jar包）
+https://dl.bintray.com/openzipkin/maven/io/zipkin/java/zipkin-server/
+下载exec版本
+直接运行
+
+访问地址localhost:9411/zipkin
+
+用当前节点和父亲节点表示链路
+yml
+zipkin:
+          base-url: http://localhost:9411

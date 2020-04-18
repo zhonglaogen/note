@@ -1,0 +1,1 @@
+虚拟机器映射，右键选择copy configuration，然后在vm options里写参数DServer.port=9011 

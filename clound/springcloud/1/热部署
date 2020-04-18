@@ -1,0 +1,4 @@
+1添加devtools的jar包
+2pom中添加Spring-boot-maven-plugin插件
+3设置中的complier的adbc选项全都勾上
+4ctril+alt+shift+/ 勾上

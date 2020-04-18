@@ -1,0 +1,5 @@
+follback运行时异常的兜底
+
+如果blockHandler和fallback都进行了配置，都能用，但是被限流降级时会进入blockHandler处理
+
+配置ExceptionToIgnore = {xxx.class} 这样的异常不会进行兜底处理

@@ -1,0 +1,14 @@
+ CREATE database testdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+
+
+PK – Primary key（主键）
+NN – Not null（非空）
+UQ – Unique（唯一）
+BIN – Binary（二进制数）
+UN – Unsigned（无符号）
+ZF – Zero fill（补零）
+AI – Autoincrement（自动增量）
+
+@Mapper通过xml里面的namespace里面的接口地址，生成了Bean后注入到Service层中。相当于@Mapper=@Repository+@MapperScane
+
+MapperScane批量扫描别的什么都不用加了

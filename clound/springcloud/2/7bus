@@ -1,0 +1,5 @@
+通过rabbitmq 的topic来对server进行刷新，刷新client
+curl -X POST "http://localhost:3344/actuator/refresh"
+
+局部通知：微服务+端口号
+curl -X POST "http://localhost:3344/actuator/refresh"/config-client:3355

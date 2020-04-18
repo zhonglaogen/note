@@ -1,0 +1,19 @@
+分组配置：
+namespace + group + service
+namespca默认ｐｕｂｌｉｃ
+ｇｒｏｕｐ　＝　ｄｅｆａｕｌｔ_group 
+默认cluster是default
+
+
+nacos持久化是单机自带的数据库derby，
+如果配置集群要共享一个数据库，只有mysql
+
+找到nacos的mysql.sql文件，创建数据库，并且执行sql文件
+
+在properties文件修改配置
+去官网找到配置信息
+
+
+集群的配置：
+改sh文件加入-p选择端口启动的方式
+改nginx的配置

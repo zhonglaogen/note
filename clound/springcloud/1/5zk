@@ -1,0 +1,10 @@
+关闭防火墙
+systemctl stop firewalld
+systemctl status firewalld
+
+jar包会冲突版本问题 
+
+此时启动服务提供者，打开zkcli，进入就会发现多了一个service的目录（ls /）
+
+
+临时节点，服务关闭就没了

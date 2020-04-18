@@ -1,0 +1,6 @@
+相比与Feign 添加了对Springmvc的支持，
+相比与Ribbon改变的resetTemplate的调用接口的方法，而是采用java面向接口编程的方式
+也支持Ribbon的负载权衡
+
+超时控制
+日志增强
