@@ -16,29 +16,16 @@ parameterType是pojo时直接写属性名
 
 ！！！！！！！！！！！！bug：因为拦截器，某个用户登录后就可以任意访问其他用户的功能:放在webinf下面解决
 
-改进：：一人一天可约两次，同科室可约一次（排号错误）
-七天，：如果有预约单的出诊日期已过期，病人未排号，那么病人过期的当天到第七天都不能预约
-删除预约单：删除就诊信息（并且当前预约单不是过期未去）
-
-没人排号会报空指针异常
-
-同一个浏览器登录，会发生混乱
 
 void返回类型直接返回value的jsp页面
 
-model {modelAndView=ModelAndView [view=[null]; model={medics=[com.zlx.clinic.entity.Medicine@13b6bb93, com.zlx.clinic.entity.Medicine@17f1076, com.zlx.clinic.entity.Medicine@5d7745bc, com.zlx.clinic.entity.Medicine@19c88f38], test=test}], org.springframework.validation.BindingResult.modelAndView=org.springframework.validation.BeanPropertyBindingResult: 0 errors, admin=com.zlx.clinic.entity.Admin@3f04d5b1, org.springframework.validation.BindingResult.admin=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
+
 
  modelAndView.addObject("exception",le.getMessage());
 modelAndView.getModel().put("exception",le.getMessage());
 
 jsp中${requestScope.exception1}可以取出exception1的值；
 jsp中${exception2}可以取出exception2的值。
-
-
-
-
- model {admin=com.zlx.clinic.entity.Admin@7c7746ab, org.springframework.validation.BindingResult.admin=org.springframework.validation.BeanPropertyBindingResult: 0 errors, medics=[com.zlx.clinic.entity.Medicine@2c3f0177, com.zlx.clinic.entity.Medicine@2666ca, com.zlx.clinic.entity.Medicine@35dc79e7, com.zlx.clinic.entity.Medicine@735833e9], test=test}
-
 
 
 
@@ -53,7 +40,7 @@ dataType:"json"  服务器返回类型
 ｐｏｓｔ请求contentType: "application/json;charset-UTF-8",
 用ｒｅｑｕｅｓｔＢｏｄｙ要用data: JSON.stringify({pPhone:Username,pPassword: Password}),
 
-导诊科室关联有毛病
+
 
 pojo形参要post请求JSON.stringify({pPhone:Username,pPassword: Password}),
 int简单类型要用get
