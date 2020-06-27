@@ -1,0 +1,10 @@
+元素存在哪里(数组的起始地址,默认为nil)+len+cap
+
+扩容规则:
+oldcap*2<cap -> newcap=cap
+
+oldlen(扩容前)<1024 newcap = oldcap*2
+old>=1024 扩大1/4 newcap = oldcap*1.25
+
+分配内存的大小,找到可以容纳的最接近的内存大小,然后在计算可以容纳的元素个数,最后得出扩容后的容量
+string在64位下每个元素占16个字节
